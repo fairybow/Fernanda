@@ -316,6 +316,86 @@ private:
         return answer;
     }
 
+    // What git status prints for the paths alone. The vault's own .fernanda
+    // folder is untracked in these repositories, and left out
+    [[nodiscard]] static QString
+    statusOf_(const Fixture_& f, const QStringList& paths)
+    {
+        return f.gitOutput(
+            QStringList{ u"status"_s, u"--porcelain"_s, u"--"_s } + paths);
+    }
+
+    // What a discard answered: the files discarded left out, or
+    // discardFailed's error and whether files had gone to the trash
+    struct DiscardAnswer_
+    {
+        bool failed = false;
+        QString error{};
+        bool trashed = false;
+        QStringList leftOut{};
+    };
+
+    // Finds the repository, reads its status, and returns the entries for
+    // paths as it lists them. Nothing if one isn't listed
+    [[nodiscard]] static std::optional<QList<GitStatus::Entry>>
+    entriesOf_(Fixture_& f, const QStringList& paths)
+    {
+        f.repository.detect();
+
+        if (!QTest::qWaitFor([&] { return f.repository.isFound(); })) {
+            return std::nullopt;
+        }
+
+        f.repository.refresh();
+        QList<GitStatus::Entry> entries{};
+
+        for (const auto& path : paths) {
+            if (!QTest::qWaitFor([&] { return entry_(f.repository, path); })) {
+                return std::nullopt;
+            }
+
+            entries << *entry_(f.repository, path);
+        }
+
+        return entries;
+    }
+
+    // Discards the entries and waits for the answer. Nothing if no answer
+    // came
+    [[nodiscard]] static std::optional<DiscardAnswer_>
+    discardEntries_(Fixture_& f, const QList<GitStatus::Entry>& entries)
+    {
+        std::optional<DiscardAnswer_> answer{};
+
+        auto done = connect(
+            &f.repository,
+            &GitRepository::discarded,
+            [&](const QStringList& leftOut) {
+                DiscardAnswer_ discarded{};
+                discarded.leftOut = leftOut;
+                answer = discarded;
+            });
+
+        auto failed = connect(
+            &f.repository,
+            &GitRepository::discardFailed,
+            [&](const QString& error, bool trashed) {
+                DiscardAnswer_ refused{};
+                refused.failed = true;
+                refused.error = error;
+                refused.trashed = trashed;
+                answer = refused;
+            });
+
+        f.repository.discard(entries);
+        [[maybe_unused]] auto answered =
+            QTest::qWaitFor([&] { return answer.has_value(); });
+
+        disconnect(done);
+        disconnect(failed);
+        return answer;
+    }
+
     // Finds the repository and reads its status, does what ask does, which
     // should switch or make a branch, and waits for the answer: the error,
     // empty on success
@@ -1104,6 +1184,238 @@ private slots:
         QVERIFY(error);
         QVERIFY(!error->isEmpty());
         QVERIFY(!f.repository.isBusy());
+    }
+
+    // --- Discarding ---------------------------------------------------------
+    //
+    // A discard sends what it throws away to the system trash, which a test
+    // mustn't fill. These discard only files with nothing on disk to send
+    // there, so what they check is what git is asked to do
+
+    void discardBringsBackADeletedFile()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "one\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        QVERIFY(QFile::remove(f.folder.filePath(u"a.txt"_s)));
+
+        auto entries = entriesOf_(f, { u"a.txt"_s });
+        QVERIFY(entries);
+
+        auto answer = discardEntries_(f, *entries);
+
+        QVERIFY(answer);
+        QVERIFY(!answer->failed);
+        QVERIFY(answer->leftOut.isEmpty());
+        QCOMPARE(f.read(u"a.txt"_s), QByteArray("one\n"));
+        QCOMPARE(statusOf_(f, { u"a.txt"_s }), QString{});
+        QVERIFY(!f.repository.isBusy());
+    }
+
+    // A file added to the index and then deleted from disk only leaves the
+    // index
+    void discardUnstagesANewFileWhoseFileIsGone()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.write(u"new.txt"_s, "new\n");
+        f.git({ u"add"_s, u"new.txt"_s });
+        QVERIFY(QFile::remove(f.folder.filePath(u"new.txt"_s)));
+
+        auto entries = entriesOf_(f, { u"new.txt"_s });
+        QVERIFY(entries);
+        QCOMPARE(entries->first().change, GitStatus::Change::Added);
+
+        auto answer = discardEntries_(f, *entries);
+
+        QVERIFY(answer);
+        QVERIFY(!answer->failed);
+        QCOMPARE(statusOf_(f, { u"new.txt"_s }), QString{});
+    }
+
+    // A rename's old path comes back and its new path leaves the index
+    void discardUndoesARenameWhoseNewFileIsGone()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"old.txt"_s, "text\n");
+        f.git({ u"add"_s, u"old.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.git({ u"mv"_s, u"old.txt"_s, u"new.txt"_s });
+        QVERIFY(QFile::remove(f.folder.filePath(u"new.txt"_s)));
+
+        auto entries = entriesOf_(f, { u"new.txt"_s });
+        QVERIFY(entries);
+        QCOMPARE(entries->first().change, GitStatus::Change::Renamed);
+
+        auto answer = discardEntries_(f, *entries);
+
+        QVERIFY(answer);
+        QVERIFY(!answer->failed);
+        QCOMPARE(f.read(u"old.txt"_s), QByteArray("text\n"));
+        QCOMPARE(statusOf_(f, { u"old.txt"_s, u"new.txt"_s }), QString{});
+    }
+
+    // The entries name the files asked about, and the status read at the
+    // start of the discard decides what's done with each. Here a.txt was
+    // listed as changed, and has since been removed from the repository:
+    // asked to restore it, git would restore neither file
+    void discardSkipsAFileNoLongerChanged()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.write(u"b.txt"_s, "b\n");
+        f.git({ u"add"_s, u"a.txt"_s, u"b.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.write(u"a.txt"_s, "changed\n");
+        QVERIFY(QFile::remove(f.folder.filePath(u"b.txt"_s)));
+
+        auto entries = entriesOf_(f, { u"a.txt"_s, u"b.txt"_s });
+        QVERIFY(entries);
+
+        f.git({ u"rm"_s, u"-q"_s, u"-f"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"Second"_s });
+
+        auto answer = discardEntries_(f, *entries);
+
+        QVERIFY(answer);
+        QVERIFY(!answer->failed);
+        QCOMPARE(f.read(u"b.txt"_s), QByteArray("b\n"));
+        QVERIFY(!QFileInfo::exists(f.folder.filePath(u"a.txt"_s)));
+        QCOMPARE(statusOf_(f, { u"a.txt"_s, u"b.txt"_s }), QString{});
+    }
+
+    // Asked about as modified, the file is conflicted by the time the
+    // discard runs, so it's left as the merge left it
+    void discardLeavesAFileConflictedSinceItWasListed()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "base\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"Base"_s });
+        f.git({ u"switch"_s, u"-q"_s, u"-c"_s, u"other"_s });
+        f.write(u"a.txt"_s, "other\n");
+        f.git({ u"commit"_s, u"-q"_s, u"-a"_s, u"-m"_s, u"Other"_s });
+        f.git({ u"switch"_s, u"-q"_s, u"-"_s });
+        f.write(u"a.txt"_s, "mine\n");
+
+        auto entries = entriesOf_(f, { u"a.txt"_s });
+        QVERIFY(entries);
+        QCOMPARE(entries->first().change, GitStatus::Change::Modified);
+
+        f.git({ u"commit"_s, u"-q"_s, u"-a"_s, u"-m"_s, u"Mine"_s });
+        [[maybe_unused]] auto merged =
+            f.gitOutput({ u"merge"_s, u"-q"_s, u"other"_s });
+        auto conflicted = f.read(u"a.txt"_s);
+        QVERIFY(conflicted.contains("<<<<<<<"));
+
+        auto answer = discardEntries_(f, *entries);
+
+        QVERIFY(answer);
+        QVERIFY(!answer->failed);
+        QCOMPARE(f.read(u"a.txt"_s), conflicted);
+        QCOMPARE(statusOf_(f, { u"a.txt"_s }), u"UU a.txt"_s);
+    }
+
+    // A submodule's changes are in a repository of its own, so it's left as
+    // it is, and the rest is discarded
+    void discardLeavesASubmoduleAsItIs()
+    {
+        QTemporaryDir other{};
+        runGit_(other.path(), { u"init"_s, u"-q"_s });
+        QFile other_file(QDir(other.path()).filePath(u"s.txt"_s));
+        QVERIFY(other_file.open(QIODevice::WriteOnly));
+        other_file.write("s\n");
+        other_file.close();
+        runGit_(other.path(), { u"add"_s, u"s.txt"_s });
+        runGit_(other.path(), { u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git(
+            { u"-c"_s,
+              u"protocol.file.allow=always"_s,
+              u"submodule"_s,
+              u"add"_s,
+              u"-q"_s,
+              other.path(),
+              u"lib"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        QVERIFY(QFile::remove(f.folder.filePath(u"a.txt"_s)));
+        f.write(u"lib/s.txt"_s, "changed\n");
+
+        auto entries = entriesOf_(f, { u"a.txt"_s, u"lib"_s });
+        QVERIFY(entries);
+        QVERIFY(entries->last().submodule);
+
+        auto answer = discardEntries_(f, *entries);
+
+        QVERIFY(answer);
+        QVERIFY(!answer->failed);
+        QVERIFY(answer->leftOut.isEmpty());
+        QCOMPARE(f.read(u"a.txt"_s), QByteArray("a\n"));
+        QCOMPARE(f.read(u"lib/s.txt"_s), QByteArray("changed\n"));
+        QCOMPARE(statusOf_(f, { u"lib"_s }), u"M lib"_s);
+    }
+
+    // Git can't take the index's lock, so the restore fails. Nothing went to
+    // the trash, the deleted file having nothing to send there, so the
+    // failure says nothing was changed
+    void discardFailingWithNothingTrashedSaysSo()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        QVERIFY(QFile::remove(f.folder.filePath(u"a.txt"_s)));
+
+        auto entries = entriesOf_(f, { u"a.txt"_s });
+        QVERIFY(entries);
+
+        f.write(u".git/index.lock"_s, {});
+        auto answer = discardEntries_(f, *entries);
+
+        QVERIFY(answer);
+        QVERIFY(answer->failed);
+        QVERIFY(!answer->error.isEmpty());
+        QVERIFY(!answer->trashed);
+        QVERIFY(!f.repository.isBusy());
+    }
+
+    void isOutsideVaultTellsTheVaultsFilesFromTheRest()
+    {
+        Fixture_ f{ u"Notes"_s };
+        f.initRepository();
+        f.write(u"Notes/moved.txt"_s, "moved\n");
+        f.git({ u"add"_s, u"Notes/moved.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.write(u"Notes/a.txt"_s, "a\n");
+        f.write(u"Code/b.txt"_s, "b\n");
+        f.write(u"Notes.txt"_s, "c\n");
+        f.git({ u"mv"_s, u"Notes/moved.txt"_s, u"moved.txt"_s });
+
+        auto entries = entriesOf_(
+            f,
+            { u"Notes/a.txt"_s,
+              u"Code/b.txt"_s,
+              u"Notes.txt"_s,
+              u"moved.txt"_s });
+        QVERIFY(entries);
+
+        QVERIFY(!f.repository.isOutsideVault(entries->at(0)));
+        QVERIFY(f.repository.isOutsideVault(entries->at(1)));
+        QVERIFY(f.repository.isOutsideVault(entries->at(2)));
+        QVERIFY(f.repository.isOutsideVault(entries->at(3)));
     }
 
     // --- Branches -----------------------------------------------------------

@@ -50,6 +50,41 @@
             <numerusform>%Ln changed files</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>Are you sure you want to discard all %Ln changed file(s)?</source>
+        <translation>
+            <numerusform>Are you sure you want to discard all %Ln changed file?</numerusform>
+            <numerusform>Are you sure you want to discard all %Ln changed files?</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln of these file(s) are outside this vault.</source>
+        <translation>
+            <numerusform>%Ln of these files is outside this vault.</numerusform>
+            <numerusform>%Ln of these files are outside this vault.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln conflicted file(s) will be left as they are.</source>
+        <translation>
+            <numerusform>%Ln conflicted file will be left as it is.</numerusform>
+            <numerusform>%Ln conflicted files will be left as they are.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln submodule(s) will be left as they are.</source>
+        <translation>
+            <numerusform>%Ln submodule will be left as it is.</numerusform>
+            <numerusform>%Ln submodules will be left as they are.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln file(s) couldn&apos;t be moved to the system trash, so their changes weren&apos;t discarded.</source>
+        <translation>
+            <numerusform>%Ln file couldn&apos;t be moved to the system trash, so its changes weren&apos;t discarded.</numerusform>
+            <numerusform>%Ln files couldn&apos;t be moved to the system trash, so their changes weren&apos;t discarded.</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>Fernanda::Ui::GitSyncButton</name>

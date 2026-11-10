@@ -2,6 +2,17 @@
 
 Bugs and code chores. Features that aren't built yet are in [Future.md](Future.md); conventions are in [CodeStyle.md](CodeStyle.md).
 
+
+## Current (sort later)
+
+- [ ] When scrolling the Git changes list (via grabbing the scroll bar handle, holding left click), if you move the mouse over an entry while still scrolling, the rows will show hover wash (good) but it won't go away when the mouse leaves the row (bad). Normally this doesn't happen, but it's happening presumably because we're holding left click when we pass over the row and because scrolling is happening?
+- [ ] Replace all C-style casts
+- [ ] Have installer(s) remove old or outdated files in app data directory? (Is this wise, on the off chance a user has put their own files in the directory? I would say this is a hard maybe, leaning toward don't do)
+- [ ] Re: menu and context menu items: for items that are not always doable (like Git page's discard, when a hold is active), I'd like to have a consistent rationale (documented) and implementation (visible? enabled vs disabled?)
+- [ ] Re-use Hearth's widget mask (or find better solution) for PDF jitter/flashing (occurs when the window/pane is resized - pretty sure it's unavoidable and normal, but we may want to just mask it)
+- [ ] Two bigger features I'd like sooner rather than later: dialy/lifetime words typed per vault and exporting functionality (may be a dialog (saved as config, so setup persists) where user can set a "root" for their export - so it doesn't include notes and the like; would perhaps be a draggable (for custom ordering) list of the files, with checkboxes (unselect = exclude from export), for essentially "compiling" to single file?)
+- [ ] May want to subdivide core folder further (like add "vault"?); possibly ui as well
+
 ## Bugs
 
 - [ ] The Linux AppImage doesn't start on Ubuntu 22.04, Debian 12, Linux Mint 21, or other distros of that age. It carries no `libstdc++`, and Fernanda, built with g++ 13, needs `GLIBCXX_3.4.31`, which those distros' g++ 12 library doesn't have (the bundled Qt needs only `3.4.29`, and nothing needs a glibc newer than 2.34). It does start on Ubuntu 24.04, Debian 13, Fedora 38 and later, and Arch. Building with g++ 12 isn't an option, since Coco uses `<format>`. Until it's fixed, the README and release notes should give the minimum. The fix is to bundle g++ 13's `libstdc++` and `libgcc_s` and have the AppImage's launcher use them only when the system's are older, since an older `libstdc++` forced on a newer system breaks graphics drivers built against the system's. Linking `libstdc++` statically would leave two C++ runtimes in one process, Fernanda's and Qt's
@@ -60,6 +71,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [x] A branch switch or a pull was refused, or not, by the last status read, which could be older than the text on screen: a change typed since was carried to the other branch. The status is now read again as the operation's first step
 - [x] Diff tabs and the Git page didn't follow saves, only the window coming forward, so a diff split beside its file never updated as it was typed. Both are now read again when a file in the repository is saved, renamed, moved, or trashed in Fernanda while either shows
 - [x] A folder holding its own repository, which Git lists as one entry, was listed with no name: its diff failed, committing it recorded a pointer to the other repository, and discarding it trashed that repository whole. It's now left out
+- [x] Discarding a changed submodule sent its whole folder to the trash, edits and untracked files inside it included, and Git then left the folder empty. `GitStatus` now marks submodules, and a discard leaves them out
 - [x] A file marked to be added (`git add -N`) was taken as modified, so discarding it asked Git to restore it from a commit that doesn't have it
 - [x] The Git page's right-click menu read its file by row when an item was chosen, so a status arriving while it was open could open another file's diff
 - [x] Typing while a pull, a switch, or a discard ran could be autosaved over the file Git had just rewritten, in the moment before the watcher noticed Git's write. A pulled change was then silently reverted, as an uncommitted change. Everything open is now saved again just before Git rewrites files, and autosave holds off for the repository's files until it's done
@@ -75,6 +87,10 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [x] The discard question was wrong for a renamed file and a deleted one, and a refused pull always blamed branches that had both moved on
 - [x] A switch refused by its changes check still ran. The check's status announced itself, and the branch button (or a diff tab) asked Git for something on hearing it; that ask started the next command in the queue, the switch, before the check had refused it. Where the changed files were the same on both branches, Git carried the changes across, and on a branch without the vault's `.fernanda/.gitignore` the switch took that file away. A command's answer is now handled whole before the next command starts
 - [x] A switch or a new branch that couldn't be asked for (no repository, Git busy, no name) returned silently, leaving the New Branch dialog waiting for an answer
+- [x] A discarded file restored from the system trash came back to a temporary folder in Fernanda's data folder, not to the vault: what went to the trash was a copy, and the trash records where an item was trashed from. The file itself now goes to the trash from the vault, and the store's hold keeps its tabs open until Git has restored it
+- [x] A discard decided what to do with each file from the status the page showed when its question opened. A file changed since from a terminal (removed from the repository, or conflicted by a merge) made Git's one restore fail after every file was already in the trash, leaving them all missing from the vault, and the message said the changes weren't discarded. The status is now read as the discard's first step, and a failure after the trashing says what it left and how to finish
+- [x] A window closing between a discard's two Git steps left the files it was to restore missing from the vault. The restore now runs first
+- [ ] A vault reads `.fernanda/settings.json` and `appearance.json` only when it opens. When they change on disk (a Git discard, pull, or switch, a sync from another computer, a hand edit), the open vault keeps its old settings, and the next settings change writes them all back over the new ones. Check what Obsidian does when `.obsidian` changes outside it. `dictionary.txt` is read again before a word is added, but a word removed outside Fernanda counts as spelled right until the vault opens again
 - [ ] Starting Fernanda while it's open hands its arguments to the running copy and exits, but the running copy does nothing with them (`App::onRelaunch` is a stub), so no window comes forward
 
 ## Rough edges
@@ -83,7 +99,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 - [ ] The key the `microsoft-store` job signs in to Partner Center with expires; its date is on the Fernanda GitHub Actions application's page, under Partner Center's User management → Microsoft Entra applications. Before then, add a new key there, replace `PARTNER_CENTER_CLIENT_SECRET` in the `microsoft-store` environment, and delete the old key. Making a key needs the tenant's admin account, not the Outlook sign-in
 - [ ] The Partner Center application has the Manager role, which Microsoft's documentation gives for the submission API. The Developer role covers uploading packages and submitting; once a submission has gone through, try it, and go back to Manager if the next one is refused
-- [ ] The Git page's discard question is a plain `QMessageBox`, worded as the file tree's Delete prompt is, and may still look too square for its text. If so, the fix belongs to every message box (the style, or a dialog of Fernanda's own), not to this one alone
+- [ ] The Git page's discard questions (one file's, and Discard all changes') are plain `QMessageBox`es, the first worded as the file tree's Delete prompt is, and may still look too square for their text. If so, the fix belongs to every message box (the style, or a dialog of Fernanda's own), not to this one alone
 - [ ] All logged paths, decide if we want to use pretty string or not, and also if we want them quoted or not (and if we want a method for Path to add quotes or something instead of adjusting all fmt strings)
 - [ ] Same for error report strings from outside Fernanda, like GitRepository's "result.error" usage, which should probably be quoted
 - [ ] A vault's `.fernanda/settings.json`, `appearance.json`, and `dictionary.txt` are meant to be committed, so a setting changed or a word added makes a tracked change, which stops a branch switch or a pull until it's committed or discarded
@@ -97,6 +113,12 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [x] A vault whose root path was not plain (a trailing separator, a `.` or `..` segment) contained nothing by `Vault::contains`, so every create, rename, move, and delete in it was refused. Roots and every path under them are now normalized into keys
 - [ ] The known-vaults list can show one folder twice: a vault once opened by a symlinked path, and the same folder by its resolved path, which is what `App` records now. Records are matched by `PathKey`, which doesn't follow symlinks
 - [ ] A buffer kept after its last view's save failed is shown by no window, so no window close retries it. Focus loss and quit do
+- [ ] A discard sends its files to the trash one at a time, on the main thread, so Discard all changes over many files can freeze the window for a while. It slows GitHub Desktop too (desktop/desktop#10445). Measure on Windows with a few hundred files before moving it off the main thread
+- [ ] A renamed file whose new path goes to the trash and whose old path the trash then refuses (recreated, and open in another program) is named as left as it was, though its new path is in the trash
+- [ ] Discarding a symlink whose target is missing doesn't send it to the trash: `Coco::Path::exists` follows the link, so it reads as nothing there, and Git then resets it, losing the old target. A fix needs a `Coco::Path::isSymLink`
+- [ ] Discarding new files leaves the folders they emptied, which the file tree still shows. Check what GitHub Desktop does
+- [ ] Two windows over one repository each run their own Git operations. A switch in one can read the status in the moment a discard in the other has files in the trash, and be refused for changes that are about to go
+- [ ] A tab closed with unsaved typing in the moment a discard has its file in the trash leaves the buffer in the store, shown by no window, until quit: the close's save finds the file gone and keeps the buffer, and the hold's release then takes in Git's restored text rather than closing it
 - [ ] In a release build, `PrimeDocument` notices a view document out of step with the prime only when their lengths differ. An edit applied at the wrong position keeps the lengths equal and goes unnoticed until they diverge. A full comparison when a save reads the text would catch it before it reaches disk
 - [ ] When `PrimeDocument` resets a view that was out of step, that view's cursor goes to the start of the file
 - [ ] A pane whose files were all deleted between sessions is restored as an empty pane inside a split, where in use a pane closes with its last tab. `TabPaneTree::restore` builds the saved shape and prunes nothing. A split left with one child (by this, or by a hand-edited `workspace.json`) is kept the same way
@@ -114,7 +136,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Translate "Updates come from the Microsoft Store." into Spanish
 - [x] Make the Store listing's box art and take its screenshots ([MicrosoftStoreListing.md](MicrosoftStoreListing.md))
 - [ ] Review the Spanish translations in Qt Linguist and mark each done. They are a draft, left marked unfinished
-- [ ] Run `update_translations` for the Git page's strings, add the English plural forms of "%Ln changed file(s)", "Last fetched %Ln minute(s) ago" (and its hour and day forms), and "Git took longer than %Ln second(s), so it was stopped." to `Translation_en.ts`, and translate them into Spanish
+- [ ] Run `update_translations` for the Git page's strings, add the English plural forms of "%Ln changed file(s)", "Last fetched %Ln minute(s) ago" (and its hour and day forms), and "Git took longer than %Ln second(s), so it was stopped." to `Translation_en.ts`, and translate them into Spanish. The discard messages' plural forms ("%Ln file(s) couldn't be moved to the system trash…", "Are you sure you want to discard all %Ln changed file(s)?", "%Ln of these file(s) are outside this vault.", "%Ln conflicted file(s) will be left as they are.") are in `Translation_en.ts` already and need Spanish too
 - [x] `LogView` opens on every launch, for testing. Put it behind its command-line flag
 - [x] `CHANGELOG.md` has only a placeholder release entry. Write the real notes before tagging
 - [ ] Test the OS logout save path (`App::onCommitDataRequest_`)
@@ -142,6 +164,7 @@ Run it once on each platform: on Windows signing in through Git Credential Manag
 - [ ] A diff split beside its file updates as you type, keeping its place
 - [ ] Saving, renaming, moving, and trashing from the file tree update the list while the Git page shows
 - [ ] A folder holding its own repository (`git init` inside the vault) isn't listed
+- [ ] A submodule with an edit inside it is listed as modified
 - [ ] Open file, Open in new tab, Open to the right, and Open in new window each land where expected
 
 **Commits**
@@ -154,8 +177,15 @@ Run it once on each platform: on Windows signing in through Git Credential Manag
 **Discarding**
 
 - [ ] Discard a modified, a new, a renamed, and a deleted file. Each question says what will happen, and it does
-- [ ] Each copy can be restored from the system trash
+- [ ] Each discarded file restored from the system trash goes back into the vault, and its changes with it
 - [ ] With the discarded file open in a tab, Ctrl+Z there brings the changes back
+- [ ] Discard all changes with ten files or fewer, and with more: the question names them, or gives their count, and every file is discarded
+- [ ] Discard all changes with a conflicted file listed: it's left as it is, and the question says so
+- [ ] Discard all changes with a changed submodule listed: it's left as it is, and the question says so. Its own right-click menu has no Discard changes…, and with only a submodule listed, Discard all changes is disabled
+- [ ] Delete a tracked file and make a folder of the same name with a file in it, then discard the deleted file: it comes back, and the folder is in the trash with its file
+- [ ] Discard all changes in a vault inside a larger repository: the question says how many files are outside the vault
+- [ ] Leave a discard question up, commit one of its files from a terminal, then confirm: the rest are discarded, with no failure
+- [ ] With `.git/index.lock` made by hand, discard a modified file: the message says Git stopped partway and the file is listed as deleted. Remove the lock and discard it again: it comes back, and the trash keeps the changes
 
 **Branches**
 
@@ -193,6 +223,7 @@ Run it once on each platform: on Windows signing in through Git Credential Manag
 - [ ] Bring `MenuBuilder` over from Hearth (maybe into Coco)?
 - [x] Decide on `private slots:`. It isn't used consistently, and using it properly would break up sections that are organized by purpose. Either remove the keyword everywhere or sort slots into it everywhere
 - [ ] `SettingsEditorPage` has its own `hangOn_`, which does what `SettingsPage::enableWith` does, one row at a time. Use `enableWith`
+- [ ] `GitPage::onDiscarded_` passes `leftOut.size()` to `tr` as it is, where `confirmDiscardAll_` casts its count with `int()`. Make them match
 - [ ] `AbstractFileModel` has `notifyX()` functions that only emit a signal. Could they just be signals (perhaps named `notify...`)?
 - [ ] Decide whether static helpers go before other functions, per access level
 - [ ] A shared `TabPage` base for tab pages, holding title and pin state as typed members in place of the window title and a dynamic property. It would trade the leaf's property reads for a cast. Worth doing once a third such value appears
@@ -216,7 +247,7 @@ What the tests in `Fernanda/tests/` don't reach.
 - [ ] `App` following vaults whose folders were moved or renamed in-app (`App::followVaults_`, `App::renameVaultFolder_`), and closing one whose folder was trashed; setting and unsetting the Common Vault; and each window's response to a moved vault or a new Common Vault (`VaultWindow::setCommonVault`). The store's announcement, `Vault::moveRoot`, `RecentFiles::rebase`, and `AppConfig`'s records are tested
 - [ ] The letter-case cases (an inner vault's root spelled in another case, and a rename by case alone above an inner vault) run only where case is ignored: on Windows and macOS
 - [ ] A file that starts with two byte-order marks. On Qt 6.4 one is dropped on load, which the comment on the mark in `TextFileModel.h` says can't happen. Check it on the Qt in use
-- [ ] Discarding a file's changes sends a real copy to the system trash, so `GitRepositoryTest` doesn't reach it, as with `Vault::moveToTrash`. What runs after the trash (the restore, and removing a new file from the index) is plain git
+- [ ] Discarding a file that's on disk, which sends it to the real system trash, as `Vault::moveToTrash` would, and a file the trash refuses. `GitRepositoryTest` discards only files with nothing on disk to send there (deleted ones, and new or renamed ones whose files are gone), which covers the status read, what's done for each kind of change, and what a failure reports. The hold that keeps a trashed file's tabs open is tested (`BufferStoreTimedTest`)
 - [ ] The Git page and diff tabs reading again after a save (`VaultWindow::onRepositoryChanged_`)
 - [ ] The two-minute limit on a fetch or push (`GIT_NETWORK_TIMEOUT_MS`), and the waits when a window closes with `git` running (`GIT_EXIT_WAIT_MS`, `GIT_REWRITE_EXIT_WAIT_MS`). A test would need a remote that never answers
 - [ ] Trusting a repository from the Git page. Git refuses only a folder owned by another user, which a test can't make without administrator rights. Reading Git's message is tested (`GitSafeDirectoryTest`)

@@ -19,6 +19,7 @@
 #include <utility>
 
 #include <QAbstractItemView>
+#include <QAction>
 #include <QCheckBox>
 #include <QFont>
 #include <QFontMetrics>
@@ -43,6 +44,7 @@
 #include <QStackedLayout>
 #include <QStackedWidget>
 #include <QString>
+#include <QStringList>
 #include <QStyle>
 #include <QTextDocument>
 #include <QVBoxLayout>
@@ -103,14 +105,28 @@ using namespace Qt::StringLiterals;
 // The menu also discards a file's changes (GitRepository::discard), after
 // asking, as the file tree asks before a delete: Cancel is the default and
 // the escape button. The question says what happens to the file: a changed
-// file's copy goes to the trash and the file goes back to its last commit; a
-// file the last commit doesn't have goes to the trash itself; a renamed file
-// goes to the trash and its old name comes back; a deleted file comes back.
-// Not offered for a conflicted file, which is a merge's to settle, nor while
-// the repository is busy. A discard that fails shows why in a message.
+// file goes to the trash and the last commit's version takes its place; a
+// file the last commit doesn't have goes to the trash; a renamed file goes to
+// the trash and its old name comes back; a deleted file comes back.
+// Not offered for a conflicted file, which is a merge's to settle, for a
+// submodule, whose changes are in a repository of its own, nor while the
+// repository is busy. A discard that fails shows why in a message, and
+// one that leaves files as they were, since their changes couldn't go to the
+// trash, names them.
 //
 // The menu's items act on the file it was opened on, even if a new status
-// rebuilds the list while it's open
+// rebuilds the list while it's open.
+//
+// The header's right-click menu (the check-all box and its count) discards
+// every change (Discard all changes…), as GitHub Desktop's does, whether a
+// file is checked or not. It asks first, with Desktop's question: the files by
+// path when there are no more than DISCARD_LIST_MAX_, otherwise their count,
+// and how many of them are outside the vault, if any. Conflicted files and
+// submodules are left out, and the question says how many of each. The item is
+// disabled while the repository is busy, or while nothing listed can be
+// discarded. Like one file's, it acts on the files listed when the menu
+// opened, as the status has them when the discard runs
+// (GitRepository::discard)
 class GitPage : public QWidget
 {
     Q_OBJECT
@@ -177,6 +193,10 @@ private:
     // listed
     QSet<QString> unchecked_{};
 
+    // The most files the discard-all question names, as GitHub Desktop's
+    // names. More are given as a count
+    static constexpr auto DISCARD_LIST_MAX_ = 10;
+
     void setup_()
     {
         message_ = new QLabel(tr("No changes"), this);
@@ -237,6 +257,12 @@ private:
             &GitRepository::commitFailed,
             this,
             &GitPage::onCommitFailed_);
+
+        connect(
+            repository_,
+            &GitRepository::discarded,
+            this,
+            &GitPage::onDiscarded_);
 
         connect(
             repository_,
@@ -380,6 +406,18 @@ private:
         layout->addWidget(list_, 1);
 
         connect(allBox_, &QCheckBox::clicked, this, &GitPage::onAllBoxClicked_);
+
+        // A right-click on the box itself reaches the header too: the box has
+        // no menu of its own, so it passes the event to its parent
+        header->setContextMenuPolicy(Qt::CustomContextMenu);
+
+        connect(
+            header,
+            &QWidget::customContextMenuRequested,
+            this,
+            [this, header](const QPoint& position) {
+                showHeaderContextMenu_(header->mapToGlobal(position));
+            });
 
         connect(
             list_,
@@ -624,11 +662,41 @@ private:
         showFailure_(tr("Commit failed"), tr("Nothing was committed."), error);
     }
 
-    void onDiscardFailed_(const QString& error)
+    // Files whose changes couldn't go to the trash were left as they were
+    void onDiscarded_(const QStringList& leftOut)
     {
+        if (leftOut.isEmpty()) {
+            return;
+        }
+
         showFailure_(
-            tr("Discard failed"),
-            tr("The changes weren't discarded."),
+            tr("Discard incomplete"),
+            tr("%Ln file(s) couldn't be moved to the system trash, so their "
+               "changes weren't discarded.",
+               nullptr,
+               leftOut.size()),
+            leftOut.join(u'\n'));
+    }
+
+    // Files already in the trash when git failed stay there, and some are
+    // still listed (GitRepository::discardFailed). Discarding them again
+    // finishes, since a file that's missing has nothing more to send to the
+    // trash
+    void onDiscardFailed_(const QString& error, bool trashed)
+    {
+        if (!trashed) {
+            showFailure_(
+                tr("Discard failed"),
+                tr("The changes weren't discarded."),
+                error);
+            return;
+        }
+
+        showFailure_(
+            tr("Discard incomplete"),
+            tr("Git stopped partway. The changes are in the system trash, but "
+               "some files may still be listed. Discard them again to "
+               "finish."),
             error);
     }
 
@@ -667,8 +735,8 @@ private:
             box->setText(
                 tr("Are you sure you want to discard \"%1\"?").arg(name));
             box->setInformativeText(
-                tr("It isn't in the last commit, so the file itself will be "
-                   "moved to the system trash."));
+                tr("It isn't in the last commit, so the file will be moved "
+                   "to the system trash."));
         } else {
             box->setText(
                 tr("Are you sure you want to discard the changes to \"%1\"?")
@@ -689,7 +757,7 @@ private:
             this,
             [this, box, discard_button, entry] {
                 if (box->clickedButton() == discard_button) {
-                    repository_->discard(entry);
+                    repository_->discard({ entry });
                 }
             });
 
@@ -716,9 +784,8 @@ private:
         }
 
         return tr(
-            "A copy of the changed file will be moved to the system "
-            "trash, and the file will go back to how it was in the "
-            "last commit.");
+            "The changed file will be moved to the system trash, and the "
+            "version from the last commit will take its place.");
     }
 
     void requestDiff_(int row, OpenMode mode)
@@ -780,7 +847,7 @@ private:
         }
 
         if (!repository_->isBusy() &&
-            entry.change != GitStatus::Change::Conflicted) {
+            entry.change != GitStatus::Change::Conflicted && !entry.submodule) {
             menu.addSeparator();
             menu.addAction(tr("Discard changes…"), this, [this, entry] {
                 confirmDiscard_(entry);
@@ -788,6 +855,131 @@ private:
         }
 
         menu.exec(list_->viewport()->mapToGlobal(position));
+    }
+
+    // Discarding every change, as GitHub Desktop's changes header offers it
+    void showHeaderContextMenu_(const QPoint& globalPosition)
+    {
+        // A copy, as the file menu's: a status that comes while the menu is
+        // open rebuilds entries_
+        QList<GitStatus::Entry> discardable{};
+        auto conflicted_count = 0;
+        auto submodule_count = 0;
+
+        for (const auto& entry : entries_) {
+            if (entry.change == GitStatus::Change::Conflicted) {
+                ++conflicted_count;
+            } else if (entry.submodule) {
+                ++submodule_count;
+            } else {
+                discardable << entry;
+            }
+        }
+
+        QMenu menu(this);
+
+        auto* discard_all = menu.addAction(
+            tr("Discard all changes…"),
+            this,
+            [this, discardable, conflicted_count, submodule_count] {
+                confirmDiscardAll_(
+                    discardable,
+                    conflicted_count,
+                    submodule_count);
+            });
+
+        discard_all->setEnabled(
+            !repository_->isBusy() && !discardable.isEmpty());
+
+        menu.exec(globalPosition);
+    }
+
+    // Asked first, with GitHub Desktop's question, and shown without exec:
+    // the window may close while it's up. The entries are the ones asked
+    // about, even if a new status comes while the question is up
+    void confirmDiscardAll_(
+        const QList<GitStatus::Entry>& entries,
+        int conflictedCount,
+        int submoduleCount)
+    {
+        auto* box = new QMessageBox(this);
+        box->setIcon(QMessageBox::Warning);
+        box->setWindowTitle(tr("Confirm discard all changes"));
+
+        QStringList details{};
+
+        if (entries.size() > DISCARD_LIST_MAX_) {
+            box->setText(
+                tr("Are you sure you want to discard all %Ln changed file(s)?",
+                   nullptr,
+                   int(entries.size())));
+        } else {
+            box->setText(
+                tr("Are you sure you want to discard all changes to:"));
+
+            QStringList paths{};
+
+            for (const auto& entry : entries) {
+                paths << entry.path.prettyQString();
+            }
+
+            details << paths.join(u'\n');
+        }
+
+        auto outside_count = 0;
+
+        for (const auto& entry : entries) {
+            if (repository_->isOutsideVault(entry)) {
+                ++outside_count;
+            }
+        }
+
+        if (outside_count > 0) {
+            details << tr(
+                "%Ln of these file(s) are outside this vault.",
+                nullptr,
+                outside_count);
+        }
+
+        details << tr(
+            "Changes can be restored by retrieving them from the "
+            "system trash.");
+
+        if (conflictedCount > 0) {
+            details << tr(
+                "%Ln conflicted file(s) will be left as they are.",
+                nullptr,
+                conflictedCount);
+        }
+
+        if (submoduleCount > 0) {
+            details << tr(
+                "%Ln submodule(s) will be left as they are.",
+                nullptr,
+                submoduleCount);
+        }
+
+        box->setInformativeText(details.join(u"\n\n"_s));
+
+        auto* discard_button = box->addButton(
+            tr("Discard all changes"),
+            QMessageBox::DestructiveRole);
+        auto* cancel_button = box->addButton(QMessageBox::Cancel);
+        box->setDefaultButton(cancel_button);
+        box->setEscapeButton(cancel_button);
+        box->setAttribute(Qt::WA_DeleteOnClose);
+
+        connect(
+            box,
+            &QMessageBox::finished,
+            this,
+            [this, box, discard_button, entries] {
+                if (box->clickedButton() == discard_button) {
+                    repository_->discard(entries);
+                }
+            });
+
+        box->open();
     }
 
     // The path from the repository's folder, and for a renamed file, where
