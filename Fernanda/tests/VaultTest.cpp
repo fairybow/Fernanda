@@ -995,7 +995,8 @@ private slots:
         BufferStore store{ nullptr };
 
         QDir(folder.path()).mkpath(u".fernanda/history"_s);
-        auto other_path = folder.filePath(u".fernanda/history/other.json"_s);
+        auto other_path =
+            folder.filePath(u".fernanda/history/0123456789abcdef.json"_s);
         QByteArray other(
             R"({"days":{"2026-06-10":)"
             R"({"netWords":10,"addedWords":12,"activeMs":0}}})");
@@ -1018,6 +1019,86 @@ private slots:
         QFile reread(other_path);
         QVERIFY(reread.open(QIODevice::ReadOnly));
         QCOMPARE(reread.readAll(), other);
+    }
+
+    // A sync tool's copy of a machine's file, or any other file, isn't
+    // another machine's history
+    void aFileNotNamedForAMachineIsNotRead()
+    {
+        if (QSysInfo::machineUniqueId().isEmpty()) {
+            QSKIP("The system gives no machine ID");
+        }
+
+        QTemporaryDir folder{};
+        Coco::Path root(folder.path());
+        BufferStore store{ nullptr };
+
+        QDir(folder.path()).mkpath(u".fernanda/history"_s);
+        QByteArray other(
+            R"({"days":{"2026-06-10":)"
+            R"({"netWords":10,"addedWords":12,"activeMs":0}}})");
+
+        const QStringList names{
+            u"0123456789abcdef (conflicted copy).json"_s,
+            u"0123456789ABCDEF.json"_s,
+            u"0123456789abcde.json"_s,
+            u"notes.json"_s,
+        };
+
+        for (const auto& name : names) {
+            QFile file(folder.filePath(u".fernanda/history/"_s + name));
+            QVERIFY(file.open(QIODevice::WriteOnly));
+            file.write(other);
+        }
+
+        Vault vault(root, &store, nullptr);
+        QCOMPARE(vault.history().lifetime().netWords, 0);
+        QCOMPARE(vault.history().daysWritten(), 0);
+    }
+
+    // This machine's file, damaged, is neither read nor written over, and
+    // nothing is recorded while it stays damaged
+    void aDamagedHistoryFileIsLeftAlone()
+    {
+        if (QSysInfo::machineUniqueId().isEmpty()) {
+            QSKIP("The system gives no machine ID");
+        }
+
+        QTemporaryDir folder{};
+        Coco::Path root(folder.path());
+        BufferStore store{ nullptr };
+
+        {
+            Vault vault(root, &store, nullptr);
+            vault.recordEdit(3);
+            vault.saveHistoryNow();
+        }
+
+        auto names = historyFilesIn_(folder);
+        QCOMPARE(names.size(), 1);
+
+        auto own_path =
+            folder.filePath(u".fernanda/history/"_s + names.first());
+        QByteArray damaged(R"({"days":{"2026-06-10":{"netWords":3)");
+
+        {
+            QFile file(own_path);
+            QVERIFY(file.open(QIODevice::WriteOnly));
+            file.write(damaged);
+        }
+
+        Vault reopened(root, &store, nullptr);
+        QSignalSpy changed(&reopened, &Vault::historyChanged);
+
+        reopened.recordEdit(2);
+        reopened.saveHistoryNow();
+
+        QCOMPARE(changed.count(), 0);
+        QCOMPARE(reopened.history().lifetime().netWords, 0);
+
+        QFile reread(own_path);
+        QVERIFY(reread.open(QIODevice::ReadOnly));
+        QCOMPARE(reread.readAll(), damaged);
     }
 
     // Announced only when the history changed: a first edit that changed no

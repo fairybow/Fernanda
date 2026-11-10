@@ -162,9 +162,9 @@
     <name>Fernanda::Ui::WritingHistoryDialog</name>
     <message numerus="yes">
         <source>Time spent editing. (A pause of more than %n minute(s) isn&apos;t counted.)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Time spent editing. (A pause of more than %n minute isn&apos;t counted.)</numerusform>
+            <numerusform>Time spent editing. (A pause of more than %n minutes isn&apos;t counted.)</numerusform>
         </translation>
     </message>
 </context>

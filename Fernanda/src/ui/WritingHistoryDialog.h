@@ -122,9 +122,8 @@ private:
 
         addHeading_(tr("Today"));
 
-        today_.netWords = addFigure_(
-            tr("Net words"),
-            tr("Words added minus words deleted."));
+        today_.netWords =
+            addFigure_(tr("Net words"), tr("Words added minus words deleted."));
 
         today_.addedWords = addFigure_(
             tr("Words written"),

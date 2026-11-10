@@ -23,6 +23,7 @@
 #include <QList>
 #include <QMessageAuthenticationCode>
 #include <QObject>
+#include <QRegularExpression>
 #include <QString>
 #include <QStringList>
 #include <QSysInfo>
@@ -520,7 +521,8 @@ public:
     // time spent writing. A change to the history is announced at once
     // (historyChanged), and saved a while after the first unsaved edit, and by
     // saveHistoryNow, rather than after each one. Nothing is recorded when the
-    // system gives no machine ID to name this machine's file by
+    // system gives no machine ID to name this machine's file by, or when that
+    // file is there but couldn't be read
     void recordEdit(int wordDelta)
     {
         if (historyFileName_.isEmpty()) {
@@ -580,16 +582,21 @@ private:
 
     // Each machine keeps its own history file in .fernanda/history/, so two
     // machines syncing the vault never write the same file. This machine's
-    // file is named by machineHistoryFileName_; empty when it has no name,
-    // which turns history off. Saved at most once per historySaveMs_ while
-    // writing: the timer starts at the first unsaved edit and isn't restarted
-    // by later ones, so steady typing still saves
+    // file is named by machineHistoryFileName_; empty when it has no name, or
+    // when its file is there but can't be read, either of which turns history
+    // off. Saved at most once per historySaveMs_ while writing: the timer
+    // starts at the first unsaved edit and isn't restarted by later ones, so
+    // steady typing still saves
     static inline const QString HISTORY_DIR_NAME_ = u"history"_s;
 
-    // The key a machine ID is hashed under (machineHistoryFileName_). Changing
-    // it renames every machine's file, so each machine's history would be
-    // counted twice: once under the old name, as another machine's
-    static constexpr auto HISTORY_ID_KEY_ = "Fernanda writing history";
+    // Fernanda's own ID, hashed under each machine's ID to name its history
+    // file (machineHistoryFileName_). Changing it renames every machine's
+    // file, so each machine's history would be counted twice: once under the
+    // old name, as another machine's
+    static constexpr auto HISTORY_APP_ID_ = "Fernanda writing history";
+
+    // How many hex digits of the hash a history file's name keeps
+    static constexpr qsizetype HISTORY_NAME_DIGITS_ = 16;
 
     WritingHistory history_{};
     QString historyFileName_{};
@@ -624,11 +631,13 @@ private:
         return vaultDotDir(root_) / HISTORY_DIR_NAME_;
     }
 
-    // This machine's history file name: an HMAC-SHA256 of the system's machine
-    // ID under Fernanda's own key, shortened, so the same machine always gets
-    // the same name. The ID itself is never written: a vault may be shared or
-    // published, and systemd asks that the ID be used this way and never
-    // exposed. Empty when the system gives no ID
+    // This machine's history file name: an HMAC-SHA256 of Fernanda's own ID
+    // (HISTORY_APP_ID_), keyed by the system's machine ID, shortened. This is
+    // how systemd derives an ID for one application from the machine's
+    // (sd_id128_get_machine_app_specific). The same machine always gets the
+    // same name, and the machine ID itself is never written: a vault may be
+    // shared or published, and systemd asks that the ID never be exposed.
+    // Empty when the system gives no ID
     [[nodiscard]] static QString machineHistoryFileName_()
     {
         auto machine_id = QSysInfo::machineUniqueId();
@@ -638,34 +647,63 @@ private:
         }
 
         auto hash = QMessageAuthenticationCode::hash(
-            QByteArray(HISTORY_ID_KEY_),
+            QByteArray(HISTORY_APP_ID_),
             machine_id,
             QCryptographicHash::Sha256);
 
-        return QString::fromLatin1(hash.toHex().left(16)) + u".json"_s;
+        return QString::fromLatin1(hash.toHex().left(HISTORY_NAME_DIGITS_)) +
+               u".json"_s;
+    }
+
+    // Whether a file in the history folder is named as machineHistoryFileName_
+    // names one: the hex digits of a hash, then ".json"
+    [[nodiscard]] static bool isMachineHistoryFileName_(const QString& name)
+    {
+        static const QRegularExpression pattern(
+            u"^[0-9a-f]{%1}\\.json$"_s.arg(HISTORY_NAME_DIGITS_));
+
+        return pattern.match(name).hasMatch();
     }
 
     // This machine's file becomes the history's own days, and every other
-    // file in the folder is another machine's. A missing folder or file reads
-    // as no history
+    // machine's file in the folder is read in beside them. A missing folder or
+    // file reads as no history.
+    //
+    // A file of this machine's that is there but reads as nothing is damaged
+    // (a merge conflict, say): Fernanda never writes an empty one. History is
+    // turned off rather than writing over it, so the file is left as it was,
+    // for the user to mend.
+    //
+    // Only files named as Fernanda names them are other machines'. A sync
+    // tool's copy of a file, named after it ("... (conflicted copy).json"),
+    // would otherwise count that machine's writing twice
     void loadHistory_()
     {
-        historyFileName_ = machineHistoryFileName_();
+        auto own_name = machineHistoryFileName_();
 
-        if (historyFileName_.isEmpty()) {
+        if (own_name.isEmpty()) {
             WARN("The system gives no machine ID; writing history is off!");
             return;
         }
 
         auto dir = historyDir_();
-        auto own = JsonIo::read(dir / historyFileName_);
-        history_ = WritingHistory::fromJson(own);
+        auto own_path = dir / own_name;
+        auto own = JsonIo::read(own_path);
+
+        if (own.isEmpty() && own_path.exists()) {
+            WARN("Couldn't read {}; writing history is off!", own_path);
+        } else {
+            historyFileName_ = own_name;
+            history_ = WritingHistory::fromJson(own);
+        }
 
         QList<QJsonObject> others{};
         auto files = Coco::filePaths(dir, QStringList{ u"*.json"_s });
 
         for (const auto& path : files) {
-            if (path.nameQString() != historyFileName_) {
+            auto name = path.nameQString();
+
+            if (name != own_name && isMachineHistoryFileName_(name)) {
                 others << JsonIo::read(path);
             }
         }
