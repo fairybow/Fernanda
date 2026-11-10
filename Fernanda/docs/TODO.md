@@ -5,6 +5,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 ## Current (sort later)
 
+- [ ] Condense code comments
 - [ ] When scrolling the Git changes list (via grabbing the scroll bar handle, holding left click), if you move the mouse over an entry while still scrolling, the rows will show hover wash (good) but it won't go away when the mouse leaves the row (bad). Normally this doesn't happen, but it's happening presumably because we're holding left click when we pass over the row and because scrolling is happening?
 - [ ] Replace all C-style casts
 - [ ] Have installer(s) remove old or outdated files in app data directory? (Is this wise, on the off chance a user has put their own files in the directory? I would say this is a hard maybe, leaning toward don't do)
