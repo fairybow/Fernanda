@@ -5,6 +5,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 ## Current (sort later)
 
+- [ ] Scrivener comparisons in README
 - [ ] In WritingHistoryDialog and SettingsDialog, some of the horizontal separator lines appear thicker than others, and it's deeply annoying
 - [ ] Condense code comments
 - [ ] Places where logging would be useful but is missing

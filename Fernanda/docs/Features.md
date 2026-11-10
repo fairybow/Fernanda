@@ -441,6 +441,14 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 - **Git is built in.** Obsidian has none; its community plugin Obsidian Git adds commits, pulls, and pushes, which it can also run on a schedule. Fernanda's Git page does what GitHub Desktop does, and contacts the remote only when you click
 - **Updates aren't installed for you.** Fernanda says a newer version is out and links to it. Obsidian downloads updates itself and applies them when it restarts
 
+## Differences from Scrivener
+
+Obsidian has nothing made for long writing projects, so for those features Scrivener is the comparison. Where Fernanda has one:
+
+- **Writing history keeps words written as well as net words.** Scrivener's Writing History keeps net words alone, worked out from the change in the project's total, so a day spent rewriting can show little or nothing. Fernanda also keeps the words each edit added, which deleting doesn't take away
+- **Writing time is recorded.** Scrivener's Writing History records words and characters
+- **Each computer keeps its own record, and the records are added up.** A vault synced between computers, or committed with Git, shows the writing done on all of them, and no two computers write the same file. Scrivener keeps one history inside the project, and people syncing a project between devices report days that come out as zero or a handful of words
+
 ## Known limits
 
 - Starting Fernanda while it's already open doesn't bring its window forward
