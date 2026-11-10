@@ -18,6 +18,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QIODevice>
+#include <QList>
 #include <QObject>
 #include <QPlainTextDocumentLayout>
 #include <QSignalSpy>
@@ -1129,6 +1130,60 @@ private slots:
         f.vault.saveHistoryNow();
 
         QVERIFY(!f.exists(u".fernanda/history"_s));
+    }
+
+    // --- The vault's own writes ---------------------------------------------
+
+    // Each file the vault writes itself is announced, for a Git page to read
+    // its status again. A new folder isn't, and neither is a write that
+    // changed nothing on disk
+    void theVaultsOwnWritesAreAnnounced()
+    {
+        Fixture_ f{};
+        QList<PathKey> heard{};
+
+        QObject::connect(
+            &f.vault,
+            &Vault::fileWritten,
+            &f.vault,
+            [&heard](const PathKey& key) { heard << key; });
+
+        auto created = f.vault.createFile(f.rootKey());
+        QCOMPARE(heard.size(), 1);
+        QVERIFY(heard.last() == created);
+
+        QVERIFY(f.vault.createFileAt(f.key(u"drafts/Chapter 1.txt"_s)));
+        QCOMPARE(heard.size(), 2);
+        QVERIFY(heard.last() == f.key(u"drafts/Chapter 1.txt"_s));
+
+        f.vault.createFolder(f.rootKey());
+        QCOMPARE(heard.size(), 2);
+
+        f.vault.addToDictionary(u"Pangloss"_s);
+        QCOMPARE(heard.size(), 3);
+        QVERIFY(heard.last() == f.key(u".fernanda/dictionary.txt"_s));
+
+        // A word already there writes nothing
+        f.vault.addToDictionary(u"Pangloss"_s);
+        QCOMPARE(heard.size(), 3);
+
+        f.vault.setConfig(&VaultConfig::setTextFontSize, 20);
+        f.vault.saveSettingsNow();
+        QCOMPARE(heard.size(), 4);
+        QVERIFY(heard.last() == f.key(u".fernanda"_s));
+
+        // Nothing pending, nothing written
+        f.vault.saveSettingsNow();
+        QCOMPARE(heard.size(), 4);
+
+        if (QSysInfo::machineUniqueId().isEmpty()) {
+            return;
+        }
+
+        f.vault.recordEdit(1);
+        f.vault.saveHistoryNow();
+        QCOMPARE(heard.size(), 5);
+        QVERIFY(heard.last().isUnder(f.key(u".fernanda/history"_s)));
     }
 
     // --- Vaults inside vaults -----------------------------------------------

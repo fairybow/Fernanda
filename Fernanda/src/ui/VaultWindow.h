@@ -546,6 +546,16 @@ private:
             this,
             &VaultWindow::onRepositoryChanged_);
 
+        // The vault's own writes: its settings, dictionary, writing history,
+        // and new files. Only this window's vault: those are the writes made
+        // from this window. Another vault's, inside this repository, shows when
+        // this window is next activated
+        connect(
+            vault_,
+            &Vault::fileWritten,
+            this,
+            &VaultWindow::onRepositoryChanged_);
+
         auto* git_page = sidebar_->gitPage();
 
         // Only a file in one of this window's vaults, of a type Fernanda
@@ -571,10 +581,12 @@ private:
 
     // Something at key changed on disk from Fernanda. When it's in the
     // repository and something shows the repository's changes, the status is
-    // read again, which reads each showing diff again too. Every save comes
-    // here, so nothing is read while nothing shows. Queued: a save can come
-    // from inside a flush, a status's own included (GitRepository::refresh),
-    // and the read's flush would then run inside it
+    // read again, which reads each showing diff again too. Every buffer save
+    // comes here, and every write of this window's vault's own (settings,
+    // dictionary, writing history, new files), so nothing is read while
+    // nothing shows. Queued: a save can come from inside a flush, a status's
+    // own included (GitRepository::refresh), and the read's flush would then
+    // run inside it
     void onRepositoryChanged_(const PathKey& key)
     {
         if (!gitRepository_->isFound() ||

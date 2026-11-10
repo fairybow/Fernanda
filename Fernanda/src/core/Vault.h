@@ -172,7 +172,10 @@ public:
         }
 
         treeModel_->applyAddition(absolute);
-        return PathKey::of(absolute);
+
+        auto key = PathKey::of(absolute);
+        emit fileWritten(key);
+        return key;
     }
 
     PathKey createFolder(const PathKey& dir)
@@ -256,6 +259,7 @@ public:
         }
 
         treeModel_->applyAddition(highest);
+        emit fileWritten(key);
         return true;
     }
 
@@ -489,8 +493,9 @@ public:
             return;
         }
 
-        if (on_disk->insert(word) && ensureVaultDotDir(root_)) {
-            on_disk->write(path);
+        if (on_disk->insert(word) && ensureVaultDotDir(root_) &&
+            on_disk->write(path)) {
+            emit fileWritten(PathKey::of(path));
         }
 
         if (*on_disk != dictionary_) {
@@ -560,6 +565,13 @@ signals:
     // root() and rootKey() have moved, or are spelled anew (moveRoot), for
     // anything that keeps its own copy of the root
     void rootMoved();
+
+    // The vault wrote a file of its own at key: its settings (key is the
+    // .fernanda folder, since both settings files are written together), its
+    // dictionary, its writing history, or a new file. Buffers are written by
+    // the store, which announces them itself (BufferStore::fileWritten). A new
+    // folder isn't announced, since Git doesn't see an empty one
+    void fileWritten(const PathKey& key);
 
 private:
     PathKey rootKey_;
@@ -722,10 +734,11 @@ private:
             return;
         }
 
-        JsonIo::write(
-            history_.toJson(),
-            historyDir_() / historyFileName_,
-            Io::CreateDirs::Yes);
+        auto path = historyDir_() / historyFileName_;
+
+        if (JsonIo::write(history_.toJson(), path, Io::CreateDirs::Yes)) {
+            emit fileWritten(PathKey::of(path));
+        }
     }
 
     // "Untitled.txt", then "Untitled 1.txt", ... — the first not already
@@ -804,7 +817,10 @@ private:
     void saveConfig_()
     {
         configSaveTimer_->stop();
-        config_.save(root_);
+
+        if (config_.save(root_)) {
+            emit fileWritten(PathKey::of(vaultDotDir(root_)));
+        }
     }
 };
 
