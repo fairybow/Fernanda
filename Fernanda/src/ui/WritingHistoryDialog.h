@@ -124,18 +124,16 @@ private:
 
         today_.netWords = addFigure_(
             tr("Net words"),
-            tr("Words added minus words deleted. Below zero on a day of "
-               "mostly cutting."));
+            tr("Words added minus words deleted."));
 
         today_.addedWords = addFigure_(
             tr("Words written"),
-            tr("Words added, not counting any deleted. A day you write 500 "
-               "words and cut 200 shows 500 here and 300 above."));
+            tr("Words added, not counting any deleted."));
 
         today_.activeTime = addFigure_(
             tr("Time writing"),
-            tr("Time spent editing. A pause of more than %n minute(s) isn't "
-               "counted.",
+            tr("Time spent editing. (A pause of more than %n minute(s) isn't "
+               "counted.)",
                nullptr,
                idle_minutes));
     }
