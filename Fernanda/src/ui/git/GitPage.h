@@ -108,8 +108,9 @@ using namespace Qt::StringLiterals;
 // file goes to the trash and the last commit's version takes its place; a
 // file the last commit doesn't have goes to the trash; a renamed file goes to
 // the trash and its old name comes back; a deleted file comes back.
-// Not offered for a conflicted file, which is a merge's to settle, nor while
-// the repository is busy. A discard that fails shows why in a message, and
+// Not offered for a conflicted file, which is a merge's to settle, for a
+// submodule, whose changes are in a repository of its own, nor while the
+// repository is busy. A discard that fails shows why in a message, and
 // one that leaves files as they were, since their changes couldn't go to the
 // trash, names them.
 //
@@ -118,13 +119,14 @@ using namespace Qt::StringLiterals;
 //
 // The header's right-click menu (the check-all box and its count) discards
 // every change (Discard all changes…), as GitHub Desktop's does, whether a
-// file is checked or not. It asks first, with Desktop's question: the files
-// by path when there are no more than DISCARD_LIST_MAX_, otherwise their
-// count, and how many of them are outside the vault, if any. Conflicted
-// files are left out, and the question says how many. The item is disabled
-// while the repository is busy, or while every file is conflicted. Like one
-// file's, it acts on the files listed when the menu opened, as the status
-// has them when the discard runs (GitRepository::discard)
+// file is checked or not. It asks first, with Desktop's question: the files by
+// path when there are no more than DISCARD_LIST_MAX_, otherwise their count,
+// and how many of them are outside the vault, if any. Conflicted files and
+// submodules are left out, and the question says how many of each. The item is
+// disabled while the repository is busy, or while nothing listed can be
+// discarded. Like one file's, it acts on the files listed when the menu
+// opened, as the status has them when the discard runs
+// (GitRepository::discard)
 class GitPage : public QWidget
 {
     Q_OBJECT
@@ -845,7 +847,8 @@ private:
         }
 
         if (!repository_->isBusy() &&
-            entry.change != GitStatus::Change::Conflicted) {
+            entry.change != GitStatus::Change::Conflicted &&
+            !entry.submodule) {
             menu.addSeparator();
             menu.addAction(tr("Discard changes…"), this, [this, entry] {
                 confirmDiscard_(entry);
@@ -862,10 +865,13 @@ private:
         // open rebuilds entries_
         QList<GitStatus::Entry> discardable{};
         auto conflicted_count = 0;
+        auto submodule_count = 0;
 
         for (const auto& entry : entries_) {
             if (entry.change == GitStatus::Change::Conflicted) {
                 ++conflicted_count;
+            } else if (entry.submodule) {
+                ++submodule_count;
             } else {
                 discardable << entry;
             }
@@ -876,8 +882,11 @@ private:
         auto* discard_all = menu.addAction(
             tr("Discard all changes…"),
             this,
-            [this, discardable, conflicted_count] {
-                confirmDiscardAll_(discardable, conflicted_count);
+            [this, discardable, conflicted_count, submodule_count] {
+                confirmDiscardAll_(
+                    discardable,
+                    conflicted_count,
+                    submodule_count);
             });
 
         discard_all->setEnabled(
@@ -891,7 +900,8 @@ private:
     // about, even if a new status comes while the question is up
     void confirmDiscardAll_(
         const QList<GitStatus::Entry>& entries,
-        int conflictedCount)
+        int conflictedCount,
+        int submoduleCount)
     {
         auto* box = new QMessageBox(this);
         box->setIcon(QMessageBox::Warning);
@@ -941,6 +951,13 @@ private:
                 "%Ln conflicted file(s) will be left as they are.",
                 nullptr,
                 conflictedCount);
+        }
+
+        if (submoduleCount > 0) {
+            details << tr(
+                "%Ln submodule(s) will be left as they are.",
+                nullptr,
+                submoduleCount);
         }
 
         box->setInformativeText(details.join(u"\n\n"_s));

@@ -420,9 +420,11 @@ public:
     // and each file's changes are thrown away as that status has them
     // (discardAskedFiles_). A file no longer changed has nothing to discard,
     // and a file conflicted by then isn't discarded: that's a merge's to
-    // settle. Deciding from the old entries could ask git to restore a path
-    // it no longer has, and git would then restore none of the files, all of
-    // them already in the trash.
+    // settle. Nor is a submodule: its changes are in a repository of its own,
+    // and Git can only throw those away for good, not to the trash (GitHub
+    // Desktop resets one with submodule update --force). Deciding from the old
+    // entries could ask git to restore a path it no longer has, and git would
+    // then restore none of the files, all of them already in the trash.
     //
     // What's thrown away goes to the system trash first, from where it is,
     // so the trash records the vault as where it came from and putting it
@@ -1410,6 +1412,7 @@ private:
 
         for (const auto& entry : status_.entries) {
             if (entry.change == GitStatus::Change::Conflicted ||
+                entry.submodule ||
                 !discardAsked_.contains(entry.path.prettyQString())) {
                 continue;
             }

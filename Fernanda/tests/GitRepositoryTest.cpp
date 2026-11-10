@@ -1324,6 +1324,48 @@ private slots:
         QCOMPARE(statusOf_(f, { u"a.txt"_s }), u"UU a.txt"_s);
     }
 
+    // A submodule's changes are in a repository of its own, so it's left as
+    // it is, and the rest is discarded
+    void discardLeavesASubmoduleAsItIs()
+    {
+        QTemporaryDir other{};
+        runGit_(other.path(), { u"init"_s, u"-q"_s });
+        QFile other_file(QDir(other.path()).filePath(u"s.txt"_s));
+        QVERIFY(other_file.open(QIODevice::WriteOnly));
+        other_file.write("s\n");
+        other_file.close();
+        runGit_(other.path(), { u"add"_s, u"s.txt"_s });
+        runGit_(other.path(), { u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"-c"_s,
+                u"protocol.file.allow=always"_s,
+                u"submodule"_s,
+                u"add"_s,
+                u"-q"_s,
+                other.path(),
+                u"lib"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        QVERIFY(QFile::remove(f.folder.filePath(u"a.txt"_s)));
+        f.write(u"lib/s.txt"_s, "changed\n");
+
+        auto entries = entriesOf_(f, { u"a.txt"_s, u"lib"_s });
+        QVERIFY(entries);
+        QVERIFY(entries->last().submodule);
+
+        auto answer = discardEntries_(f, *entries);
+
+        QVERIFY(answer);
+        QVERIFY(!answer->failed);
+        QVERIFY(answer->leftOut.isEmpty());
+        QCOMPARE(f.read(u"a.txt"_s), QByteArray("a\n"));
+        QCOMPARE(f.read(u"lib/s.txt"_s), QByteArray("changed\n"));
+        QCOMPARE(statusOf_(f, { u"lib"_s }), u"M lib"_s);
+    }
+
     // Git can't take the index's lock, so the restore fails. Nothing went to
     // the trash, the deleted file having nothing to send there, so the
     // failure says nothing was changed

@@ -582,7 +582,7 @@
         <translation type="unfinished">No se descartaron los cambios.</translation>
     </message>
     <message>
-        <source>Git stopped partway. The changes are in the system trash, but the last commit&apos;s versions weren&apos;t all put back, so some files may be listed as deleted. Discard them again to finish.</source>
+        <source>Git stopped partway. The changes are in the system trash, but some files may still be listed. Discard them again to finish.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -677,6 +677,13 @@
     </message>
     <message numerus="yes">
         <source>%Ln conflicted file(s) will be left as they are.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln submodule(s) will be left as they are.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>

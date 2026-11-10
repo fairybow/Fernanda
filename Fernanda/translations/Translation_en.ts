@@ -72,6 +72,13 @@
         </translation>
     </message>
     <message numerus="yes">
+        <source>%Ln submodule(s) will be left as they are.</source>
+        <translation>
+            <numerusform>%Ln submodule will be left as it is.</numerusform>
+            <numerusform>%Ln submodules will be left as they are.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
         <source>%Ln file(s) couldn&apos;t be moved to the system trash, so their changes weren&apos;t discarded.</source>
         <translation>
             <numerusform>%Ln file couldn&apos;t be moved to the system trash, so its changes weren&apos;t discarded.</numerusform>
