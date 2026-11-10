@@ -13,7 +13,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Have installer(s) remove old or outdated files in app data directory? (Is this wise, on the off chance a user has put their own files in the directory? I would say this is a hard maybe, leaning toward don't do)
 - [ ] Re: menu and context menu items: for items that are not always doable (like Git page's discard, when a hold is active), I'd like to have a consistent rationale (documented) and implementation (visible? enabled vs disabled?)
 - [ ] Re-use Hearth's widget mask (or find better solution) for PDF jitter/flashing (occurs when the window/pane is resized - pretty sure it's unavoidable and normal, but we may want to just mask it)
-- [ ] Daily/lifetime words typed per vault
+- [x] Daily/lifetime words typed per vault. Built as the Writing History dialog (see "Writing history" in [Features.md](Features.md))
 - [ ] Exporting functionality (may be a dialog (saved as config, so setup persists) where user can set a "root" for their export - so it doesn't include notes and the like; would perhaps be a draggable (for custom ordering) list of the files, with checkboxes (unselect = exclude from export), for essentially "compiling" to single file?)
 - [ ] May want to subdivide core folder further (like add "vault"?); possibly ui as well
 

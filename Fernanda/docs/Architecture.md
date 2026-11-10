@@ -36,7 +36,7 @@ Everything is under `Fernanda/src/`, in the `Fernanda` namespace. Apart from `Ma
 | Folder | Holds |
 |---|---|
 | `src/` | `Main.cpp`, `App`, and the log window |
-| `core/` | `Vault`, the buffer store, file keys, the vault tree model, configuration, file IO, file types, action ids, the focus timer and its rules |
+| `core/` | `Vault`, the buffer store, file keys, the vault tree model, configuration, file IO, file types, action ids, the focus timer and its rules, the writing history |
 | `core/spell/` | Spellcheck: the dictionaries, the word rules, and the vault's word lists |
 | `core/git/` | The repository a vault is in, and reading what `git` prints: status, diffs, remote addresses, branch names as they're typed, and the folder Git refuses to trust |
 | `models/` | One buffer class per file type, and the prime document |
@@ -90,9 +90,9 @@ flowchart TD
 |---|---|
 | `App` | The `BufferStore`, the Common Vault's `Vault` when there is one, every project `Vault`, `AppConfig`, the app-wide actions, the spelling dictionaries (`SpellCheckers`), the update checker (`Updater`), the interface language (`Translations`). Tracks each `VaultWindow` and the `ManageVaults` window |
 | `BufferStore` | Every open file's buffer, the watcher over open files, the autosave timers. Keeps a list of every vault's `VaultTreeModel`, which it doesn't own, and announces each rename, move, and trash it follows |
-| `Vault` | Its `VaultTreeModel`, its `VaultConfig`, its dictionary and ignored words, its `.fernanda/` folder. Borrows the store |
+| `Vault` | Its `VaultTreeModel`, its `VaultConfig`, its dictionary and ignored words, its `WritingHistory`, its `.fernanda/` folder. Borrows the store |
 | `BaseWindow` | The window's `TabPaneTree`, its action registry, its status bar |
-| `VaultWindow` | Its `Sidebar`, its `WorkspaceFile`, its settings dialog, its `FocusTimer`, its `GitRepository`, and the creation of its pop-outs. Borrows its vault, the Common Vault (if there is one), and the store |
+| `VaultWindow` | Its `Sidebar`, its `WorkspaceFile`, its settings dialog, its writing history dialog while it shows, its `FocusTimer`, its `GitRepository`, and the creation of its pop-outs. Borrows its vault, the Common Vault (if there is one), and the store |
 | `PopoutWindow` | Nothing of its own. Its `VaultWindow` wires it |
 
 **`App` owns every `Vault`.** If windows owned their vaults, `Vault` would have two kinds of owner: `App` for the common one, a window for the rest. Owning them all in one place makes the Common Vault an ordinary `Vault` with a role, which `App` can give to any vault, or to none (see "The Common Vault").
@@ -268,6 +268,7 @@ So each text view owns a document of its own, and the buffer owns one more, the 
 - Undo lives on the prime alone. View documents have undo disabled; otherwise each view would undo only its own edits and the views would drift apart. The editor gives up the undo and redo keys so the window's actions handle them, and those actions reach the active view's buffer.
 - A reload is its own undo step. Qt folds an insertion into the one before it when the two touch and the document is marked modified, so text typed at the end of reloaded text would otherwise undo together with the reload. `TextFileModel` clears the modified flag straight after a reload, because the buffer matches disk again, and that is also what keeps the two apart.
 - After every routed change the prime checks each view's document against its own and resets one that differs, since the prime is what gets saved. Every build compares lengths; a debug build compares the text too. Nothing known causes a difference.
+- Each of the user's edits is announced once, with the change it made to the word count, however many views it reaches. See "Writing history".
 - Find and replace work in one view's document. A replacement is an edit there like any other, so it reaches the prime and the other views the same way. Replace all is one edit block, which a document reports as one change, so it is one undo step.
 - Text is read from a document through a lossless path. Qt's plain-text accessor rewrites no-break spaces and some separators, which would silently change a file on its first save. Copying follows the same rule: the editor builds the clipboard's text itself, as plain text only, since Qt's own copy makes the same rewrites and adds rich formats.
 
@@ -290,7 +291,7 @@ Every save, whatever triggered it, goes through one private function in `BufferS
 
 The debounce restarts on every edit and fires when typing pauses. The ceiling starts once per burst and is never restarted, so it still fires under input that never pauses. Whichever fires first saves every modified buffer. One pair for the whole app is enough: one writer types one burst at a time.
 
-A window close saves only the files the window shows, so a file that fails to save in another window can't hold this one open. A buffer no window shows, kept after its last view's save failed, is retried on focus loss and at quit. Each of these exit paths also writes its vault's pending settings change (`Vault::saveSettingsNow`).
+A window close saves only the files the window shows, so a file that fails to save in another window can't hold this one open. A buffer no window shows, kept after its last view's save failed, is retried on focus loss and at quit. Each of these exit paths also writes its vault's pending settings change and writing history (`Vault::saveSettingsNow`, `Vault::saveHistoryNow`).
 
 ### A save never creates
 
@@ -409,6 +410,7 @@ All of it but a vault's dictionary is JSON, read and written by stateless free f
 | Per-vault settings | `.fernanda/settings.json`, `.fernanda/appearance.json` | `VaultConfig` | `Vault` |
 | Window and tab layout | `.fernanda/workspace.json` | `WorkspaceFile` | `VaultWindow` |
 | A vault's dictionary | `.fernanda/dictionary.txt`, one word per line | `WordList` | `Vault` |
+| A vault's writing history | `.fernanda/history/<id>.json`, one per machine | `WritingHistory` | `Vault` |
 
 - **Each config type holds its own defaults.** A missing key falls to the default. There is no chain of fallbacks between vault and app settings.
 - **Only set keys are written.** The Common Vault's is the exception: once set up, it is always written, as `null` when unset, since an absent key means the first run hasn't set one up.
@@ -484,6 +486,25 @@ flowchart TD
 - **The wall clock, not a monotonic one.** Whether a monotonic clock counts while the computer sleeps differs by platform. The wall clock counts on everywhere, so a period that ran out during sleep ends on waking, on every platform. Setting the system clock by hand moves the timer; daylight saving time doesn't touch it.
 - **One timer per vault window, set from the vault's settings.** The window owns it, so it stops with the window, and two vault windows run two timers. The window gives it new lengths on each `configChanged`, which apply from the next period, and resets it while the setting is off. A `Vault` couldn't own it: the Common Vault's lives on with no window, where a timer would run unseen.
 - **The button reads and drives the timer directly.** The `Sidebar` shows it while the vault's setting is on, following `configChanged` itself, so the window never reaches into it. The button repaints on the timer's `changed`, and when a period ends it flashes its own window (`QApplication::alert`). Pop-outs have no sidebar and so no button.
+
+## Writing history
+
+```mermaid
+flowchart LR
+    TV["TextFileView"] -->|"edits its document"| P["PrimeDocument"]
+    P -->|"userEdited: source, word delta"| VW["VaultWindow"]
+    VW -->|recordEdit| V["Vault"]
+    V -->|owns| H["WritingHistory"]
+    V -->|historyChanged| D["WritingHistoryDialog"]
+```
+
+- **An edit is measured where it enters the buffer.** Before `PrimeDocument` applies a view's edit to the prime, it counts the words on the prime's lines the removed text sits on; after, the words on the lines the added text sits on. A word never spans a line (`TextCounts`), so the difference is the edit's exact change to the count, a word split or joined at either end included, and it costs the size of the edit, not of the document. The edit is announced once (`userEdited`), after it has reached every view, naming the view document it was typed in.
+- **Undo and redo are measured on the whole document,** counted before and after, since what they change isn't known until they're done. They are announced naming no view. Loading text and replacing it from disk go through other paths and announce nothing, which keeps outside changes, Git's included, out of the history. Undoing a reload is the user's undo, and is counted.
+- **The window credits each edit to its own vault,** as it applies its own vault's settings to a file from the Common Vault. Each text view's connection compares an edit's document with its own editor's, so a typed edit is credited once, by the window holding that view, pop-outs included. An undo or redo reaches a buffer only from the active window: through its Undo and Redo, which act on its active view, or through a view's context menu, which is opened on that same view. So it is credited by the active view of the active window, and by no other.
+- **The rules are a plain value, given the time.** `WritingHistory` keeps, per local date, the net change in words, the gains alone (words written), and the active time: each gap between edits no longer than `WRITING_IDLE_LIMIT_MS`, counted toward the day of the edit that ends it. Every edit is recorded, one that changes no count included, since each is activity. Like `FocusCycle`, it takes the time as an argument, so `WritingHistoryTest` runs on made-up times. The last edit's time isn't saved: each launch starts a new stretch.
+- **One file per machine.** The `Vault` reads every `.json` in `.fernanda/history/` when it opens. Its own machine's file becomes the history's own days; the rest are other machines', added into every figure and never written. No two machines ever write the same file, so a sync tool or a Git merge has nothing to reconcile.
+- **A machine's file is named by a keyed hash of its machine ID:** the first 16 hex digits of an HMAC-SHA256 of `QSysInfo::machineUniqueId` under a key of Fernanda's own, as systemd asks of any program using the ID. The ID can't be recovered from the name, which matters in a vault that may be published. The key must never change: every machine's file would be renamed, and its old file counted as another machine's. A system with no machine ID records nothing.
+- **Saved on a timer that isn't restarted.** The first unsaved edit starts it and later ones leave it running, so steady typing still saves every 30 seconds. Every exit path saves too. A save writes nothing once the vault's folder is gone, so it can't bring the folder back.
 
 ## Git
 
@@ -596,6 +617,7 @@ A dialog run with `exec()` spins a nested event loop on its caller's stack. If t
 
 - The settings dialog is window-modal and opened without `exec()`: Quit can be triggered from inside it and deletes its window.
 - The licenses dialog is window-modal over Manage Vaults, opened without `exec()`, and deletes itself when closed.
+- The writing history dialog is window-modal, opened without `exec()`, and deletes itself when closed. Its window holds one at a time: a pop-out, which it doesn't block, brings the open one forward rather than making another.
 - Go to File does use `exec()`, and is application-modal so that no other window can close its host meanwhile.
 - The Git page's confirmations and failure messages, and the New Branch dialog, are opened with `open()` and delete themselves when closed.
 - No dialog is shown while a window is being constructed. Workspace restore, which runs then, refuses a file that would need a prompt.
@@ -659,6 +681,8 @@ Each of these was built or seriously considered. They are recorded so they aren'
 - **A Common Vault at a fixed place, recreated empty when its folder went.** Built, then replaced by the role. A moved or renamed Common Vault left its files behind as ordinary files and a new, empty folder in its place. A case-only rename on Windows and macOS was re-spelled for the session but reverted at the next launch, and two spellings split its record in two. Recreating needed a settings and dictionary reset of its own.
 - **Refusing to rename, move, or trash the Common Vault's folder from inside Fernanda.** Considered when the fixed-place rules had grown unwieldy. Every `Vault` would have needed the Common Vault's root to refuse with, and outside moves would still have needed handling. A role that follows its folder, and is unset when its folder goes, was simpler.
 - **A window re-sending the Common Vault's `wordsChanged` to its views,** so that a change of Common Vault would be one reconnection. Built, then replaced: it was a signal relay, against the principle. Each view connects to the Common Vault directly, and the window moves those connections when the Common Vault changes.
+- **One writing history file per vault, written by every machine.** Two machines syncing the vault would each write it, and a sync tool or a Git merge would have to reconcile the two, or keep one and drop the other's days. Scrivener's writing history, kept in one synced project, is reported to lose whole days this way. With a file per machine, each is only ever written by one.
+- **A machine's ID as its history file's name.** systemd asks that the machine ID be treated as confidential and never used directly, and a vault's `.fernanda` folder may be published with it. The name is a keyed hash of the ID instead.
 - **A base class for PDF and image buffers.** They share one member.
 - **A placeholder buffer for empty tabs.** An off-disk buffer by another name.
 - **A separate object tracking views per buffer.** The buffer already is that record, and the store's map already is the registry.

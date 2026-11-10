@@ -67,9 +67,18 @@ Nothing here is a promise or a schedule.
 - When a save fails and can't be retried (a drive gone for good), a window showing each unsaved file's text to copy out by hand. It needs no disk, so it works when every write fails
 - A status indicator that shows a failed save when it happens, not only when the window is closed
 
+### Writing history
+
+- The history by day and by month, as a table or a chart, with export to CSV
+- Targets: a daily target, with progress in the status bar, and a project target with a deadline, from which a daily quota is worked out (Scrivener's Project Targets)
+- The words in the vault now, optionally only under a manuscript folder (the same root an export would take). With it, writing could be split into the manuscript's and the rest, as Scrivener splits Draft and Other
+- Streaks, the average per day written, and the best day
+- Focus periods completed per day, from the focus timer
+- A setting for when the day starts, for writing past midnight
+
 ### Settings
 
-- Pick up edits made to the settings files or the vault's dictionary, by hand or by a sync, while the vault is open
+- Pick up edits made to the settings files or the vault's dictionary, by hand or by a sync, while the vault is open. The same for other computers' writing history, which is read only when the vault opens
 - A trash destination setting, and with it permanent delete
 
 ### Opening from outside Fernanda

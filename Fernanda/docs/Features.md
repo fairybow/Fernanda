@@ -194,12 +194,29 @@ Read-only views.
 
 Shown in vault windows and pop-outs, for the active text tab. Empty over a PDF, an image, or a new tab.
 
-- Word counter: words and characters, and optionally lines. With text selected it reads "12 of 1,234 words"
+- Word counter: words and characters, and optionally lines. With text selected it reads "12 of 1,234 words". Click it for the vault's [writing history](#writing-history)
 - Cursor position: line and column (off by default)
 - Words: "don't", "well-known", "e.g.", and "1,000" each count as one. Dashes, slashes, and markup symbols are not words. Chinese and Japanese text counts one word per character
 - Characters count what you see: an emoji or an accented letter is one. Spaces are included, line breaks are not
 - Lines are paragraphs, not wrapped rows
 - An arrow at its left appears when a newer version of Fernanda is out (see [Updates](#updates)). The status bar shows while it does, even with both items switched off
+
+## Writing history
+
+How much you've written in a vault, today and over its life. Open it from File → Writing History…, or click the word counter in the status bar.
+
+- **Net words**: words added minus words deleted. Below zero on a day of mostly cutting
+- **Words written**: words added, not counting any deleted. A day you write 500 words and cut 200 shows 500 here and 300 as net words. It counts how much each edit grew the text, so typing 8 words over a selection of 5 adds 3
+- **Time writing**: time spent editing. Each gap between edits of up to 5 minutes counts; a longer pause counts nothing
+- **Days written**, over the vault's life: the days with any writing recorded
+- Every edit you make counts: typing, pasting, cutting, find and replace, undo, and redo. Undoing typed words takes them off net words but not off words written
+- Opening a file doesn't count, and neither do changes made outside Fernanda, a Git pull, switch, or discard included. Undoing one of those does count, as an edit of yours
+- Writing counts toward the vault whose window it's done in, pop-outs included. A Common Vault file edited in a project's window counts toward the project
+- A day runs from midnight to midnight, local time. A gap across midnight counts toward the new day
+- The figures update as you write while the dialog is open, from a pop-out too
+- Each computer keeps its own record in `.fernanda/history/`, so a vault synced between computers, or committed with Git, adds up the writing done on all of them, and no two computers ever write the same file. Each file is named with a code made from its computer's machine ID, from which the ID can't be recovered
+- Saved within 30 seconds of writing, and when the window closes or Fernanda quits
+- On a system that reports no machine ID, nothing is recorded
 
 ## Focus timer
 
@@ -361,9 +378,10 @@ Fernanda's menus, settings, and messages are in English and Spanish.
 | `.fernanda/dictionary.txt` | Words added to the vault's dictionary | Yes |
 | `.fernanda/appearance.json` | Font settings | Yes |
 | `.fernanda/workspace.json` | Window, pane, and tab layout | No, it is specific to one machine |
+| `.fernanda/history/` | Writing history, one file per computer | Yes |
 | `.fernanda/.gitignore` | Ignores `workspace.json` | Yes |
 
-Deleting `.fernanda/` while the vault is closed resets its settings, layout, and dictionary, and nothing else.
+Deleting `.fernanda/` while the vault is closed resets its settings, layout, dictionary, and writing history, and nothing else.
 
 The list of known vaults, and which of them is the Common Vault, is kept outside any vault, in Fernanda's application data folder. So are the spelling dictionaries, in its `dictionaries` folder. The bundled one is copied there on launch if it's missing, and never overwritten.
 
@@ -419,6 +437,7 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 - **Stepping past closing punctuation** is Fernanda's own, as is the switch over both typing helpers
 - **No Markdown pairing.** Obsidian's "Auto pair Markdown syntax" pairs `*`, `_`, and the like, and applies them to selected text. Fernanda pairs brackets and quotes only
 - **A focus timer is built in.** Obsidian has none; community plugins add one, and some of them log each session to a note. Fernanda's settings are kept per vault, as a plugin's are, and it writes nothing into the vault
+- **Writing history is built in.** Obsidian has none; community plugins such as Better Word Count keep the words typed today and totals for the vault. Fernanda's is kept per vault, in the vault, and adds up the writing from every computer the vault is synced to
 - **Git is built in.** Obsidian has none; its community plugin Obsidian Git adds commits, pulls, and pushes, which it can also run on a schedule. Fernanda's Git page does what GitHub Desktop does, and contacts the remote only when you click
 - **Updates aren't installed for you.** Fernanda says a newer version is out and links to it. Obsidian downloads updates itself and applies them when it restarts
 
