@@ -122,17 +122,20 @@ private:
 
         addHeading_(tr("Today"));
 
-        today_.netWords =
-            addFigure_(tr("Words"), tr("Words written, less words deleted."));
+        today_.netWords = addFigure_(
+            tr("Net words"),
+            tr("Words added minus words deleted. Below zero on a day of "
+               "mostly cutting."));
 
         today_.addedWords = addFigure_(
-            tr("Words added"),
-            tr("Words written, whatever was deleted after."));
+            tr("Words written"),
+            tr("Words added, not counting any deleted. A day you write 500 "
+               "words and cut 200 shows 500 here and 300 above."));
 
         today_.activeTime = addFigure_(
             tr("Time writing"),
-            tr("Time spent editing, leaving out any pause longer than %n "
-               "minute(s).",
+            tr("Time spent editing. A pause of more than %n minute(s) isn't "
+               "counted.",
                nullptr,
                idle_minutes));
     }
@@ -141,8 +144,8 @@ private:
     {
         addHeading_(tr("Lifetime"));
 
-        lifetime_.netWords = addFigure_(tr("Words"), {});
-        lifetime_.addedWords = addFigure_(tr("Words added"), {});
+        lifetime_.netWords = addFigure_(tr("Net words"), {});
+        lifetime_.addedWords = addFigure_(tr("Words written"), {});
         lifetime_.activeTime = addFigure_(tr("Time writing"), {});
 
         daysWritten_ = addFigure_(

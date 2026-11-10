@@ -5,6 +5,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 ## Current (sort later)
 
+- [ ] In WritingHistoryDialog and SettingsDialog, some of the horizontal separator lines appear thicker than others, and it's deeply annoying
 - [ ] Condense code comments
 - [ ] Places where logging would be useful but is missing
 - [ ] When scrolling the Git changes list (via grabbing the scroll bar handle, holding left click), if you move the mouse over an entry while still scrolling, the rows will show hover wash (good) but it won't go away when the mouse leaves the row (bad). Normally this doesn't happen, but it's happening presumably because we're holding left click when we pass over the row and because scrolling is happening?

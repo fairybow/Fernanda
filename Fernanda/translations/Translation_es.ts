@@ -1658,26 +1658,30 @@ La ventana seguirá abierta para que no pierdas tus cambios. Cuando se resuelva 
     </message>
     <message>
         <source>Words</source>
-        <translation type="unfinished">Palabras</translation>
-    </message>
-    <message>
-        <source>Words written, less words deleted.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Words added</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Words written, whatever was deleted after.</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Palabras</translation>
     </message>
     <message>
         <source>Time writing</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Net words</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Words added minus words deleted. Below zero on a day of mostly cutting.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Words written</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Words added, not counting any deleted. A day you write 500 words and cut 200 shows 500 here and 300 above.</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message numerus="yes">
-        <source>Time spent editing, leaving out any pause longer than %n minute(s).</source>
+        <source>Time spent editing. A pause of more than %n minute(s) isn&apos;t counted.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
