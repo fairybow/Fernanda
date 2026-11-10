@@ -114,6 +114,21 @@ public:
         return updateNotice_;
     }
 
+    // The active view of THIS window's tree — the current page of the active
+    // leaf when it's a file view, else nullptr (an empty leaf, or a
+    // NewTabPage). The active leaf follows focus, so with splits this is the
+    // pane being worked in. The window's view.zoom* actions dispatch through
+    // this; a view that can't zoom no-ops via AbstractFileView's defaults.
+    // Pointer identity only — the cast down (e.g. to a text or PDF view)
+    // happens at the use site. Public so VaultWindow can tell which view an
+    // undo was made in, here or in a pop-out
+    [[nodiscard]] AbstractFileView* activeFileView() const
+    {
+        auto* leaf = tree_->activeLeaf();
+        return leaf ? qobject_cast<AbstractFileView*>(leaf->currentPage())
+                    : nullptr;
+    }
+
     // The status bar's settings, from the hosting vault's config. A window
     // doesn't know its vault — a pop-out has none of its own — so the
     // VaultWindow calls this on itself and on each pop-out it makes, at
@@ -213,20 +228,6 @@ protected:
         ASSERT(found, "No action is registered under id: {}!", id);
 
         return found;
-    }
-
-    // The active view of THIS window's tree — the current page of the active
-    // leaf when it's a file view, else nullptr (an empty leaf, or a
-    // NewTabPage). The active leaf follows focus, so with splits this is the
-    // pane being worked in. The window's view.zoom* actions dispatch through
-    // this; a view that can't zoom no-ops via AbstractFileView's defaults.
-    // Pointer identity only — the cast down (e.g. to a text or PDF view)
-    // happens at the use site
-    [[nodiscard]] AbstractFileView* activeFileView() const
-    {
-        auto* leaf = tree_->activeLeaf();
-        return leaf ? qobject_cast<AbstractFileView*>(leaf->currentPage())
-                    : nullptr;
     }
 
     // The file model backing the active view, or nullptr when the active leaf

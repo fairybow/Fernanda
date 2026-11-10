@@ -23,6 +23,7 @@
 #include <QSignalSpy>
 #include <QString>
 #include <QStringList>
+#include <QSysInfo>
 #include <QTemporaryDir>
 #include <QTest>
 #include <QTextCursor>
@@ -166,6 +167,14 @@ private:
         QTextCursor cursor(&document);
         cursor.movePosition(QTextCursor::End);
         cursor.insertText(text);
+    }
+
+    // The names of the history files in a vault folder
+    [[nodiscard]] static QStringList
+    historyFilesIn_(const QTemporaryDir& folder)
+    {
+        return QDir(folder.filePath(u".fernanda/history"_s))
+            .entryList(QDir::Files);
     }
 
 private slots:
@@ -922,6 +931,105 @@ private slots:
         QVERIFY(f.vault.ignoredWords().contains(u"Thunder"_s));
         QVERIFY(!f.vault.dictionary().contains(u"Thunder"_s));
         QVERIFY(!f.exists(u".fernanda/dictionary.txt"_s));
+    }
+
+    // --- Writing history ----------------------------------------------------
+
+    // Each test names this machine's history file by the system's machine ID,
+    // so none can run on a system that gives none, and each skips there
+
+    void anEditIsRecordedAndSavedOnRequest()
+    {
+        if (QSysInfo::machineUniqueId().isEmpty()) {
+            QSKIP("The system gives no machine ID");
+        }
+
+        QTemporaryDir folder{};
+        Coco::Path root(folder.path());
+        BufferStore store{ nullptr };
+
+        {
+            Vault vault(root, &store, nullptr);
+            vault.recordEdit(3);
+            vault.recordEdit(-1);
+
+            QCOMPARE(vault.history().lifetime().netWords, 2);
+            vault.saveHistoryNow();
+        }
+
+        // A second vault on the same folder reads what the first saved
+        Vault reopened(root, &store, nullptr);
+
+        QCOMPARE(reopened.history().lifetime().netWords, 2);
+        QCOMPARE(reopened.history().lifetime().addedWords, 3);
+        QCOMPARE(historyFilesIn_(folder).size(), 1);
+    }
+
+    // The file is named for the machine without showing its ID
+    void theHistoryFileNameHidesTheMachineId()
+    {
+        if (QSysInfo::machineUniqueId().isEmpty()) {
+            QSKIP("The system gives no machine ID");
+        }
+
+        Fixture_ f{};
+        f.vault.recordEdit(1);
+        f.vault.saveHistoryNow();
+
+        auto names = historyFilesIn_(f.folder);
+        QCOMPARE(names.size(), 1);
+
+        auto machine_id = QString::fromLatin1(QSysInfo::machineUniqueId());
+        QVERIFY(!names.first().contains(machine_id, Qt::CaseInsensitive));
+        QCOMPARE(names.first().size(), qsizetype{ 16 + 5 }); // hex + ".json"
+    }
+
+    void anotherMachinesHistoryIsReadButNotWritten()
+    {
+        if (QSysInfo::machineUniqueId().isEmpty()) {
+            QSKIP("The system gives no machine ID");
+        }
+
+        QTemporaryDir folder{};
+        Coco::Path root(folder.path());
+        BufferStore store{ nullptr };
+
+        QDir(folder.path()).mkpath(u".fernanda/history"_s);
+        auto other_path = folder.filePath(u".fernanda/history/other.json"_s);
+        QByteArray other(
+            R"({"days":{"2026-06-10":)"
+            R"({"netWords":10,"addedWords":12,"activeMs":0}}})");
+
+        QFile file(other_path);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write(other);
+        file.close();
+
+        Vault vault(root, &store, nullptr);
+        QCOMPARE(vault.history().lifetime().netWords, 10);
+        QCOMPARE(vault.history().lifetime().addedWords, 12);
+
+        vault.recordEdit(1);
+        vault.saveHistoryNow();
+
+        QCOMPARE(vault.history().lifetime().netWords, 11);
+        QCOMPARE(historyFilesIn_(folder).size(), 2);
+
+        QFile reread(other_path);
+        QVERIFY(reread.open(QIODevice::ReadOnly));
+        QCOMPARE(reread.readAll(), other);
+    }
+
+    void nothingRecordedWritesNothing()
+    {
+        if (QSysInfo::machineUniqueId().isEmpty()) {
+            QSKIP("The system gives no machine ID");
+        }
+
+        Fixture_ f{};
+        f.vault.saveHistoryNow();
+
+        QVERIFY(!f.exists(u".fernanda/history"_s));
     }
 
     // --- Vaults inside vaults -----------------------------------------------

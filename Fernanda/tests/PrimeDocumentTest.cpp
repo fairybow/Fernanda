@@ -832,56 +832,63 @@ private slots:
             << u"one"_s << Edit([](QTextCursor& c) {
                    c.setPosition(1);
                    c.insertText(u"x"_s);
-               }) << 0;
+               })
+            << 0;
 
         QTest::newRow("split a word")
             << u"onetwo"_s << Edit([](QTextCursor& c) {
                    c.setPosition(3);
                    c.insertText(u" "_s);
-               }) << 1;
+               })
+            << 1;
 
         QTest::newRow("split a word across lines")
             << u"onetwo"_s << Edit([](QTextCursor& c) {
                    c.setPosition(3);
                    c.insertText(u"\n"_s);
-               }) << 1;
+               })
+            << 1;
 
         QTest::newRow("join two lines into one word")
             << u"one\ntwo"_s << Edit([](QTextCursor& c) {
                    c.setPosition(3);
                    c.deleteChar();
-               }) << -1;
+               })
+            << -1;
 
         QTest::newRow("delete across lines")
             << u"one two\nthree\nfour five"_s << Edit([](QTextCursor& c) {
                    c.setPosition(4);
                    c.setPosition(14, QTextCursor::KeepAnchor);
                    c.removeSelectedText();
-               }) << -2;
+               })
+            << -2;
 
         QTest::newRow("replace a selection")
             << u"one two three"_s << Edit([](QTextCursor& c) {
                    c.setPosition(4);
                    c.setPosition(7, QTextCursor::KeepAnchor);
                    c.insertText(u"four five"_s);
-               }) << 1;
+               })
+            << 1;
 
         QTest::newRow("paste several lines")
             << u"one"_s << Edit([](QTextCursor& c) {
                    c.movePosition(QTextCursor::End);
                    c.insertText(u"\ntwo three\nfour"_s);
-               }) << 3;
+               })
+            << 3;
 
         QTest::newRow("delete everything")
             << u"one two\nthree"_s << Edit([](QTextCursor& c) {
                    c.select(QTextCursor::Document);
                    c.removeSelectedText();
-               }) << -3;
+               })
+            << -3;
 
         QTest::newRow("type into an empty document")
-            << u""_s << Edit([](QTextCursor& c) {
-                   c.insertText(u"one two"_s);
-               }) << 2;
+            << u""_s << Edit([](QTextCursor& c) { c.insertText(u"one two"_s); })
+            << 2;
 
         // One edit block, two places: Qt reports it as one change spanning
         // both, and both are counted
@@ -893,7 +900,8 @@ private slots:
                    c.movePosition(QTextCursor::Start);
                    c.insertText(u"zero "_s);
                    c.endEditBlock();
-               }) << 2;
+               })
+            << 2;
     }
 
     void userEditReportsItsWordDelta()

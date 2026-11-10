@@ -18,9 +18,14 @@
 #include <type_traits>
 
 #include <QByteArray>
+#include <QCryptographicHash>
+#include <QJsonObject>
 #include <QList>
+#include <QMessageAuthenticationCode>
 #include <QObject>
 #include <QString>
+#include <QStringList>
+#include <QSysInfo>
 
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
@@ -29,10 +34,12 @@
 #include "core/BufferStore.h"
 #include "core/FileTypes.h"
 #include "core/Io.h"
+#include "core/JsonIo.h"
 #include "core/PathKey.h"
 #include "core/VaultConfig.h"
 #include "core/VaultDotDir.h"
 #include "core/VaultTreeModel.h"
+#include "core/WritingHistory.h"
 #include "core/spell/WordList.h"
 
 namespace Fernanda {
@@ -40,9 +47,9 @@ namespace Fernanda {
 using namespace Qt::StringLiterals;
 
 // The GUI-free model side of a vault: a root directory, the file tree every
-// view of this vault shares, the vault's settings and dictionary, and creating,
-// renaming, moving, and trashing inside it. No GUI types. Owned by App;
-// borrowed by a VaultWindow.
+// view of this vault shares, the vault's settings, dictionary, and writing
+// history, and creating, renaming, moving, and trashing inside it. No GUI
+// types. Owned by App; borrowed by a VaultWindow.
 //
 // Open files' buffers aren't the Vault's. They live in the BufferStore App
 // lends every Vault, one per file however many vaults contain it, and each
@@ -132,6 +139,15 @@ public:
     {
         if (configSaveTimer_->isActive()) {
             saveConfig_();
+        }
+    }
+
+    // Write pending writing history now, rather than when its timer fires.
+    // Called beside saveSettingsNow on every exit path, for the same reason
+    void saveHistoryNow()
+    {
+        if (historySaveTimer_->isActive()) {
+            saveHistory_();
         }
     }
 
@@ -489,6 +505,33 @@ public:
         }
     }
 
+    // --- Writing history -----------------------------------------------------
+
+    // Words written and time spent writing in this vault, per day, from every
+    // machine that has written here. Read at construction: this machine's
+    // file and every other machine's, from .fernanda/history/
+    [[nodiscard]] const WritingHistory& history() const noexcept
+    {
+        return history_;
+    }
+
+    // Record an edit made in this vault's window that changed the word count
+    // by wordDelta, now. An edit that changed no count is still recorded, as
+    // time spent writing. Saved a while after the first unsaved edit, and by
+    // saveHistoryNow, rather than after each one. Nothing is recorded when the
+    // system gives no machine ID to name this machine's file by
+    void recordEdit(int wordDelta)
+    {
+        if (historyFileName_.isEmpty()) {
+            return;
+        }
+
+        if (history_.recordEdit(Coco::Time::epoch(), wordDelta) &&
+            !historySaveTimer_->isActive()) {
+            historySaveTimer_->start(historySaveMs_);
+        }
+    }
+
 signals:
     // The config changed in memory. Every view this vault's windows host
     // re-applies from config() — VaultWindow::makeView_ connects each one — and
@@ -525,6 +568,25 @@ private:
     WordList dictionary_{};
     WordList ignoredWords_{};
 
+    // Each machine keeps its own history file in .fernanda/history/, so two
+    // machines syncing the vault never write the same file. This machine's
+    // file is named by machineHistoryFileName_; empty when it has no name,
+    // which turns history off. Saved at most once per historySaveMs_ while
+    // writing: the timer starts at the first unsaved edit and isn't restarted
+    // by later ones, so steady typing still saves
+    static inline const QString HISTORY_DIR_NAME_ = u"history"_s;
+
+    // The key a machine ID is hashed under (machineHistoryFileName_). Changing
+    // it renames every machine's file, so each machine's history would be
+    // counted twice: once under the old name, as another machine's
+    static constexpr auto HISTORY_ID_KEY_ = "Fernanda writing history";
+
+    WritingHistory history_{};
+    QString historyFileName_{};
+    Coco::Time::Delayer* historySaveTimer_ =
+        Coco::Time::newDelayer(this, &Vault::saveHistory_);
+    int historySaveMs_ = 30 * 1000;
+
     // Lists and watches the folders the tree views have opened. The store's
     // watcher tracks the files it holds buffers for; this one the folders the
     // trees show
@@ -535,6 +597,7 @@ private:
         ensureVaultDotDir(root_);
         config_.load(root_);
         dictionary_ = WordList::read(dictionaryPath_()).value_or(WordList{});
+        loadHistory_();
 
         // So the store can let go of this tree's folder watches around any
         // vault's disk operation, where the vaults nest
@@ -544,6 +607,77 @@ private:
     [[nodiscard]] Coco::Path dictionaryPath_() const
     {
         return vaultDotDir(root_) / DICTIONARY_FILE_NAME_;
+    }
+
+    [[nodiscard]] Coco::Path historyDir_() const
+    {
+        return vaultDotDir(root_) / HISTORY_DIR_NAME_;
+    }
+
+    // This machine's history file name: an HMAC-SHA256 of the system's machine
+    // ID under Fernanda's own key, shortened, so the same machine always gets
+    // the same name. The ID itself is never written: a vault may be shared or
+    // published, and systemd asks that the ID be used this way and never
+    // exposed. Empty when the system gives no ID
+    [[nodiscard]] static QString machineHistoryFileName_()
+    {
+        auto machine_id = QSysInfo::machineUniqueId();
+
+        if (machine_id.isEmpty()) {
+            return {};
+        }
+
+        auto hash = QMessageAuthenticationCode::hash(
+            QByteArray(HISTORY_ID_KEY_),
+            machine_id,
+            QCryptographicHash::Sha256);
+
+        return QString::fromLatin1(hash.toHex().left(16)) + u".json"_s;
+    }
+
+    // This machine's file becomes the history's own days, and every other
+    // file in the folder is another machine's. A missing folder or file reads
+    // as no history
+    void loadHistory_()
+    {
+        historyFileName_ = machineHistoryFileName_();
+
+        if (historyFileName_.isEmpty()) {
+            WARN("The system gives no machine ID; writing history is off!");
+            return;
+        }
+
+        auto dir = historyDir_();
+        auto own = JsonIo::read(dir / historyFileName_);
+        history_ = WritingHistory::fromJson(own);
+
+        QList<QJsonObject> others{};
+        auto files = Coco::filePaths(dir, QStringList{ u"*.json"_s });
+
+        for (const auto& path : files) {
+            if (path.nameQString() != historyFileName_) {
+                others << JsonIo::read(path);
+            }
+        }
+
+        history_.setOtherMachines(others);
+    }
+
+    // The timed history write, also forced by saveHistoryNow. Only this
+    // machine's file is written. Nothing is written once the vault's folder is
+    // gone (ensureVaultDotDir), so a save can't recreate it
+    void saveHistory_()
+    {
+        historySaveTimer_->stop();
+
+        if (!ensureVaultDotDir(root_)) {
+            return;
+        }
+
+        JsonIo::write(
+            history_.toJson(),
+            historyDir_() / historyFileName_,
+            Io::CreateDirs::Yes);
     }
 
     // "Untitled.txt", then "Untitled 1.txt", ... — the first not already

@@ -35,6 +35,7 @@
 #include <QSplitter>
 #include <QString>
 #include <QStringList>
+#include <QTextDocument>
 #include <QWidget>
 #include <QtTypes>
 
@@ -231,9 +232,10 @@ protected:
             return;
         }
 
-        // A settings change a moment old is written now, not left to a timer
-        // that may never fire
+        // A settings change or writing history a moment old is written now,
+        // not left to a timer that may never fire
         vault_->saveSettingsNow();
+        vault_->saveHistoryNow();
 
         // Committed to closing: persist final workspace before tearing anything
         // down. saveNow flushes any pending debounce — the guaranteed capture
@@ -989,6 +991,29 @@ private:
                 vault_,
                 &Vault::ignoreWord);
 
+            // So does its writing history. An edit typed here names this
+            // view's document. An undo or redo names none, since it acts on
+            // the shared buffer, and is credited once, by the view it was
+            // made in (isUndoTarget_). The view is the connection's context,
+            // so the link dies with it
+            auto* vault = vault_;
+
+            connect(
+                text,
+                &TextFileModel::userEdited,
+                text_view,
+                [text_view,
+                 vault](const QTextDocument* sourceView, int wordDelta) {
+                    auto is_this_views =
+                        sourceView
+                            ? sourceView == text_view->editor()->document()
+                            : isUndoTarget_(text_view);
+
+                    if (is_this_views) {
+                        vault->recordEdit(wordDelta);
+                    }
+                });
+
             view = text_view;
         } else if (auto* pdf = qobject_cast<PdfFileModel*>(model)) {
             view = new PdfFileView(pdf);
@@ -1047,6 +1072,17 @@ private:
 
         applyGuestMark_(view, key);
         return view;
+    }
+
+    // Is this the view an undo or redo was just made in? Both reach a buffer
+    // only from the active window: its Undo and Redo act on its active view's
+    // buffer, and a view's own context menu is opened on the active view of
+    // the active window. So exactly one view, of every window's, answers yes
+    [[nodiscard]] static bool isUndoTarget_(const AbstractFileView* view)
+    {
+        auto* window = qobject_cast<const BaseWindow*>(view->window());
+        return window && window->isActiveWindow() &&
+               window->activeFileView() == view;
     }
 
     // The confirmation behind every user-initiated open. parent is the window
