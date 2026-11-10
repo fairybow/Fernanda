@@ -847,8 +847,7 @@ private:
         }
 
         if (!repository_->isBusy() &&
-            entry.change != GitStatus::Change::Conflicted &&
-            !entry.submodule) {
+            entry.change != GitStatus::Change::Conflicted && !entry.submodule) {
             menu.addSeparator();
             menu.addAction(tr("Discard changes…"), this, [this, entry] {
                 confirmDiscard_(entry);

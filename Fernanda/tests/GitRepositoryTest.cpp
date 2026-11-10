@@ -1341,13 +1341,14 @@ private slots:
         f.initRepository();
         f.write(u"a.txt"_s, "a\n");
         f.git({ u"add"_s, u"a.txt"_s });
-        f.git({ u"-c"_s,
-                u"protocol.file.allow=always"_s,
-                u"submodule"_s,
-                u"add"_s,
-                u"-q"_s,
-                other.path(),
-                u"lib"_s });
+        f.git(
+            { u"-c"_s,
+              u"protocol.file.allow=always"_s,
+              u"submodule"_s,
+              u"add"_s,
+              u"-q"_s,
+              other.path(),
+              u"lib"_s });
         f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
         QVERIFY(QFile::remove(f.folder.filePath(u"a.txt"_s)));
         f.write(u"lib/s.txt"_s, "changed\n");
