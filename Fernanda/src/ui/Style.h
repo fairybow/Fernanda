@@ -833,7 +833,8 @@ private:
             return;
         }
 
-        auto pressed = static_cast<bool>(option->state & (State_Sunken | State_On));
+        auto pressed =
+            static_cast<bool>(option->state & (State_Sunken | State_On));
         if (!pressed && !(option->state & State_MouseOver)) {
             return;
         }
@@ -1058,7 +1059,7 @@ private:
         auto handle =
             subControlRect(CC_Slider, slider, SC_SliderHandle, widget);
 
-        auto track_height = qreal(STYLE_SLIDER_TRACK_HEIGHT);
+        qreal track_height = STYLE_SLIDER_TRACK_HEIGHT;
         auto track = QRectF(
             groove.left(),
             groove.center().y() - track_height / 2 + 0.5,
@@ -1082,7 +1083,7 @@ private:
             enabled ? palette.color(QPalette::Highlight)
                     : wash_(palette, STYLE_PRESSED_ALPHA));
 
-        auto diameter = qreal(STYLE_SLIDER_HANDLE_DIAMETER);
+        qreal diameter = STYLE_SLIDER_HANDLE_DIAMETER;
         auto knob = QRectF(
             handle.center().x() + 0.5 - diameter / 2,
             handle.center().y() + 0.5 - diameter / 2,
@@ -1208,14 +1209,14 @@ private:
     // rounded rectangles stepping outward and fading
     [[nodiscard]] static QRectF menuPanelRect_(const QStyleOption* option)
     {
-        auto margin = qreal(STYLE_MENU_SHADOW);
+        qreal margin = STYLE_MENU_SHADOW;
         return QRectF(option->rect).adjusted(margin, margin, -margin, -margin);
     }
 
     static void drawMenuPanel_(const QStyleOption* option, QPainter* painter)
     {
         auto panel = menuPanelRect_(option);
-        auto radius = qreal(STYLE_MENU_RADIUS);
+        qreal radius = STYLE_MENU_RADIUS;
 
         painter->save();
         painter->setRenderHint(QPainter::Antialiasing, true);
@@ -1267,7 +1268,7 @@ private:
         painter->setPen(Qt::NoPen);
 
         if (tab->state & State_Selected) {
-            auto radius = qreal(STYLE_TAB_RADIUS);
+            qreal radius = STYLE_TAB_RADIUS;
             QPainterPath path{};
             path.moveTo(rect.left(), rect.bottom());
             path.lineTo(rect.left(), rect.top() + radius);
@@ -1337,7 +1338,7 @@ private:
         auto rect = QRectF(itemRect);
 
         if (auto* tree = qobject_cast<const QTreeView*>(widget)) {
-            rect.setLeft(qMax(qreal(0), rect.left() - tree->indentation()));
+            rect.setLeft(qMax<qreal>(0, rect.left() - tree->indentation()));
         }
 
         return rect;
@@ -1357,8 +1358,8 @@ private:
         // the rows of a navigation list are. A tree's selection is the wash
         // alone, since its rows are files rather than places to go
         if (!tree && (item->state & State_Selected)) {
-            auto height = qMin(
-                qreal(STYLE_LIST_INDICATOR_HEIGHT),
+            auto height = qMin<qreal>(
+                STYLE_LIST_INDICATOR_HEIGHT,
                 rect.height() - 2 * STYLE_ROW_INSET);
             auto indicator = QRectF(
                 rect.left() + STYLE_ROW_INSET + STYLE_LIST_INDICATOR_INSET,

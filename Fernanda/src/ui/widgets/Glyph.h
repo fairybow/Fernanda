@@ -63,7 +63,7 @@ inline constexpr int SUPERSAMPLE_ = 4;
 [[nodiscard]] inline QPixmap
 render(const Coco::Path& svgPath, int extent, const QColor& color, qreal dpr)
 {
-    dpr = qMax(qreal(1), dpr);
+    dpr = qMax<qreal>(1, dpr);
     QSvgRenderer renderer(svgPath.toQString());
 
     auto pixels = qRound(extent * dpr);

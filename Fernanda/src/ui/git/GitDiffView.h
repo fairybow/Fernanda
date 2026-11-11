@@ -347,7 +347,7 @@ private:
 
     [[nodiscard]] static int digitsOf_(int number)
     {
-        return int(QString::number(number).size());
+        return static_cast<int>(QString::number(number).size());
     }
 
     // The view's font with tabular numerals. Built on demand rather than set

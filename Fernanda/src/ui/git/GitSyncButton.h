@@ -334,7 +334,8 @@ private:
             return tr("Never fetched");
         }
 
-        auto minutes = int((Coco::Time::epoch() - fetched) / (60 * 1000));
+        auto minutes =
+            static_cast<int>((Coco::Time::epoch() - fetched) / (60 * 1000));
 
         if (minutes < 1) {
             return tr("Last fetched just now");

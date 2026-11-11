@@ -457,7 +457,8 @@ private:
             QFontMetrics(descriptionEdit_->font()).lineSpacing() *
                 GIT_PAGE_DESCRIPTION_LINES +
             2 * descriptionEdit_->frameWidth() +
-            2 * int(descriptionEdit_->document()->documentMargin()));
+            2 * static_cast<int>(
+                    descriptionEdit_->document()->documentMargin()));
 
         // The default button's look marks it as the box's one action. Its
         // width doesn't widen the sidebar: a long branch name is cut off,
@@ -525,7 +526,7 @@ private:
                     new QListWidgetItem(entry.path.nameQString(), list_);
                 item->setData(
                     GitChangeDelegate::CHANGE_ROLE,
-                    int(entry.change));
+                    static_cast<int>(entry.change));
                 item->setData(
                     GitChangeDelegate::FOLDER_ROLE,
                     entry.path.parent().prettyQString());
@@ -545,7 +546,9 @@ private:
         unchecked_.intersect(listed);
 
         allBox_->setText(
-            tr("%Ln changed file(s)", nullptr, int(entries_.size())));
+            tr("%Ln changed file(s)",
+               nullptr,
+               static_cast<int>(entries_.size())));
 
         if (entries_.isEmpty()) {
             stack_->setCurrentWidget(message_);
@@ -912,7 +915,7 @@ private:
             box->setText(
                 tr("Are you sure you want to discard all %Ln changed file(s)?",
                    nullptr,
-                   int(entries.size())));
+                   static_cast<int>(entries.size())));
         } else {
             box->setText(
                 tr("Are you sure you want to discard all changes to:"));
