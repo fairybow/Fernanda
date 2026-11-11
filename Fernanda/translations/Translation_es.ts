@@ -1703,6 +1703,14 @@ La ventana seguirá abierta para que no pierdas tus cambios. Cuando se resuelva 
         <source>Writing History — %1</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>%1 min</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 h %2 min</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Fernanda::Updater</name>
