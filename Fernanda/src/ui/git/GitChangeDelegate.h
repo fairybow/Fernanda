@@ -126,7 +126,7 @@ public:
                 false);
         }
 
-        auto change = GitStatus::Change(index.data(CHANGE_ROLE).toInt());
+        auto change = index.data(CHANGE_ROLE).value<GitStatus::Change>();
         auto dpr = opt.widget ? opt.widget->devicePixelRatioF()
                               : qApp->devicePixelRatio();
 

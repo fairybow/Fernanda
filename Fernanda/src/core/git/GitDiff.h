@@ -457,7 +457,8 @@ wordChanges(const QString& before, const QString& after)
         after_changed[j] = true;
     }
 
-    auto cells = qint64(before_end - first) * qint64(after_end - first);
+    auto cells = static_cast<qint64>(before_end - first) *
+                 static_cast<qint64>(after_end - first);
 
     if (cells > 0 && cells <= GIT_WORD_DIFF_MAX_CELLS) {
         Internal::markMiddle_(

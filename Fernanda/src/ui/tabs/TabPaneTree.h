@@ -1127,8 +1127,8 @@ private:
         auto right = content.right() - p.x();
         auto top = p.y() - content.top();
         auto bottom = content.bottom() - p.y();
-        auto band_x = int(content.width() * EDGE_FRACTION_);
-        auto band_y = int(content.height() * EDGE_FRACTION_);
+        auto band_x = static_cast<int>(content.width() * EDGE_FRACTION_);
+        auto band_y = static_cast<int>(content.height() * EDGE_FRACTION_);
 
         struct Cand
         {

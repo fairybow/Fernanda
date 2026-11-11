@@ -126,7 +126,8 @@ inline constexpr qreal SELECTION_HANDLE_HIT_RADIUS = 14.0;
 // all four sides, so it is also the space above the first line and below the
 // last. It is part of TEXT_SIDE_PADDING, not added to it
 inline constexpr int TEXT_DOCUMENT_MARGIN =
-    int(SELECTION_HANDLE_RADIUS + SELECTION_HANDLE_BORDER_WIDTH) + 1;
+    static_cast<int>(SELECTION_HANDLE_RADIUS + SELECTION_HANDLE_BORDER_WIDTH) +
+    1;
 
 static_assert(TEXT_DOCUMENT_MARGIN <= TEXT_SIDE_PADDING);
 

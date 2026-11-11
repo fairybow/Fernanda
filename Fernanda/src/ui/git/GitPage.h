@@ -526,7 +526,7 @@ private:
                     new QListWidgetItem(entry.path.nameQString(), list_);
                 item->setData(
                     GitChangeDelegate::CHANGE_ROLE,
-                    static_cast<int>(entry.change));
+                    QVariant::fromValue(entry.change));
                 item->setData(
                     GitChangeDelegate::FOLDER_ROLE,
                     entry.path.parent().prettyQString());
