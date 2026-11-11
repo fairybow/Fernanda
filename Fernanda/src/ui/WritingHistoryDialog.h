@@ -23,9 +23,10 @@
 #include <QString>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QtMinMax>
+#include <QtTypes>
 
 #include <Coco/Debug.h>
-#include <Coco/Time.h>
 
 #include "core/CoreConstants.h"
 #include "core/Vault.h"
@@ -191,16 +192,36 @@ private:
         daysWritten_->setText(QLocale().toString(history.daysWritten()));
     }
 
-    // Numbers in the user's locale's format; times as a clock reads a length
-    // of time, rounded down as elapsed time is
+    // Numbers in the user's locale's format, and times in hours and minutes
+    // (durationText_)
     static void showSpan_(Figures_& figures, const WritingHistory::Day& span)
     {
         QLocale locale{};
 
         figures.netWords->setText(locale.toString(span.netWords));
         figures.addedWords->setText(locale.toString(span.addedWords));
-        figures.activeTime->setText(
-            Coco::Time::clockQString(span.activeMs, Coco::Time::RoundUp::No));
+        figures.activeTime->setText(durationText_(span.activeMs, locale));
+    }
+
+    // A length of time as "2 h 05 min", or "45 min" under an hour, rounded
+    // down to the minute as elapsed time is. Not a clock's "2:05", which could
+    // be read as minutes and seconds. The units are translated, and the
+    // numbers written in the locale's digits
+    static QString durationText_(qint64 ms, const QLocale& locale)
+    {
+        auto total_minutes = qMax(ms, qint64{ 0 }) / (60 * 1000);
+        auto hours = total_minutes / 60;
+        auto minutes = total_minutes % 60;
+
+        if (hours == 0) {
+            return tr("%1 min").arg(locale.toString(minutes));
+        }
+
+        auto padded_minutes = locale.toString(minutes).rightJustified(
+            2,
+            locale.zeroDigit().front());
+
+        return tr("%1 h %2 min").arg(locale.toString(hours), padded_minutes);
     }
 };
 
