@@ -6,6 +6,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 ## Current (sort later)
 
 - [ ] Update MS Store description and ensure doc aligns
+- [ ] Ensure website is linked in MS Store over GitHub (maybe)
 - [x] Add writing history to README, MS Store, and webpage
 - [ ] Scrivener comparisons in README? (Probably later, when there's more to compare)
 - [x] At a fractional display scale (125%, 150%), some one-pixel lines came out thicker than others: the rules in the settings and Writing History dialogs, menu separators, splitter handles, and the marks between tabs. Each was one logical pixel thick, which Qt fills as one device row or two depending on where it lands. They're now drawn a whole number of device pixels thick (`Style::drawHairline`; see "The style" in [Architecture.md](Architecture.md))
