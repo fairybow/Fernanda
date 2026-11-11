@@ -375,7 +375,7 @@ private slots:
         QCOMPARE(prime.text(), u"three two one"_s);
         QCOMPARE(textOf_(b), u"three two one"_s);
 
-        prime.undo();
+        prime.undo(nullptr);
 
         QCOMPARE(prime.text(), u"one two one"_s);
         QCOMPARE(textOf_(a), u"one two one"_s);
@@ -402,14 +402,14 @@ private slots:
         QCOMPARE(textOf_(a), after);
         QCOMPARE(textOf_(b), after);
 
-        prime.undo();
+        prime.undo(nullptr);
 
         QCOMPARE(prime.text(), before);
         QCOMPARE(textOf_(a), before);
         QCOMPARE(textOf_(b), before);
         QVERIFY(!prime.isUndoAvailable());
 
-        prime.redo();
+        prime.redo(nullptr);
 
         QCOMPARE(prime.text(), after);
         QCOMPARE(textOf_(b), after);
@@ -431,10 +431,10 @@ private slots:
         QCOMPARE(TextSearch::replaceAll(&a, u"one"_s, u"1"_s, PLAIN_), 2);
         QCOMPARE(prime.text(), u"1 two 1"_s);
 
-        prime.undo();
+        prime.undo(nullptr);
         QCOMPARE(prime.text(), u"one two one"_s);
 
-        prime.undo();
+        prime.undo(nullptr);
         QCOMPARE(prime.text(), u"one two"_s);
     }
 };

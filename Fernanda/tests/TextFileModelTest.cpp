@@ -58,6 +58,11 @@ private:
             model.registerView(&document_);
         }
 
+        [[nodiscard]] const QTextDocument* document() const
+        {
+            return &document_;
+        }
+
         void typeAtEnd(const QString& text)
         {
             QTextCursor cursor(&document_);
@@ -336,12 +341,12 @@ private slots:
         view.typeAtEnd(u"two"_s);
         QVERIFY(model.isUndoAvailable());
 
-        model.undo();
+        model.undo(nullptr);
         QCOMPARE(model.data(), QByteArray("one\n"));
         QVERIFY(!model.isModified());
         QVERIFY(model.isRedoAvailable());
 
-        model.redo();
+        model.redo(nullptr);
         QCOMPARE(model.data(), QByteArray("one\ntwo"));
         QVERIFY(model.isModified());
     }
@@ -378,13 +383,13 @@ private slots:
         QVERIFY(!model.isModified());
         QVERIFY(model.isUndoAvailable());
 
-        model.undo();
+        model.undo(nullptr);
 
         // Now different from disk, so the next save writes it
         QCOMPARE(model.data(), QByteArray("one\n"));
         QVERIFY(model.isModified());
 
-        model.redo();
+        model.redo(nullptr);
 
         QCOMPARE(model.data(), QByteArray("two\n"));
     }
@@ -401,7 +406,7 @@ private slots:
         model.reloadContent("two\n");
         QCOMPARE(model.data(), QByteArray("two\n"));
 
-        model.undo();
+        model.undo(nullptr);
         QCOMPARE(model.data(), QByteArray("one\nunsaved"));
     }
 
@@ -420,16 +425,35 @@ private slots:
         view.typeAtEnd(u"!"_s);
         QCOMPARE(model.data(), QByteArray("two!"));
 
-        model.undo();
+        model.undo(nullptr);
         QCOMPARE(model.data(), QByteArray("two"));
         QVERIFY(model.isUndoAvailable());
 
-        model.undo();
+        model.undo(nullptr);
         QCOMPARE(model.data(), QByteArray("one"));
     }
 
     // A reload adopts the new bytes' line ending and BOM. Undo restores the
     // text only, so the restored text is saved in the adopted format
+    // Only the user's edits are announced: not the open, and not a reload
+    void onlyTheUsersEditsAreAnnounced()
+    {
+        TextFileModel model(key_(), nullptr);
+        ViewDocument_ view(model);
+        QSignalSpy edited(&model, &TextFileModel::userEdited);
+
+        model.setData("one");
+        model.reloadContent("one two");
+        QCOMPARE(edited.count(), 0);
+
+        view.typeAtEnd(u" three"_s);
+        QCOMPARE(edited.count(), 1);
+        QCOMPARE(
+            edited.first().at(0).value<const QTextDocument*>(),
+            view.document());
+        QCOMPARE(edited.first().at(1).toInt(), 1);
+    }
+
     void reloadAdoptsFormat()
     {
         TextFileModel model(key_(), nullptr);
@@ -444,7 +468,7 @@ private slots:
                 "\xEF\xBB\xBF"
                 "c\r\nd\r\n"));
 
-        model.undo();
+        model.undo(nullptr);
         QCOMPARE(
             model.data(),
             QByteArray(

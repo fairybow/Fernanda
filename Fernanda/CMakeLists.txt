@@ -229,6 +229,7 @@ set(APP_HEADERS
     src/core/VaultTreeNode.h
     src/core/Version.h
     src/core/WorkspaceKeys.h
+    src/core/WritingHistory.h
 
     src/models/AbstractFileModel.h
     src/models/ImageFileModel.h
@@ -306,6 +307,7 @@ set(APP_HEADERS
     src/ui/VaultWindow.h
     src/ui/WordCounter.h
     src/ui/WorkspaceFile.h
+    src/ui/WritingHistoryDialog.h
 
     src/views/AbstractFileView.h
     src/views/FindBar.h

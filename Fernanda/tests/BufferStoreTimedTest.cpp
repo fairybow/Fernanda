@@ -262,7 +262,7 @@ private slots:
         QVERIFY(!model->isModified());
 
         // And the change can be undone
-        model->undo();
+        model->undo(nullptr);
         QCOMPARE(model->data(), QByteArray("one\n"));
     }
 
@@ -299,7 +299,7 @@ private slots:
         f.replace(u"a.txt"_s, "two\n");
         QTRY_COMPARE(model->data(), QByteArray("two\n"));
 
-        model->undo();
+        model->undo(nullptr);
         QCOMPARE(model->data(), QByteArray("one\nunsaved"));
     }
 
@@ -330,7 +330,7 @@ private slots:
         QTest::qWait(SETTLE_MS_);
         QCOMPARE(f.read(u"a.txt"_s), QByteArray("two\n"));
 
-        model->undo();
+        model->undo(nullptr);
         QCOMPARE(model->data(), QByteArray("one\ntyped"));
     }
 
@@ -384,7 +384,7 @@ private slots:
         QCOMPARE(removed.count(), 0);
         QCOMPARE(model->data(), QByteArray("two\n"));
 
-        model->undo();
+        model->undo(nullptr);
         QCOMPARE(model->data(), QByteArray("one\ntyped"));
     }
 

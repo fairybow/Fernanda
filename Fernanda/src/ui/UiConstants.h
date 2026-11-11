@@ -389,6 +389,10 @@ inline constexpr int LICENSES_DIALOG_WIDTH = 860;
 inline constexpr int LICENSES_DIALOG_HEIGHT = 600;
 inline constexpr int LICENSES_LIST_WIDTH = 200;
 
+// The writing history dialog (WritingHistoryDialog): its least width. Its
+// height is what its rows need
+inline constexpr int WRITING_HISTORY_DIALOG_MIN_WIDTH = 520;
+
 // One row on a settings page (SettingRow): V_PADDING above and below its
 // content; INFO_SPACING between the name and its description;
 // CONTROL_SPACING the least gap between the text and the control. The

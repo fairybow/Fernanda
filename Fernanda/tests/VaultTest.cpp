@@ -18,11 +18,13 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QIODevice>
+#include <QList>
 #include <QObject>
 #include <QPlainTextDocumentLayout>
 #include <QSignalSpy>
 #include <QString>
 #include <QStringList>
+#include <QSysInfo>
 #include <QTemporaryDir>
 #include <QTest>
 #include <QTextCursor>
@@ -166,6 +168,14 @@ private:
         QTextCursor cursor(&document);
         cursor.movePosition(QTextCursor::End);
         cursor.insertText(text);
+    }
+
+    // The names of the history files in a vault folder
+    [[nodiscard]] static QStringList
+    historyFilesIn_(const QTemporaryDir& folder)
+    {
+        return QDir(folder.filePath(u".fernanda/history"_s))
+            .entryList(QDir::Files);
     }
 
 private slots:
@@ -922,6 +932,258 @@ private slots:
         QVERIFY(f.vault.ignoredWords().contains(u"Thunder"_s));
         QVERIFY(!f.vault.dictionary().contains(u"Thunder"_s));
         QVERIFY(!f.exists(u".fernanda/dictionary.txt"_s));
+    }
+
+    // --- Writing history ----------------------------------------------------
+
+    // Each test names this machine's history file by the system's machine ID,
+    // so none can run on a system that gives none, and each skips there
+
+    void anEditIsRecordedAndSavedOnRequest()
+    {
+        if (QSysInfo::machineUniqueId().isEmpty()) {
+            QSKIP("The system gives no machine ID");
+        }
+
+        QTemporaryDir folder{};
+        Coco::Path root(folder.path());
+        BufferStore store{ nullptr };
+
+        {
+            Vault vault(root, &store, nullptr);
+            vault.recordEdit(3);
+            vault.recordEdit(-1);
+
+            QCOMPARE(vault.history().lifetime().netWords, 2);
+            vault.saveHistoryNow();
+        }
+
+        // A second vault on the same folder reads what the first saved
+        Vault reopened(root, &store, nullptr);
+
+        QCOMPARE(reopened.history().lifetime().netWords, 2);
+        QCOMPARE(reopened.history().lifetime().addedWords, 3);
+        QCOMPARE(historyFilesIn_(folder).size(), 1);
+    }
+
+    // The file is named for the machine without showing its ID
+    void theHistoryFileNameHidesTheMachineId()
+    {
+        if (QSysInfo::machineUniqueId().isEmpty()) {
+            QSKIP("The system gives no machine ID");
+        }
+
+        Fixture_ f{};
+        f.vault.recordEdit(1);
+        f.vault.saveHistoryNow();
+
+        auto names = historyFilesIn_(f.folder);
+        QCOMPARE(names.size(), 1);
+
+        auto machine_id = QString::fromLatin1(QSysInfo::machineUniqueId());
+        QVERIFY(!names.first().contains(machine_id, Qt::CaseInsensitive));
+        QCOMPARE(names.first().size(), qsizetype{ 16 + 5 }); // hex + ".json"
+    }
+
+    void anotherMachinesHistoryIsReadButNotWritten()
+    {
+        if (QSysInfo::machineUniqueId().isEmpty()) {
+            QSKIP("The system gives no machine ID");
+        }
+
+        QTemporaryDir folder{};
+        Coco::Path root(folder.path());
+        BufferStore store{ nullptr };
+
+        QDir(folder.path()).mkpath(u".fernanda/history"_s);
+        auto other_path =
+            folder.filePath(u".fernanda/history/0123456789abcdef.json"_s);
+        QByteArray other(
+            R"({"days":{"2026-06-10":)"
+            R"({"netWords":10,"addedWords":12,"activeMs":0}}})");
+
+        QFile file(other_path);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write(other);
+        file.close();
+
+        Vault vault(root, &store, nullptr);
+        QCOMPARE(vault.history().lifetime().netWords, 10);
+        QCOMPARE(vault.history().lifetime().addedWords, 12);
+
+        vault.recordEdit(1);
+        vault.saveHistoryNow();
+
+        QCOMPARE(vault.history().lifetime().netWords, 11);
+        QCOMPARE(historyFilesIn_(folder).size(), 2);
+
+        QFile reread(other_path);
+        QVERIFY(reread.open(QIODevice::ReadOnly));
+        QCOMPARE(reread.readAll(), other);
+    }
+
+    // A sync tool's copy of a machine's file, or any other file, isn't
+    // another machine's history
+    void aFileNotNamedForAMachineIsNotRead()
+    {
+        if (QSysInfo::machineUniqueId().isEmpty()) {
+            QSKIP("The system gives no machine ID");
+        }
+
+        QTemporaryDir folder{};
+        Coco::Path root(folder.path());
+        BufferStore store{ nullptr };
+
+        QDir(folder.path()).mkpath(u".fernanda/history"_s);
+        QByteArray other(
+            R"({"days":{"2026-06-10":)"
+            R"({"netWords":10,"addedWords":12,"activeMs":0}}})");
+
+        const QStringList names{
+            u"0123456789abcdef (conflicted copy).json"_s,
+            u"0123456789ABCDEF.json"_s,
+            u"0123456789abcde.json"_s,
+            u"notes.json"_s,
+        };
+
+        for (const auto& name : names) {
+            QFile file(folder.filePath(u".fernanda/history/"_s + name));
+            QVERIFY(file.open(QIODevice::WriteOnly));
+            file.write(other);
+        }
+
+        Vault vault(root, &store, nullptr);
+        QCOMPARE(vault.history().lifetime().netWords, 0);
+        QCOMPARE(vault.history().daysWritten(), 0);
+    }
+
+    // This machine's file, damaged, is neither read nor written over, and
+    // nothing is recorded while it stays damaged
+    void aDamagedHistoryFileIsLeftAlone()
+    {
+        if (QSysInfo::machineUniqueId().isEmpty()) {
+            QSKIP("The system gives no machine ID");
+        }
+
+        QTemporaryDir folder{};
+        Coco::Path root(folder.path());
+        BufferStore store{ nullptr };
+
+        {
+            Vault vault(root, &store, nullptr);
+            vault.recordEdit(3);
+            vault.saveHistoryNow();
+        }
+
+        auto names = historyFilesIn_(folder);
+        QCOMPARE(names.size(), 1);
+
+        auto own_path =
+            folder.filePath(u".fernanda/history/"_s + names.first());
+        QByteArray damaged(R"({"days":{"2026-06-10":{"netWords":3)");
+
+        {
+            QFile file(own_path);
+            QVERIFY(file.open(QIODevice::WriteOnly));
+            file.write(damaged);
+        }
+
+        Vault reopened(root, &store, nullptr);
+        QSignalSpy changed(&reopened, &Vault::historyChanged);
+
+        reopened.recordEdit(2);
+        reopened.saveHistoryNow();
+
+        QCOMPARE(changed.count(), 0);
+        QCOMPARE(reopened.history().lifetime().netWords, 0);
+
+        QFile reread(own_path);
+        QVERIFY(reread.open(QIODevice::ReadOnly));
+        QCOMPARE(reread.readAll(), damaged);
+    }
+
+    // Announced only when the history changed: a first edit that changed no
+    // words has no time before it to count, and changes nothing
+    void aChangeToTheHistoryIsAnnounced()
+    {
+        if (QSysInfo::machineUniqueId().isEmpty()) {
+            QSKIP("The system gives no machine ID");
+        }
+
+        Fixture_ f{};
+        QSignalSpy changed(&f.vault, &Vault::historyChanged);
+
+        f.vault.recordEdit(0);
+        QCOMPARE(changed.count(), 0);
+
+        f.vault.recordEdit(2);
+        QCOMPARE(changed.count(), 1);
+    }
+
+    void nothingRecordedWritesNothing()
+    {
+        if (QSysInfo::machineUniqueId().isEmpty()) {
+            QSKIP("The system gives no machine ID");
+        }
+
+        Fixture_ f{};
+        f.vault.saveHistoryNow();
+
+        QVERIFY(!f.exists(u".fernanda/history"_s));
+    }
+
+    // --- The vault's own writes ---------------------------------------------
+
+    // Each file the vault writes itself is announced, for a Git page to read
+    // its status again. A new folder isn't, and neither is a write that
+    // changed nothing on disk
+    void theVaultsOwnWritesAreAnnounced()
+    {
+        Fixture_ f{};
+        QList<PathKey> heard{};
+
+        QObject::connect(
+            &f.vault,
+            &Vault::fileWritten,
+            &f.vault,
+            [&heard](const PathKey& key) { heard << key; });
+
+        auto created = f.vault.createFile(f.rootKey());
+        QCOMPARE(heard.size(), 1);
+        QVERIFY(heard.last() == created);
+
+        QVERIFY(f.vault.createFileAt(f.key(u"drafts/Chapter 1.txt"_s)));
+        QCOMPARE(heard.size(), 2);
+        QVERIFY(heard.last() == f.key(u"drafts/Chapter 1.txt"_s));
+
+        f.vault.createFolder(f.rootKey());
+        QCOMPARE(heard.size(), 2);
+
+        f.vault.addToDictionary(u"Pangloss"_s);
+        QCOMPARE(heard.size(), 3);
+        QVERIFY(heard.last() == f.key(u".fernanda/dictionary.txt"_s));
+
+        // A word already there writes nothing
+        f.vault.addToDictionary(u"Pangloss"_s);
+        QCOMPARE(heard.size(), 3);
+
+        f.vault.setConfig(&VaultConfig::setTextFontSize, 20);
+        f.vault.saveSettingsNow();
+        QCOMPARE(heard.size(), 4);
+        QVERIFY(heard.last() == f.key(u".fernanda"_s));
+
+        // Nothing pending, nothing written
+        f.vault.saveSettingsNow();
+        QCOMPARE(heard.size(), 4);
+
+        if (QSysInfo::machineUniqueId().isEmpty()) {
+            return;
+        }
+
+        f.vault.recordEdit(1);
+        f.vault.saveHistoryNow();
+        QCOMPARE(heard.size(), 5);
+        QVERIFY(heard.last().isUnder(f.key(u".fernanda/history"_s)));
     }
 
     // --- Vaults inside vaults -----------------------------------------------

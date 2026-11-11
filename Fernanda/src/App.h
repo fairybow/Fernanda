@@ -542,11 +542,11 @@ private:
 
     // The final-save sweep for every teardown that isn't a window close —
     // aboutToQuit and OS logout — and for focus loss: every buffer, then every
-    // vault's pending settings. The flush skips buffers already matching disk,
-    // so calling this after the while-typing autosave already caught everything
-    // is a cheap no-op. Failures can't be refused here (unlike a window close),
-    // so the failure list is discarded — the store already logged them and
-    // left the buffers dirty
+    // vault's pending settings and writing history. The flush skips buffers
+    // already matching disk, so calling this after the while-typing autosave
+    // already caught everything is a cheap no-op. Failures can't be refused
+    // here (unlike a window close), so the failure list is discarded — the
+    // store already logged them and left the buffers dirty
     void flushAll_()
     {
         bufferStore_->flush();
@@ -554,11 +554,13 @@ private:
         for (auto& entry : openVaults_) {
             if (entry.vault) {
                 entry.vault->saveSettingsNow();
+                entry.vault->saveHistoryNow();
             }
         }
 
         if (commonVault_) {
             commonVault_->saveSettingsNow();
+            commonVault_->saveHistoryNow();
         }
     }
 

@@ -35,6 +35,7 @@
 #include <QSplitter>
 #include <QString>
 #include <QStringList>
+#include <QTextDocument>
 #include <QWidget>
 #include <QtTypes>
 
@@ -67,7 +68,9 @@
 #include "ui/OpenMode.h"
 #include "ui/PopoutWindow.h"
 #include "ui/UiConstants.h"
+#include "ui/WordCounter.h"
 #include "ui/WorkspaceFile.h"
+#include "ui/WritingHistoryDialog.h"
 #include "ui/git/GitDiffPage.h"
 #include "ui/git/GitPage.h"
 #include "ui/settings/SettingsDialog.h"
@@ -231,9 +234,10 @@ protected:
             return;
         }
 
-        // A settings change a moment old is written now, not left to a timer
-        // that may never fire
+        // A settings change or writing history a moment old is written now,
+        // not left to a timer that may never fire
         vault_->saveSettingsNow();
+        vault_->saveHistoryNow();
 
         // Committed to closing: persist final workspace before tearing anything
         // down. saveNow flushes any pending debounce — the guaranteed capture
@@ -306,6 +310,10 @@ private:
     // destroyed, between opens — so it reopens on the page last viewed. A Qt
     // child, so it goes with the window
     SettingsDialog* settingsDialog_ = nullptr;
+
+    // This vault's writing history while it shows. It deletes itself when
+    // closed, which clears this (showWritingHistory_)
+    WritingHistoryDialog* writingHistoryDialog_ = nullptr;
 
     // This window's focus timer, set from its vault's settings
     // (applyFocusTimerConfig_) and shown by the sidebar's button. A Qt child,
@@ -478,6 +486,12 @@ private:
             this,
             &VaultWindow::onUpdateNoticeClicked_);
 
+        connect(
+            wordCounter(),
+            &WordCounter::clicked,
+            this,
+            &VaultWindow::showWritingHistory_);
+
         setupGit_();
     }
 
@@ -532,6 +546,16 @@ private:
             this,
             &VaultWindow::onRepositoryChanged_);
 
+        // The vault's own writes: its settings, dictionary, writing history,
+        // and new files. Only this window's vault: those are the writes made
+        // from this window. Another vault's, inside this repository, shows when
+        // this window is next activated
+        connect(
+            vault_,
+            &Vault::fileWritten,
+            this,
+            &VaultWindow::onRepositoryChanged_);
+
         auto* git_page = sidebar_->gitPage();
 
         // Only a file in one of this window's vaults, of a type Fernanda
@@ -557,10 +581,12 @@ private:
 
     // Something at key changed on disk from Fernanda. When it's in the
     // repository and something shows the repository's changes, the status is
-    // read again, which reads each showing diff again too. Every save comes
-    // here, so nothing is read while nothing shows. Queued: a save can come
-    // from inside a flush, a status's own included (GitRepository::refresh),
-    // and the read's flush would then run inside it
+    // read again, which reads each showing diff again too. Every buffer save
+    // comes here, and every write of this window's vault's own (settings,
+    // dictionary, writing history, new files), so nothing is read while
+    // nothing shows. Queued: a save can come from inside a flush, a status's
+    // own included (GitRepository::refresh), and the read's flush would then
+    // run inside it
     void onRepositoryChanged_(const PathKey& key)
     {
         if (!gitRepository_->isFound() ||
@@ -731,6 +757,16 @@ private:
             this,
             &VaultWindow::onSettingsRequested_);
 
+        auto* open_writing_history = registerAction(
+            ActionIds::VAULT_OPEN_WRITING_HISTORY,
+            tr("Writing History..."),
+            QKeySequence{});
+        connect(
+            open_writing_history,
+            &QAction::triggered,
+            this,
+            &VaultWindow::showWritingHistory_);
+
         auto* toggle_menu_bar = registerAction(
             ActionIds::WINDOW_TOGGLE_MENU_BAR,
             tr("Toggle Menu Bar"),
@@ -765,6 +801,7 @@ private:
         file_menu->addAction(action(ActionIds::FOLDER_NEW));
         file_menu->addSeparator();
         file_menu->addAction(action(ActionIds::VAULT_OPEN_SETTINGS));
+        file_menu->addAction(action(ActionIds::VAULT_OPEN_WRITING_HISTORY));
         file_menu->addAction(action(ActionIds::APP_MANAGE_VAULTS));
         file_menu->addSeparator();
         file_menu->addAction(action(ActionIds::APP_QUIT));
@@ -899,6 +936,29 @@ private:
         settingsDialog_->activateWindow();
     }
 
+    // Show this vault's writing history, window-modal over this window,
+    // whether asked for here or from a pop-out's word counter. A pop-out isn't
+    // blocked by it, so its counter can be clicked while the dialog shows:
+    // the one already open is brought forward rather than a second made
+    void showWritingHistory_()
+    {
+        if (!writingHistoryDialog_) {
+            writingHistoryDialog_ = new WritingHistoryDialog(
+                vault_,
+                action(ActionIds::APP_QUIT),
+                this);
+
+            connect(writingHistoryDialog_, &QObject::destroyed, this, [this] {
+                writingHistoryDialog_ = nullptr;
+            });
+
+            writingHistoryDialog_->open();
+        }
+
+        writingHistoryDialog_->raise();
+        writingHistoryDialog_->activateWindow();
+    }
+
     // The vault's focus timer settings, applied to this window's timer: new
     // lengths, which take effect from the next period, and a reset while it's
     // switched off, so it comes back on from the start
@@ -988,6 +1048,23 @@ private:
                 &TextFileView::ignoreWordRequested,
                 vault_,
                 &Vault::ignoreWord);
+
+            // So does its writing history. An edit typed here, or an undo or
+            // redo asked for here, names this view's local document as its
+            // source, so of every view of the buffer, in every window, only
+            // this one credits it. The view is the connection's context, so
+            // the link dies with it
+            auto* vault = vault_;
+
+            connect(
+                text,
+                &TextFileModel::userEdited,
+                text_view,
+                [text_view, vault](const QTextDocument* source, int wordDelta) {
+                    if (source == text_view->localDocument()) {
+                        vault->recordEdit(wordDelta);
+                    }
+                });
 
             view = text_view;
         } else if (auto* pdf = qobject_cast<PdfFileModel*>(model)) {
@@ -1556,6 +1633,12 @@ private:
             &QAbstractButton::clicked,
             this,
             &VaultWindow::onUpdateNoticeClicked_);
+
+        connect(
+            popout->wordCounter(),
+            &WordCounter::clicked,
+            this,
+            &VaultWindow::showWritingHistory_);
 
         // Persist this pop-out too: its geometry and tab layout ride in
         // workspace.json alongside the main window. Guarded because a pop-out

@@ -17,6 +17,7 @@
 
 #include <QChar>
 #include <QLabel>
+#include <QMouseEvent>
 #include <QPlainTextEdit>
 #include <QString>
 #include <QStringList>
@@ -57,7 +58,10 @@ using namespace Qt::StringLiterals;
 // big documents. If a huge file ever makes the pause after typing felt, the
 // next step is keeping each block's counts and recounting only edited blocks.
 // The selection's counts aren't kept: they're recounted from the selected text
-// on each selection change, which costs in proportion to the selection
+// on each selection change, which costs in proportion to the selection.
+//
+// A click announces clicked, which the window answers by showing its vault's
+// writing history
 class WordCounter : public QLabel
 {
     Q_OBJECT
@@ -134,6 +138,21 @@ public:
         recount_();
     }
 
+signals:
+    // Released over the counter with the left button, as a button clicks
+    void clicked();
+
+protected:
+    void mouseReleaseEvent(QMouseEvent* event) override
+    {
+        QLabel::mouseReleaseEvent(event);
+
+        if (event->button() == Qt::LeftButton &&
+            rect().contains(event->position().toPoint())) {
+            emit clicked();
+        }
+    }
+
 private:
     struct Counts_
     {
@@ -180,6 +199,8 @@ private:
             STATUS_BAR_ITEM_H_PADDING,
             0);
         setTabularNumerals(this);
+        setCursor(Qt::PointingHandCursor);
+        setToolTip(tr("Writing history"));
 
         // Hidden before the status bar takes it: the bar shows what it's
         // given unless it was explicitly hidden first

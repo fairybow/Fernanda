@@ -16,6 +16,7 @@
 #include <functional>
 
 #include <QChar>
+#include <QList>
 #include <QMetaType>
 #include <QObject>
 #include <QPlainTextDocumentLayout>
@@ -25,6 +26,7 @@
 #include <QTextCursor>
 #include <QTextDocument>
 
+#include "core/TextCounts.h"
 #include "models/PrimeDocument.h"
 
 using namespace Qt::StringLiterals;
@@ -98,6 +100,18 @@ private:
 
     [[nodiscard]] static QString noBreakSpace_() { return QChar(0x00A0); }
     [[nodiscard]] static QString lineSeparator_() { return QChar(0x2028); }
+
+    // The words in a text, counted a line at a time as TextCounts asks
+    [[nodiscard]] static int wordsIn_(const QString& text)
+    {
+        auto words = 0;
+
+        for (const auto& line : text.split(QChar(u'\n'))) {
+            words += Fernanda::TextCounts::wordCount(line);
+        }
+
+        return words;
+    }
 
     // Outside the BMP, so two UTF-16 code units and two cursor positions
     [[nodiscard]] static QString emoji_()
@@ -427,10 +441,10 @@ private slots:
         if (initial != expected) {
             QVERIFY(f.prime.isUndoAvailable());
 
-            f.prime.undo();
+            f.prime.undo(nullptr);
             VERIFY_ALL_HOLD(f, initial);
 
-            f.prime.redo();
+            f.prime.redo(nullptr);
             VERIFY_ALL_HOLD(f, expected);
         }
     }
@@ -456,13 +470,13 @@ private slots:
         VERIFY_ALL_HOLD(f, u"ACone\ntwoB"_s);
 
         // One stack: undo runs back through both views' edits, newest first
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"Aone\ntwoB"_s);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"Aone\ntwo"_s);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"one\ntwo"_s);
 
         QVERIFY(!f.prime.isUndoAvailable());
@@ -489,8 +503,8 @@ private slots:
     {
         Fixture_ f(u"one"_s);
 
-        f.prime.undo();
-        f.prime.redo();
+        f.prime.undo(nullptr);
+        f.prime.redo(nullptr);
 
         VERIFY_ALL_HOLD(f, u"one"_s);
     }
@@ -508,12 +522,12 @@ private slots:
         QSignalSpy hint(&f.prime, &PrimeDocument::cursorPositionHint);
 
         // Undo removes "XYZ": the cursor belongs where it was
-        f.prime.undo();
+        f.prime.undo(nullptr);
         QCOMPARE(hint.count(), 1);
         QCOMPARE(hint.takeFirst().first().toInt(), 3);
 
         // Redo puts it back: the cursor belongs after it
-        f.prime.redo();
+        f.prime.redo(nullptr);
         QCOMPARE(hint.count(), 1);
         QCOMPARE(hint.takeFirst().first().toInt(), 6);
     }
@@ -535,10 +549,10 @@ private slots:
 
         VERIFY_ALL_HOLD(f, u"one (two)"_s);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"one two"_s);
 
-        f.prime.redo();
+        f.prime.redo(nullptr);
         VERIFY_ALL_HOLD(f, u"one (two)"_s);
     }
 
@@ -572,7 +586,7 @@ private slots:
         VERIFY_ALL_HOLD(f, u"one\nsix"_s);
         QVERIFY(f.prime.isUndoAvailable());
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"one\ntwo"_s);
     }
 
@@ -599,10 +613,10 @@ private slots:
         f.prime.replaceAllUndoable(u"three\nfour\nfive"_s);
         VERIFY_ALL_HOLD(f, u"three\nfour\nfive"_s);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"one\ntwo"_s);
 
-        f.prime.redo();
+        f.prime.redo(nullptr);
         VERIFY_ALL_HOLD(f, u"three\nfour\nfive"_s);
     }
 
@@ -613,7 +627,7 @@ private slots:
         f.prime.replaceAllUndoable(u""_s);
         VERIFY_ALL_HOLD(f, u""_s);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"one\ntwo"_s);
     }
 
@@ -624,7 +638,7 @@ private slots:
         f.prime.replaceAllUndoable(u"one\ntwo"_s);
         VERIFY_ALL_HOLD(f, u"one\ntwo"_s);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u""_s);
     }
 
@@ -649,10 +663,10 @@ private slots:
         cursor.insertText(u"!"_s);
         VERIFY_ALL_HOLD(f, u"two!"_s);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"two"_s);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"one"_s);
     }
 
@@ -664,7 +678,7 @@ private slots:
         f.prime.insertText(u"A\nB"_s);
         VERIFY_ALL_HOLD(f, u"A\nBone"_s);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"one"_s);
     }
 
@@ -705,7 +719,7 @@ private slots:
         QCOMPARE(prime.viewCount(), 0);
         QCOMPARE(prime.text(), u"Xone"_s);
 
-        prime.undo();
+        prime.undo(nullptr);
         QCOMPARE(prime.text(), u"one"_s);
     }
 
@@ -793,9 +807,210 @@ private slots:
         unheard.insertText(u"DRIFT"_s);
         f.a.blockSignals(false);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
 
         VERIFY_ALL_HOLD(f, u"one"_s);
+    }
+
+    // --- The user's edits ---------------------------------------------------
+
+    // Each edit is made in view a, and its delta is checked twice: against
+    // the number the row gives, and against counting the whole text before
+    // and after, so a row can't be right by accident
+    void userEditReportsItsWordDelta_data()
+    {
+        QTest::addColumn<QString>("initial");
+        QTest::addColumn<Edit>("edit");
+        QTest::addColumn<int>("delta");
+
+        QTest::newRow("type a word") << u"one"_s << Edit([](QTextCursor& c) {
+            c.movePosition(QTextCursor::End);
+            c.insertText(u" two"_s);
+        }) << 1;
+
+        QTest::newRow("type inside a word")
+            << u"one"_s << Edit([](QTextCursor& c) {
+                   c.setPosition(1);
+                   c.insertText(u"x"_s);
+               })
+            << 0;
+
+        QTest::newRow("split a word")
+            << u"onetwo"_s << Edit([](QTextCursor& c) {
+                   c.setPosition(3);
+                   c.insertText(u" "_s);
+               })
+            << 1;
+
+        QTest::newRow("split a word across lines")
+            << u"onetwo"_s << Edit([](QTextCursor& c) {
+                   c.setPosition(3);
+                   c.insertText(u"\n"_s);
+               })
+            << 1;
+
+        QTest::newRow("join two lines into one word")
+            << u"one\ntwo"_s << Edit([](QTextCursor& c) {
+                   c.setPosition(3);
+                   c.deleteChar();
+               })
+            << -1;
+
+        QTest::newRow("delete across lines")
+            << u"one two\nthree\nfour five"_s << Edit([](QTextCursor& c) {
+                   c.setPosition(4);
+                   c.setPosition(14, QTextCursor::KeepAnchor);
+                   c.removeSelectedText();
+               })
+            << -2;
+
+        QTest::newRow("replace a selection")
+            << u"one two three"_s << Edit([](QTextCursor& c) {
+                   c.setPosition(4);
+                   c.setPosition(7, QTextCursor::KeepAnchor);
+                   c.insertText(u"four five"_s);
+               })
+            << 1;
+
+        QTest::newRow("paste several lines")
+            << u"one"_s << Edit([](QTextCursor& c) {
+                   c.movePosition(QTextCursor::End);
+                   c.insertText(u"\ntwo three\nfour"_s);
+               })
+            << 3;
+
+        QTest::newRow("delete everything")
+            << u"one two\nthree"_s << Edit([](QTextCursor& c) {
+                   c.select(QTextCursor::Document);
+                   c.removeSelectedText();
+               })
+            << -3;
+
+        QTest::newRow("type into an empty document")
+            << u""_s << Edit([](QTextCursor& c) { c.insertText(u"one two"_s); })
+            << 2;
+
+        // One edit block, two places: Qt reports it as one change spanning
+        // both, and both are counted
+        QTest::newRow("edit block at both ends")
+            << u"one\ntwo\nthree"_s << Edit([](QTextCursor& c) {
+                   c.beginEditBlock();
+                   c.movePosition(QTextCursor::End);
+                   c.insertText(u" four"_s);
+                   c.movePosition(QTextCursor::Start);
+                   c.insertText(u"zero "_s);
+                   c.endEditBlock();
+               })
+            << 2;
+    }
+
+    void userEditReportsItsWordDelta()
+    {
+        QFETCH(QString, initial);
+        QFETCH(Edit, edit);
+        QFETCH(int, delta);
+
+        Fixture_ f(initial);
+        QSignalSpy edited(&f.prime, &PrimeDocument::userEdited);
+
+        QTextCursor cursor(&f.a);
+        edit(cursor);
+
+        // One announcement, though the edit reached view b as well
+        QCOMPARE(edited.count(), 1);
+
+        auto args = edited.takeFirst();
+        QCOMPARE(args.at(0).value<const QTextDocument*>(), &f.a);
+        QCOMPARE(args.at(1).toInt(), delta);
+        QCOMPARE(delta, wordsIn_(f.prime.text()) - wordsIn_(initial));
+    }
+
+    void anEditInTheOtherViewNamesThatView()
+    {
+        Fixture_ f(u"one"_s);
+        QSignalSpy edited(&f.prime, &PrimeDocument::userEdited);
+
+        QTextCursor cursor(&f.b);
+        cursor.movePosition(QTextCursor::End);
+        cursor.insertText(u" two"_s);
+
+        QCOMPARE(edited.count(), 1);
+        QCOMPARE(edited.first().at(0).value<const QTextDocument*>(), &f.b);
+    }
+
+    // An undo or redo names whatever asked for it, whichever view typed what
+    // it reverses
+    void undoAndRedoNameTheirRequester()
+    {
+        Fixture_ f(u"one"_s);
+
+        QTextCursor cursor(&f.a);
+        cursor.movePosition(QTextCursor::End);
+        cursor.insertText(u" two three"_s);
+
+        QSignalSpy edited(&f.prime, &PrimeDocument::userEdited);
+
+        f.prime.undo(&f.b);
+        QCOMPARE(edited.count(), 1);
+        QCOMPARE(edited.first().at(0).value<const QTextDocument*>(), &f.b);
+        QCOMPARE(edited.first().at(1).toInt(), -2);
+
+        edited.clear();
+        f.prime.redo(&f.a);
+        QCOMPARE(edited.count(), 1);
+        QCOMPARE(edited.first().at(0).value<const QTextDocument*>(), &f.a);
+        QCOMPARE(edited.first().at(1).toInt(), 2);
+
+        edited.clear();
+        f.prime.undo(nullptr);
+        QCOMPARE(edited.count(), 1);
+        QCOMPARE(edited.first().at(0).value<const QTextDocument*>(), nullptr);
+    }
+
+    void undoAndRedoWithNothingToDoReportNothing()
+    {
+        Fixture_ f(u"one"_s);
+        QSignalSpy edited(&f.prime, &PrimeDocument::userEdited);
+
+        f.prime.undo(nullptr);
+        f.prime.redo(nullptr);
+
+        QCOMPARE(edited.count(), 0);
+    }
+
+    // Undoing a reload is the user's edit, though the reload wasn't
+    void undoingAReplaceAllIsAUserEdit()
+    {
+        Fixture_ f(u"one"_s);
+        QSignalSpy edited(&f.prime, &PrimeDocument::userEdited);
+
+        f.prime.replaceAllUndoable(u"one two three"_s);
+        QCOMPARE(edited.count(), 0);
+
+        f.prime.undo(nullptr);
+        QCOMPARE(edited.count(), 1);
+        QCOMPARE(edited.first().at(1).toInt(), -2);
+    }
+
+    void loadingAndInsertingTextAreNotUserEdits()
+    {
+        Fixture_ f(u"one"_s);
+        QSignalSpy edited(&f.prime, &PrimeDocument::userEdited);
+
+        f.prime.setText(u"one two"_s);
+        f.prime.insertText(u"zero "_s);
+
+        QCOMPARE(edited.count(), 0);
+    }
+
+    void aFormatChangeIsNotAUserEdit()
+    {
+        Fixture_ f(u"one\ntwo"_s);
+        QSignalSpy edited(&f.prime, &PrimeDocument::userEdited);
+
+        f.a.setDocumentMargin(f.a.documentMargin() + 5);
+
+        QCOMPARE(edited.count(), 0);
     }
 
     // --- Signals ------------------------------------------------------------
@@ -821,7 +1036,7 @@ private slots:
         QCOMPARE(undo_available.count(), 1);
         QCOMPARE(undo_available.takeFirst().first().toBool(), true);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
 
         QCOMPARE(contents.count(), 2);
         QCOMPARE(modification.count(), 1);

@@ -36,7 +36,7 @@ Everything is under `Fernanda/src/`, in the `Fernanda` namespace. Apart from `Ma
 | Folder | Holds |
 |---|---|
 | `src/` | `Main.cpp`, `App`, and the log window |
-| `core/` | `Vault`, the buffer store, file keys, the vault tree model, configuration, file IO, file types, action ids, the focus timer and its rules |
+| `core/` | `Vault`, the buffer store, file keys, the vault tree model, configuration, file IO, file types, action ids, the focus timer and its rules, the writing history |
 | `core/spell/` | Spellcheck: the dictionaries, the word rules, and the vault's word lists |
 | `core/git/` | The repository a vault is in, and reading what `git` prints: status, diffs, remote addresses, branch names as they're typed, and the folder Git refuses to trust |
 | `models/` | One buffer class per file type, and the prime document |
@@ -90,9 +90,9 @@ flowchart TD
 |---|---|
 | `App` | The `BufferStore`, the Common Vault's `Vault` when there is one, every project `Vault`, `AppConfig`, the app-wide actions, the spelling dictionaries (`SpellCheckers`), the update checker (`Updater`), the interface language (`Translations`). Tracks each `VaultWindow` and the `ManageVaults` window |
 | `BufferStore` | Every open file's buffer, the watcher over open files, the autosave timers. Keeps a list of every vault's `VaultTreeModel`, which it doesn't own, and announces each rename, move, and trash it follows |
-| `Vault` | Its `VaultTreeModel`, its `VaultConfig`, its dictionary and ignored words, its `.fernanda/` folder. Borrows the store |
+| `Vault` | Its `VaultTreeModel`, its `VaultConfig`, its dictionary and ignored words, its `WritingHistory`, its `.fernanda/` folder. Borrows the store |
 | `BaseWindow` | The window's `TabPaneTree`, its action registry, its status bar |
-| `VaultWindow` | Its `Sidebar`, its `WorkspaceFile`, its settings dialog, its `FocusTimer`, its `GitRepository`, and the creation of its pop-outs. Borrows its vault, the Common Vault (if there is one), and the store |
+| `VaultWindow` | Its `Sidebar`, its `WorkspaceFile`, its settings dialog, its writing history dialog while it shows, its `FocusTimer`, its `GitRepository`, and the creation of its pop-outs. Borrows its vault, the Common Vault (if there is one), and the store |
 | `PopoutWindow` | Nothing of its own. Its `VaultWindow` wires it |
 
 **`App` owns every `Vault`.** If windows owned their vaults, `Vault` would have two kinds of owner: `App` for the common one, a window for the rest. Owning them all in one place makes the Common Vault an ordinary `Vault` with a role, which `App` can give to any vault, or to none (see "The Common Vault").
@@ -265,11 +265,41 @@ So each text view owns a document of its own, and the buffer owns one more, the 
 - Applying an edit to another view's document makes that document report an edit too. A guard around the fan-out stops the echo.
 - **A view's document is formatted before it is shared.** Qt reports a change to a document's format (its margin, for one) as a change to all of its text, removed and added again unchanged. Made to a registered view document, that would be routed as an edit: an undo step, a modified file, and an autosave. So everything about a view document's format is set when it is built (`TextEditor::buildDocument`), before `PrimeDocument::registerView`. Settings that change later, like the font and the tab width, are the editor's and don't touch the document's format.
 - **A change that leaves the text as it was is not an edit.** As a backstop, the buffer drops a view's change that removes and adds the same text, so a format change made after registration still goes nowhere.
-- Undo lives on the prime alone. View documents have undo disabled; otherwise each view would undo only its own edits and the views would drift apart. The editor gives up the undo and redo keys so the window's actions handle them, and those actions reach the active view's buffer.
+- Undo lives on the prime alone. See "Undo and redo" below.
 - A reload is its own undo step. Qt folds an insertion into the one before it when the two touch and the document is marked modified, so text typed at the end of reloaded text would otherwise undo together with the reload. `TextFileModel` clears the modified flag straight after a reload, because the buffer matches disk again, and that is also what keeps the two apart.
 - After every routed change the prime checks each view's document against its own and resets one that differs, since the prime is what gets saved. Every build compares lengths; a debug build compares the text too. Nothing known causes a difference.
+- Each of the user's edits is announced once, with the change it made to the word count, however many views it reaches. See "Writing history".
 - Find and replace work in one view's document. A replacement is an edit there like any other, so it reaches the prime and the other views the same way. Replace all is one edit block, which a document reports as one change, so it is one undo step.
 - Text is read from a document through a lossless path. Qt's plain-text accessor rewrites no-break spaces and some separators, which would silently change a file on its first save. Copying follows the same rule: the editor builds the clipboard's text itself, as plain text only, since Qt's own copy makes the same rewrites and adds rich formats.
+
+### Undo and redo
+
+Undo belongs to the buffer, not to a view: a buffer has one undo stack, shared by every view of the file, so an undo made in any view reverses the buffer's last edit, wherever it was made, and every view follows. A view only asks for it.
+
+- **A view asks for an undo, and names itself.** The window's Undo and Redo dispatch to its active view (`AbstractFileView::undo`), as zoom and find do; a view that can't undo inherits an inert one. A view's own context menu calls that view's.
+- **The model's `undo` takes the requester.** `AbstractFileModel::undo(const QObject* requester)` is inert on the base, kept there for any editable type, text or not. The requester is whatever identifies a view to its model.
+- **The requester changes nothing about what is undone.** It is only reported, so that whatever cares which view an undo came from (the writing history) can tell. The stack is the same whoever asks.
+- **`nullptr` names no one:** the undo still happens.
+
+### Undo and redo in text
+
+```mermaid
+flowchart TD
+    WA["Window's Undo / Redo"] -->|"active view"| TV["TextFileView::undo"]
+    CM["The view's context menu"] -->|"its own view"| TV
+    TV -->|"undo(localDocument)"| M["TextFileModel"]
+    M -->|"undo(document)"| P["PrimeDocument"]
+    P -->|"replays the change"| D["Every view's document"]
+    P -->|"userEdited: requester, word delta"| VW["Each view's connection in VaultWindow"]
+```
+
+A text buffer's stack is the prime's, since each view edits a document of its own (see "The prime document"), and everything below follows from that. A view's document has undo disabled: with a stack each, a view would undo only the edits typed in it, and the views would drift apart.
+
+- **The editor gives up the undo and redo keys** (`TextFileView`'s event filter), so the window's actions handle them and the editor's own, empty stack never does.
+- **The requester is the view's local document.** `TextFileView::undo` names its local document (`TextFileView::localDocument`, the document its editor shows, not the prime). `TextFileModel` turns the requester back into a document (`qobject_cast`) and hands it to the prime. Anything that isn't a document names no one, and the undo is credited to no view.
+- **The prime undoes itself, then replays the change out** to every view's document, as it does any change of its own (`replayPrimeOperation_`). The views' documents never see an undo, only an edit arriving, so the prime also tells the focused editor where the change was (`cursorPositionHint`).
+- **An undo is announced as the user's edit** (`userEdited`), naming the requester as its source, just as a typed edit names the view document it was typed in. One comparison, made by each view's connection, then credits either kind once (see "Writing history").
+- **The requester is a document, not a view,** because a typed edit can only name a document: the prime hears it from the view's document and knows nothing of the view, and models don't know views at all. Each `TextFileView` makes one document for its editor, which lives exactly as long as the view, so the document stands for the view.
 
 ## Saving
 
@@ -290,7 +320,7 @@ Every save, whatever triggered it, goes through one private function in `BufferS
 
 The debounce restarts on every edit and fires when typing pauses. The ceiling starts once per burst and is never restarted, so it still fires under input that never pauses. Whichever fires first saves every modified buffer. One pair for the whole app is enough: one writer types one burst at a time.
 
-A window close saves only the files the window shows, so a file that fails to save in another window can't hold this one open. A buffer no window shows, kept after its last view's save failed, is retried on focus loss and at quit. Each of these exit paths also writes its vault's pending settings change (`Vault::saveSettingsNow`).
+A window close saves only the files the window shows, so a file that fails to save in another window can't hold this one open. A buffer no window shows, kept after its last view's save failed, is retried on focus loss and at quit. Each of these exit paths also writes its vault's pending settings change and writing history (`Vault::saveSettingsNow`, `Vault::saveHistoryNow`).
 
 ### A save never creates
 
@@ -409,6 +439,7 @@ All of it but a vault's dictionary is JSON, read and written by stateless free f
 | Per-vault settings | `.fernanda/settings.json`, `.fernanda/appearance.json` | `VaultConfig` | `Vault` |
 | Window and tab layout | `.fernanda/workspace.json` | `WorkspaceFile` | `VaultWindow` |
 | A vault's dictionary | `.fernanda/dictionary.txt`, one word per line | `WordList` | `Vault` |
+| A vault's writing history | `.fernanda/history/<id>.json`, one per machine | `WritingHistory` | `Vault` |
 
 - **Each config type holds its own defaults.** A missing key falls to the default. There is no chain of fallbacks between vault and app settings.
 - **Only set keys are written.** The Common Vault's is the exception: once set up, it is always written, as `null` when unset, since an absent key means the first run hasn't set one up.
@@ -485,6 +516,27 @@ flowchart TD
 - **One timer per vault window, set from the vault's settings.** The window owns it, so it stops with the window, and two vault windows run two timers. The window gives it new lengths on each `configChanged`, which apply from the next period, and resets it while the setting is off. A `Vault` couldn't own it: the Common Vault's lives on with no window, where a timer would run unseen.
 - **The button reads and drives the timer directly.** The `Sidebar` shows it while the vault's setting is on, following `configChanged` itself, so the window never reaches into it. The button repaints on the timer's `changed`, and when a period ends it flashes its own window (`QApplication::alert`). Pop-outs have no sidebar and so no button.
 
+## Writing history
+
+```mermaid
+flowchart LR
+    TV["TextFileView"] -->|"edits its document"| P["PrimeDocument"]
+    P -->|"userEdited: source, word delta"| VW["VaultWindow"]
+    VW -->|recordEdit| V["Vault"]
+    V -->|owns| H["WritingHistory"]
+    V -->|historyChanged| D["WritingHistoryDialog"]
+```
+
+- **An edit is measured where it enters the buffer.** Before `PrimeDocument` applies a view's edit to the prime, it counts the words on the prime's lines the removed text sits on; after, the words on the lines the added text sits on. A word never spans a line (`TextCounts`), so the difference is the edit's exact change to the count, a word split or joined at either end included, and it costs the size of the edit, not of the document. The edit is announced once (`userEdited`), after it has reached every view, naming the view document it was typed in.
+- **Undo and redo are measured on the whole document,** counted before and after, since what they change isn't known until they're done. They are announced naming the view document that asked for them (see "Undo and redo"). Loading text and replacing it from disk go through other paths and announce nothing, which keeps outside changes, Git's included, out of the history. Undoing a reload is the user's undo, and is counted.
+- **The window credits each edit to its own vault,** as it applies its own vault's settings to a file from the Common Vault. Every view of the buffer, in every window, hears each edit. Each view's connection compares the edit's source with its own local document, so an edit typed in a view, or an undo or redo asked for there, is credited once, by the window holding that view, pop-outs included. Nothing depends on which window is active or which view has focus.
+- **The rules are a plain value, given the time.** `WritingHistory` keeps, per local date, the net change in words, the gains alone (words written), and the active time: each gap between edits no longer than `WRITING_IDLE_LIMIT_MS`, counted toward the day of the edit that ends it. Every edit is recorded, one that changes no count included, since each is activity. Like `FocusCycle`, it takes the time as an argument, so `WritingHistoryTest` runs on made-up times. The last edit's time isn't saved: each launch starts a new stretch.
+- **One file per machine.** The `Vault` reads `.fernanda/history/` when it opens. Its own machine's file becomes the history's own days; the rest are other machines', added into every figure and never written. No two machines ever write the same file, so a sync tool or a Git merge has nothing to reconcile.
+- **Only files named as Fernanda names them are read** as other machines': 16 lowercase hex digits and `.json`. A sync tool's copy of a file is named after it ("… (conflicted copy).json"), and counting it would count that machine's writing twice.
+- **A damaged file of this machine's is left alone.** Fernanda never writes an empty one, so if its own file is there but reads as nothing (a merge conflict, a hand edit gone wrong), history is off for the session: nothing is recorded, and the file is never written over, so whatever it held is still there to mend. A missing file is no damage: the history starts empty.
+- **A machine's file is named by a hash of Fernanda's own ID, keyed by the machine's ID:** the first 16 hex digits of an HMAC-SHA256 of a fixed string of Fernanda's (`HISTORY_APP_ID_`), keyed by `QSysInfo::machineUniqueId`. That is how systemd derives an ID for one application from the machine's (`sd_id128_get_machine_app_specific`), and systemd asks that the machine ID itself never be exposed. The ID can't be recovered from the name, which matters in a vault that may be published. Fernanda's string must never change: every machine's file would be renamed, and its old file counted as another machine's. A system with no machine ID records nothing.
+- **Saved on a timer that isn't restarted.** The first unsaved edit starts it and later ones leave it running, so steady typing still saves every 30 seconds. Every exit path saves too. A save writes nothing once the vault's folder is gone, so it can't bring the folder back. Each write is announced (`Vault::fileWritten`), for a Git page showing the vault's repository.
+
 ## Git
 
 ```mermaid
@@ -500,7 +552,7 @@ flowchart TD
 ```
 
 - **The installed `git`, not a library.** `GitRepository` runs `git` through `QProcess`, asynchronously, and reads its output. Fernanda gains no dependency to build on every platform, and Git's own configuration and sign-in (credential managers, SSH agents) work as they do in a terminal. A machine without Git shows no Git page.
-- **One `GitRepository` per vault window, owned by it.** The window decides when to ask: it detects the repository when the vault opens, when its folder moves, and when the window comes forward, which also reads the status again. The Git page reads it again when it shows. So does a file in the repository saved, renamed, moved, or trashed from Fernanda, while the Git page or a diff tab shows: `BufferStore` announces each write (`fileWritten`), and the window reads the status on the next turn of the event loop, since a write can come from inside a flush, a status's own included. A save runs no `git` while nothing of Git's shows. Two windows over one repository have one each; the repository on disk is the shared state. Nothing runs `git` on a timer, and nothing reaches the remote unless the sync button is clicked.
+- **One `GitRepository` per vault window, owned by it.** The window decides when to ask: it detects the repository when the vault opens, when its folder moves, and when the window comes forward, which also reads the status again. The Git page reads it again when it shows. So does a file in the repository saved, renamed, moved, or trashed from Fernanda, while the Git page or a diff tab shows: `BufferStore` announces each write of a buffer (`fileWritten`), and the window's own `Vault` each write of its own (`Vault::fileWritten`: its settings, dictionary, writing history, and new files), and the window reads the status on the next turn of the event loop, since a write can come from inside a flush, a status's own included. Only the window's own vault is heard, since those are the writes made from that window; another vault's, inside the same repository, shows when the window next comes forward. A new folder isn't announced: Git doesn't list an empty one. A save runs no `git` while nothing of Git's shows. Two windows over one repository have one each; the repository on disk is the shared state. Nothing runs `git` on a timer, and nothing reaches the remote unless the sync button is clicked.
 - **One command at a time, in a queue.** Git locks the index for most commands, so two at once could fail each other. A command's answer is handled whole before the next command starts: one asked for meanwhile, from a slot of a signal the answer emits (a diff tab reading its diff on `statusChanged`), waits its turn, since it could otherwise be the next step of an operation the answer is about to drop. A detection, status, branch list, or remote list asked for while the same kind waits adds nothing. A diff asked for while the same file's waits replaces it; diffs of different files are each answered, since several diff tabs can show at once. A commit, discard, switch, or sync is one operation of several steps: a step that fails drops the rest, and the status is read again either way. A switch to another branch and a discard each start with a status read of their own (see below). One operation waits for another, and `busyChanged` says when one starts or ends, so every control that would start one follows it.
 - **Every command runs with `core.fsmonitor` off, `core.quotePath` off, and `--literal-pathspecs`, with no terminal prompt and nothing on standard input** beyond paths passed there. A repository's own config can name a program for `git status` to run as its file monitor, and a vault can come from anyone. Diffs also run with `--no-ext-diff` and `--no-textconv`, for the same reason and to show the file's own lines. Other programs a repository's config can name still run, as they do for any Git client: a clean filter, when a status or a diff reads a changed file, and hooks, when a commit or a switch runs them. On macOS and Linux, `git` runs in a session of its own (`setsid`), with no terminal: otherwise `ssh` asks for a key's passphrase on the terminal Fernanda was started from, where no one is looking. A command that wants to ask something fails rather than waiting for an answer no one can type.
 - **Only the network is timed out.** A pull is a `fetch` then `merge --ff-only` with the upstream, as `git pull` is, so only the fetch, like a push, reaches the network and is stopped after `GIT_NETWORK_TIMEOUT_MS`. Neither touches the working tree, so stopping one leaves no file half written. A step that rewrites files is never stopped for time, and a window closing waits `GIT_REWRITE_EXIT_WAIT_MS` for one, against `GIT_EXIT_WAIT_MS` for anything else, before stopping it.
@@ -552,7 +604,7 @@ Every user-facing command is a `QAction` in its window's registry, keyed by a st
 - **An action is created where it can be performed.** `App` creates Quit and Manage Vaults, connects each once, and hands every window the set. A window adopts them to show them and to bind their shortcuts. It never forwards a "triggered" signal.
 - **Every action is added to its window,** so its shortcut works with the menu bar hidden. The menu bar only displays.
 - **Sharing one action between windows is safe.** A window shortcut fires only in the active window.
-- **The editor's context menu has its own Undo and Redo,** aimed at that editor's buffer. The window's actions mean "undo in the active pane", which would be the wrong document for an editor that isn't active.
+- **The editor's context menu has its own Undo and Redo,** which ask that editor's own view (`TextFileView::undo`). The window's actions mean "undo in the active pane", which would be the wrong view, and the wrong document, for an editor that isn't active.
 - **Clipboard and selection commands follow keyboard focus.** The `text.` actions (cut, copy, paste, delete, select all) act on the text widget that has focus, the editor or a text field, and on nothing else. A menu doesn't take focus, so from the Edit menu they reach the field the user was in. Their keys are not bound to the window: every text widget handles them itself, and a window binding would fire only when something else had focus, taking Del from the file tree. The menu shows each key as a hint that binds nothing.
 
 ## Checking for updates
@@ -596,6 +648,7 @@ A dialog run with `exec()` spins a nested event loop on its caller's stack. If t
 
 - The settings dialog is window-modal and opened without `exec()`: Quit can be triggered from inside it and deletes its window.
 - The licenses dialog is window-modal over Manage Vaults, opened without `exec()`, and deletes itself when closed.
+- The writing history dialog is window-modal, opened without `exec()`, and deletes itself when closed. Its window holds one at a time: a pop-out, which it doesn't block, brings the open one forward rather than making another.
 - Go to File does use `exec()`, and is application-modal so that no other window can close its host meanwhile.
 - The Git page's confirmations and failure messages, and the New Branch dialog, are opened with `open()` and delete themselves when closed.
 - No dialog is shown while a window is being constructed. Workspace restore, which runs then, refuses a file that would need a prompt.
@@ -659,6 +712,10 @@ Each of these was built or seriously considered. They are recorded so they aren'
 - **A Common Vault at a fixed place, recreated empty when its folder went.** Built, then replaced by the role. A moved or renamed Common Vault left its files behind as ordinary files and a new, empty folder in its place. A case-only rename on Windows and macOS was re-spelled for the session but reverted at the next launch, and two spellings split its record in two. Recreating needed a settings and dictionary reset of its own.
 - **Refusing to rename, move, or trash the Common Vault's folder from inside Fernanda.** Considered when the fixed-place rules had grown unwieldy. Every `Vault` would have needed the Common Vault's root to refuse with, and outside moves would still have needed handling. A role that follows its folder, and is unset when its folder goes, was simpler.
 - **A window re-sending the Common Vault's `wordsChanged` to its views,** so that a change of Common Vault would be one reconnection. Built, then replaced: it was a signal relay, against the principle. Each view connects to the Common Vault directly, and the window moves those connections when the Common Vault changes.
+- **One writing history file per vault, written by every machine.** Two machines syncing the vault would each write it, and a sync tool or a Git merge would have to reconcile the two, or keep one and drop the other's days. Scrivener's writing history, kept in one synced project, is reported to lose whole days this way. With a file per machine, each is only ever written by one.
+- **A machine's ID as its history file's name.** systemd asks that the machine ID be treated as confidential and never used directly, and a vault's `.fernanda` folder may be published with it. The name is a hash keyed by the ID instead.
+- **Crediting an undo to the active view of the active window.** Built, then replaced. An undo named no view, so each view's connection had to judge whether the undo was its own, which held only if whatever asked for it also made its window active and its view focused. A context menu opened on a window in the background, as macOS allows, would have matched no view. The view that asks now names itself.
+- **Announcing a vault's own writes through `BufferStore`,** so that every window would hear them. Considered for the Git page's refresh. The store keeps buffers, and a vault's settings, dictionary, and history aren't buffers; the vault announces its own writes, and its own window hears them.
 - **A base class for PDF and image buffers.** They share one member.
 - **A placeholder buffer for empty tabs.** An off-disk buffer by another name.
 - **A separate object tracking views per buffer.** The buffer already is that record, and the store's map already is the registry.

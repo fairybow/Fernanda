@@ -15,17 +15,21 @@
 
 #pragma once
 
+#include <utility>
+
 #include <QChar>
 #include <QList>
 #include <QObject>
 #include <QPlainTextDocumentLayout>
 #include <QString>
+#include <QTextBlock>
 #include <QTextCursor>
 #include <QTextDocument>
 
 #include <Coco/Debug.h>
 
 #include "core/CMakeMacroGuard.h"
+#include "core/TextCounts.h"
 
 namespace Fernanda {
 
@@ -43,6 +47,14 @@ namespace Fernanda {
 //
 // Ownership: views own their own documents. This class only tracks them, and
 // drops them on QObject::destroyed. Nothing here deletes a view document.
+//
+// Every edit the user makes is announced once, with the change it made to the
+// word count (userEdited), however many views it then reaches. An edit typed
+// in a view is measured on the prime's lines it touched, counted before and
+// after it lands, so the cost is the size of the edit, not of the document.
+// An undo or redo is measured by counting the whole document before and
+// after, since what it changed isn't known until it's done. Loading text and
+// replacing it from disk aren't the user's edits, and announce nothing
 class PrimeDocument : public QObject
 {
     Q_OBJECT
@@ -166,7 +178,7 @@ public:
 
     // Routed through replayPrimeOperation_ so the delta reaches every view
     // document; editing the prime alone would leave open views out of sync.
-    // Also emits cursorPositionHint
+    // Also emits cursorPositionHint. Not counted as the user's edit
     void insertText(const QString& text)
     {
         if (text.isEmpty()) {
@@ -191,22 +203,26 @@ public:
         return document_->isRedoAvailable();
     }
 
-    void undo()
+    // An undo is the user's edit, whatever it undoes. So undoing a reload
+    // from disk counts its change to the word count, though the reload itself
+    // didn't. requester is the view document that asked for it, named as the
+    // edit's source (userEdited); nullptr names none
+    void undo(const QTextDocument* requester)
     {
-        if (routing_) {
+        if (routing_ || !document_->isUndoAvailable()) {
             return;
         }
 
-        replayPrimeOperation_([this] { document_->undo(); });
+        replayUserOperation_(requester, [this] { document_->undo(); });
     }
 
-    void redo()
+    void redo(const QTextDocument* requester)
     {
-        if (routing_) {
+        if (routing_ || !document_->isRedoAvailable()) {
             return;
         }
 
-        replayPrimeOperation_([this] { document_->redo(); });
+        replayUserOperation_(requester, [this] { document_->redo(); });
     }
 
     // --- Modification ------------------------------------------------------
@@ -237,6 +253,11 @@ signals:
     // the menu and returns focus to the previously-focused widget before the
     // action's triggered() signal fires
     void cursorPositionHint(int position);
+
+    // The user edited the text, changing its word count by wordDelta (zero
+    // for an edit that changed none). source is the view document the edit was
+    // typed in, or the one that asked for an undo or redo (nullptr for none)
+    void userEdited(const QTextDocument* source, int wordDelta);
 
 private:
     // When view A types a character, this object receives the contentsChange
@@ -298,9 +319,26 @@ private:
             return;
         }
 
+        auto words_before = wordsInLines_(pos, pos + removed);
         applyDelta_(document_, pos, removed, added_text);
+        auto words_after = wordsInLines_(pos, pos + added_text.length());
+
         routeDelta_(source, pos, removed, added_text);
         checkSync_(__FUNCTION__);
+        emit userEdited(source, words_after - words_before);
+    }
+
+    // An undo or redo, replayed out to the views and announced as the user's
+    // edit, made by requester
+    template <typename OperationT>
+    void
+    replayUserOperation_(const QTextDocument* requester, OperationT&& operation)
+    {
+        auto words_before = wordsInLines_(0, document_->characterCount());
+        replayPrimeOperation_(std::forward<OperationT>(operation));
+        auto words_after = wordsInLines_(0, document_->characterCount());
+
+        emit userEdited(requester, words_after - words_before);
     }
 
     // Replay a prime operation (undo/redo/insert) out to all view documents
@@ -335,6 +373,33 @@ private:
         }
 
         checkSync_(__FUNCTION__);
+    }
+
+    // The words on the prime's lines from the one holding position from to the
+    // one holding position to, both included. Positions are clamped as
+    // applyDelta_ clamps them. A word never spans a line (TextCounts), so the
+    // change an edit made to the whole count is the change it made to the
+    // lines it touched: the lines its removed text sat on, counted before, and
+    // the lines its added text sits on, counted after. Those lines include any
+    // word the edit split or joined at either end
+    [[nodiscard]] int wordsInLines_(int from, int to) const
+    {
+        auto max_pos = document_->characterCount() - 1;
+        auto block = document_->findBlock(qMin(from, max_pos));
+        auto last = document_->findBlock(qMin(to, max_pos));
+        auto words = 0;
+
+        while (block.isValid()) {
+            words += TextCounts::wordCount(block.text());
+
+            if (block == last) {
+                break;
+            }
+
+            block = block.next();
+        }
+
+        return words;
     }
 
     // The document's text exactly as stored, with line breaks as '\n'. NOT
