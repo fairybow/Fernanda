@@ -33,6 +33,7 @@
 
 #include <Coco/Debug.h>
 
+#include "ui/Style.h"
 #include "ui/UiConstants.h"
 
 namespace Fernanda::Ui {
@@ -111,11 +112,11 @@ protected:
 
         // Track. The outline fades as the fill turns to accent, so the on
         // state reads as one solid pill
-        auto fill = blend_(
+        auto fill = Style::blend(
             colors.color(TOGGLE_OFF_TRACK_ROLE),
             colors.color(TOGGLE_ON_TRACK_ROLE),
             p);
-        auto outline = blend_(
+        auto outline = Style::blend(
             colors.color(TOGGLE_OFF_OUTLINE_ROLE),
             colors.color(TOGGLE_ON_TRACK_ROLE),
             p);
@@ -139,10 +140,11 @@ protected:
         QPointF center(left_x + (right_x - left_x) * p, track.center().y());
 
         painter.setPen(Qt::NoPen);
-        painter.setBrush(blend_(
-            colors.color(TOGGLE_OFF_THUMB_ROLE),
-            colors.color(TOGGLE_ON_THUMB_ROLE),
-            p));
+        painter.setBrush(
+            Style::blend(
+                colors.color(TOGGLE_OFF_THUMB_ROLE),
+                colors.color(TOGGLE_ON_THUMB_ROLE),
+                p));
         painter.drawEllipse(center, diameter / 2.0, diameter / 2.0);
 
         // Our own focus ring, a pill outline in the margin around the track.
@@ -214,17 +216,6 @@ private:
         auto w = qMin<qreal>(TOGGLE_WIDTH, width());
         auto h = qMin<qreal>(TOGGLE_HEIGHT, height());
         return QRectF((width() - w) / 2.0, (height() - h) / 2.0, w, h);
-    }
-
-    [[nodiscard]] static QColor
-    blend_(const QColor& from, const QColor& to, qreal t)
-    {
-        auto mix = [t](qreal a, qreal b) { return a + (b - a) * t; };
-        return QColor::fromRgbF(
-            float(mix(from.redF(), to.redF())),
-            float(mix(from.greenF(), to.greenF())),
-            float(mix(from.blueF(), to.blueF())),
-            float(mix(from.alphaF(), to.alphaF())));
     }
 };
 

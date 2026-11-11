@@ -144,6 +144,20 @@ public:
         return wash_(palette, STYLE_DIVIDER_ALPHA);
     }
 
+    // The color amount of the way from one color to another, in every
+    // channel, alpha included. Public so a widget that animates between two
+    // palette colors blends them as the style does (ToggleSwitch)
+    [[nodiscard]] static QColor
+    blend(const QColor& from, const QColor& to, qreal amount)
+    {
+        auto fraction = static_cast<float>(amount);
+        return QColor::fromRgbF(
+            from.redF() + (to.redF() - from.redF()) * fraction,
+            from.greenF() + (to.greenF() - from.greenF()) * fraction,
+            from.blueF() + (to.blueF() - from.blueF()) * fraction,
+            from.alphaF() + (to.alphaF() - from.alphaF()) * fraction);
+    }
+
     // A one-pixel line, horizontal or vertical, centered on line and running
     // its length. It's a whole number of device pixels thick: the scale
     // rounded down, and at least one, as browsers draw a 1px border. A band
@@ -204,7 +218,7 @@ public:
             palette.setColor(
                 group,
                 QPalette::Window,
-                blend_(
+                blend(
                     palette.color(group, QPalette::Window),
                     palette.color(group, QPalette::Base),
                     STYLE_WINDOW_TOWARD_BASE));
@@ -766,16 +780,6 @@ private:
         return color;
     }
 
-    [[nodiscard]] static QColor
-    blend_(const QColor& from, const QColor& to, qreal amount)
-    {
-        return QColor::fromRgbF(
-            from.redF() + (to.redF() - from.redF()) * amount,
-            from.greenF() + (to.greenF() - from.greenF()) * amount,
-            from.blueF() + (to.blueF() - from.blueF()) * amount,
-            from.alphaF() + (to.alphaF() - from.alphaF()) * amount);
-    }
-
     static void setAllGroups_(
         QPalette& palette,
         QPalette::ColorRole role,
@@ -833,8 +837,7 @@ private:
             return;
         }
 
-        auto pressed =
-            static_cast<bool>(option->state & (State_Sunken | State_On));
+        auto pressed = option->state.testAnyFlags(State_Sunken | State_On);
         if (!pressed && !(option->state & State_MouseOver)) {
             return;
         }
@@ -927,7 +930,7 @@ private:
     {
         const auto& palette = option->palette;
         auto active = widget ? widget->isActiveWindow()
-                             : static_cast<bool>(option->state & State_Active);
+                             : option->state.testFlag(State_Active);
         auto group = active ? QPalette::Active : QPalette::Inactive;
         auto side = qMin(option->rect.width(), option->rect.height());
         QRectF box(
@@ -1240,7 +1243,7 @@ private:
     static void drawMenuBorder_(const QStyleOption* option, QPainter* painter)
     {
         auto panel = menuPanelRect_(option).adjusted(0.5, 0.5, -0.5, -0.5);
-        auto radius = qreal(STYLE_MENU_RADIUS);
+        qreal radius = STYLE_MENU_RADIUS;
 
         painter->save();
         painter->setRenderHint(QPainter::Antialiasing, true);
@@ -1444,12 +1447,12 @@ private:
         auto rect = bar->rect;
         auto horizontal = bar->orientation == Qt::Horizontal;
         auto length = horizontal ? rect.width() : rect.height();
-        auto range = qint64(bar->maximum) - bar->minimum;
+        auto range = static_cast<qint64>(bar->maximum) - bar->minimum;
+        qint64 page = bar->pageStep;
 
         auto handle = length;
         if (range > 0) {
-            handle =
-                int(qint64(length) * bar->pageStep / (range + bar->pageStep));
+            handle = static_cast<int>(length * page / (range + page));
             handle = qBound(
                 qMin(STYLE_SCROLL_BAR_HANDLE_MIN, length),
                 handle,
