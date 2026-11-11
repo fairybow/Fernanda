@@ -270,26 +270,28 @@ What the tests in `Fernanda/tests/` don't reach.
 
 Passes over the whole codebase against [CodeStyle.md](CodeStyle.md).
 
-- [ ] Signals passed up parent chains
-- [ ] Signals that only ever drive one slot in the same class
-- [ ] Consistent terms: what is a pane, a leaf, a view, a page
-- [ ] Naming and casing of types, functions, and members, including trailing underscores on private members
-- [ ] Parent parameters not named for their parent type/object
-- [ ] Widgets that start without a parent and are inserted into one later: name the parameter to say so
-- [ ] Constructor work outside `setup_`
-- [ ] `const`, `[[nodiscard]]`, `[[maybe_unused]]`
-- [ ] `QDir` where a `Coco::Path` function would do
-- [ ] Paths held or passed as `QString`
-- [ ] Unneeded `Coco::Path(...)` conversions
-- [ ] Includes not using the full path from `src/`
-- [ ] Blank lines inside namespace braces
-- [ ] Public functions nothing outside the class calls
-- [ ] Order of sections within classes
-- [ ] C-style and function-style casts
-- [ ] Ctors that could take 1 argument but aren't marked explicit (where applicable)
-- [ ] Ctors with unnecessary default args (in the Qt style, `parent = nullptr`, but where a parent is always being supplied, so defaulting isn't needed)
-- [ ] Helper classes used in one header that could move to its `Internal` namespace (`ZoomButton` in `ZoomControl.h`, for example)
-- [ ] `TODO` comments in the source
-- [ ] Things that could move into Coco
-- [ ] Things that could be replaced with a call to Coco
-- [ ] Wordy comments
+(These are standing.)
+
+- Signals passed up parent chains
+- Signals that only ever drive one slot in the same class
+- Consistent terms: what is a pane, a leaf, a view, a page
+- Naming and casing of types, functions, and members, including trailing underscores on private members
+- Parent parameters not named for their parent type/object
+- Widgets that start without a parent and are inserted into one later: name the parameter to say so
+- Constructor work outside `setup_`
+- `const`, `[[nodiscard]]`, `[[maybe_unused]]`
+- `QDir` where a `Coco::Path` function would do
+- Paths held or passed as `QString`
+- Unneeded `Coco::Path(...)` conversions
+- Includes not using the full path from `src/`
+- Blank lines inside namespace braces
+- Public functions nothing outside the class calls
+- Order of sections within classes
+- C-style and function-style casts
+- Ctors that could take 1 argument but aren't marked explicit (where applicable)
+- Ctors with unnecessary default args (in the Qt style, `parent = nullptr`, but where a parent is always being supplied, so defaulting isn't needed)
+- Helper classes used in one header that could move to its `Internal` namespace (`ZoomButton` in `ZoomControl.h`, for example)
+- `TODO` comments in the source
+- Things that could move into Coco
+- Things that could be replaced with a call to Coco
+- Wordy comments

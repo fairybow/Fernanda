@@ -213,8 +213,8 @@ private:
     // margin, so a layout that stretches the widget doesn't stretch the pill
     [[nodiscard]] QRectF trackRect_() const
     {
-        auto w = qMin<qreal>(TOGGLE_WIDTH, width());
-        auto h = qMin<qreal>(TOGGLE_HEIGHT, height());
+        auto w = qMin(TOGGLE_WIDTH, width());
+        auto h = qMin(TOGGLE_HEIGHT, height());
         return QRectF((width() - w) / 2.0, (height() - h) / 2.0, w, h);
     }
 };
