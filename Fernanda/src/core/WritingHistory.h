@@ -122,7 +122,7 @@ public:
     {
         Day change{};
         change.netWords = wordDelta;
-        change.addedWords = qMax(wordDelta, qint64{ 0 });
+        change.addedWords = qMax(wordDelta, 0);
 
         if (hasLastEdit_) {
             // A clock set back by hand gives a negative gap, which adds nothing
@@ -227,9 +227,8 @@ private:
             Day day{};
             day.netWords = day_json.value(NET_WORDS_KEY_).toInteger();
             day.addedWords =
-                qMax(day_json.value(ADDED_WORDS_KEY_).toInteger(), qint64{ 0 });
-            day.activeMs =
-                qMax(day_json.value(ACTIVE_MS_KEY_).toInteger(), qint64{ 0 });
+                qMax(day_json.value(ADDED_WORDS_KEY_).toInteger(), 0);
+            day.activeMs = qMax(day_json.value(ACTIVE_MS_KEY_).toInteger(), 0);
 
             if (!day.isEmpty()) {
                 days[date] = day;

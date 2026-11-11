@@ -196,9 +196,9 @@ private:
     static Lengths clamped_(const Lengths& lengths)
     {
         auto result = lengths;
-        result.focusMs = qMax(result.focusMs, qint64{ 0 });
-        result.shortBreakMs = qMax(result.shortBreakMs, qint64{ 0 });
-        result.longBreakMs = qMax(result.longBreakMs, qint64{ 0 });
+        result.focusMs = qMax(result.focusMs, 0);
+        result.shortBreakMs = qMax(result.shortBreakMs, 0);
+        result.longBreakMs = qMax(result.longBreakMs, 0);
         result.longBreakEvery = qMax(result.longBreakEvery, 1);
         return result;
     }

@@ -233,7 +233,7 @@ private:
     // numbers written in the locale's digits
     static QString durationText_(qint64 ms, const QLocale& locale)
     {
-        auto total_minutes = qMax(ms, qint64{ 0 }) / (60 * 1000);
+        auto total_minutes = qMax(ms, 0) / (60 * 1000);
         auto hours = total_minutes / 60;
         auto minutes = total_minutes % 60;
 
