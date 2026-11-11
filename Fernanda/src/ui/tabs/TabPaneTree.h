@@ -1034,7 +1034,10 @@ private:
         }
 
         if (auto index = drag_.leaf->indexOf(drag_.page); index > -1) {
-            (void)drag_.leaf->takePage(index);
+            auto* taken = drag_.leaf->takePage(index);
+            ASSERT(
+                taken == drag_.page,
+                "Took a page other than the one being dragged!");
         }
     }
 

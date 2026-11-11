@@ -191,10 +191,10 @@ signals:
     void vaultsChanged();
 
 public slots:
-    void onRelaunch(const QStringList& args)
+    void onRelaunch([[maybe_unused]] const QStringList& args)
     {
-        // TODO: Hand a relaunch's arguments to the running instance
-        (void)args;
+        // TODO: Hand a relaunch's arguments to the running instance; remove
+        // [[maybe_unused]]
     }
 
 private:

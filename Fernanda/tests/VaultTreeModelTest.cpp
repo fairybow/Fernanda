@@ -161,14 +161,20 @@ private:
         }
     };
 
+    // Lists a folder of some other vault's tree, if nothing has yet
+    static void fetch_(VaultTreeModel* model, const QModelIndex& parent)
+    {
+        if (model->canFetchMore(parent)) {
+            model->fetchMore(parent);
+        }
+    }
+
     // The rows under a folder of some other vault's tree, as rows() gives
     // them for the fixture's. Lists the folder first if nothing has yet
     [[nodiscard]] static QStringList
     rowsOf_(VaultTreeModel* model, const QModelIndex& parent)
     {
-        if (model->canFetchMore(parent)) {
-            model->fetchMore(parent);
-        }
+        fetch_(model, parent);
 
         QStringList shown{};
 
@@ -921,7 +927,7 @@ private slots:
 
         Vault inner(f.absolute(u"box/inner"_s), &f.store, nullptr);
         auto* inner_model = inner.treeModel();
-        (void)rowsOf_(inner_model, {});
+        fetch_(inner_model, {});
         auto sub = inner_model->indexOf(f.absolute(u"box/inner/sub"_s));
         QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
 
@@ -951,7 +957,7 @@ private slots:
 
         Vault inner(f.absolute(u"box/inner"_s), &f.store, nullptr);
         auto* inner_model = inner.treeModel();
-        (void)rowsOf_(inner_model, {});
+        fetch_(inner_model, {});
         QPersistentModelIndex sub(
             inner_model->indexOf(f.absolute(u"box/inner/sub"_s)));
         QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
@@ -1006,7 +1012,7 @@ private slots:
 
         Vault inner(f.absolute(u"inner"_s), &f.store, nullptr);
         auto* inner_model = inner.treeModel();
-        (void)rowsOf_(inner_model, {});
+        fetch_(inner_model, {});
         auto sub = inner_model->indexOf(f.absolute(u"inner/sub"_s));
         QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
 

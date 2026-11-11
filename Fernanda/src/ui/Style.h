@@ -833,7 +833,7 @@ private:
             return;
         }
 
-        auto pressed = bool(option->state & (State_Sunken | State_On));
+        auto pressed = static_cast<bool>(option->state & (State_Sunken | State_On));
         if (!pressed && !(option->state & State_MouseOver)) {
             return;
         }
@@ -926,7 +926,7 @@ private:
     {
         const auto& palette = option->palette;
         auto active = widget ? widget->isActiveWindow()
-                             : bool(option->state & State_Active);
+                             : static_cast<bool>(option->state & State_Active);
         auto group = active ? QPalette::Active : QPalette::Inactive;
         auto side = qMin(option->rect.width(), option->rect.height());
         QRectF box(

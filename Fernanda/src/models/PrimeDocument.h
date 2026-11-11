@@ -276,7 +276,7 @@ private:
         bool& routing;
         bool previous;
 
-        RoutingScope_(bool& r)
+        explicit RoutingScope_(bool& r)
             : routing(r)
             , previous(r)
         {

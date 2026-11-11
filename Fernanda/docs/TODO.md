@@ -11,7 +11,6 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Places where logging would be useful but is missing
 - [x] The Writing History dialog, left open past midnight, kept showing the previous day under Today until the next edit updated it. It now checks the date once a minute, which also catches a computer that slept through midnight, where a timer set for midnight might not
 - [ ] When scrolling the Git changes list (via grabbing the scroll bar handle, holding left click), if you move the mouse over an entry while still scrolling, the rows will show hover wash (good) but it won't go away when the mouse leaves the row (bad). Normally this doesn't happen, but it's happening presumably because we're holding left click when we pass over the row and because scrolling is happening?
-- [ ] Replace all C-style casts
 - [ ] Have installer(s) remove old or outdated files in app data directory? (Is this wise, on the off chance a user has put their own files in the directory? I would say this is a hard maybe, leaning toward don't do)
 - [ ] Re: menu and context menu items: for items that are not always doable (like Git page's discard, when a hold is active), I'd like to have a consistent rationale (documented) and implementation (visible? enabled vs disabled?)
 - [ ] Re-use Hearth's widget mask (or find better solution) for PDF jitter/flashing (occurs when the window/pane is resized - pretty sure it's unavoidable and normal, but we may want to just mask it)
@@ -286,7 +285,11 @@ Passes over the whole codebase against [CodeStyle.md](CodeStyle.md).
 - [ ] Blank lines inside namespace braces
 - [ ] Public functions nothing outside the class calls
 - [ ] Order of sections within classes
+- [ ] C-style and function-style casts
+- [ ] Ctors that could take 1 argument but aren't marked explicit (where applicable)
+- [ ] Ctors with unnecessary default args (in the Qt style, `parent = nullptr`, but where a parent is always being supplied, so defaulting isn't needed)
 - [ ] Helper classes used in one header that could move to its `Internal` namespace (`ZoomButton` in `ZoomControl.h`, for example)
 - [ ] `TODO` comments in the source
 - [ ] Things that could move into Coco
 - [ ] Things that could be replaced with a call to Coco
+- [ ] Wordy comments
