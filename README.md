@@ -55,6 +55,7 @@ Fernanda is early in development, and more features are planned. I expect to kee
 - **Changes made elsewhere are picked up.** A file edited in another program, by Git, or by a sync client reloads in place, as one undo step
 - **Git, built in,** for a vault in a Git repository: see what's changed, with each changed word marked, then commit, discard, switch and make branches, and sync with the remote, as GitHub Desktop does. It uses the Git on your computer, and reaches the remote only when you click
 - **A focus timer** for writing in focus periods, with a short break after each and a longer one after several
+- **Writing history** for each vault: words written, net words, and time spent writing, today and over the vault's life, added up from every computer the vault is synced to
 - **PDFs and images** open read-only beside your text
 - **Typing helpers** that pair brackets and quotes, and let you step past a closing one with a second space
 - **A word counter**, bundled fonts for prose, and settings kept per vault

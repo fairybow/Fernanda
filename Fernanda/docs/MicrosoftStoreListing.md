@@ -35,6 +35,8 @@ Fernanda is still in beta, and new features should arrive somewhat regularly. Ke
 
 Fernanda is an independent project and isn't affiliated with or endorsed by Obsidian.
 
+See CHANGELOG.md in Fernanda's GitHub repository for details on the latest changes.
+
 *Fernanda is free and open source, under the GNU GPL, and you can download it from GitHub at no cost. If you buy it here, you're supporting its development directly, and I love you for it. You also get easy installation and automatic updates through the Microsoft Store, with every new feature and fix. In Ukraine, Fernanda is free in the Microsoft Store.
 ```
 
@@ -54,6 +56,7 @@ Spellcheck as you write, with a dictionary of your own words for each vault
 Files changed by other programs, Git, or a sync service reload in place, as one undo step
 Git built in: see what changed, commit, branch, and sync, using the Git on your computer
 A focus timer for writing in focus periods, with short and long breaks
+Writing history for each vault: words written, net words, and time spent writing, from every computer you write on
 PDFs and images open beside your text
 Brackets and quotes pair as you type
 A word counter, fonts chosen for prose, and settings kept per vault
@@ -62,7 +65,7 @@ In English, with a Spanish translation in progress
 
 ## What's new in this version
 
-Up to 1,500 characters. Leave it blank for the first submission. For each update after, a short plain-text summary of that version's entry in `CHANGELOG.md`.
+Leave blank.
 
 ## Keywords
 
