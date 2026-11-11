@@ -7,7 +7,7 @@ This document covers what spans several files: who owns what, what is guaranteed
 > [!NOTE]
 > Fernanda is developed with AI assistance. I decide what Fernanda does and how it's designed, and I review and test every change before it goes in. [TODO.md](TODO.md) tracks known bugs and what the tests don't yet cover.
 >
-> Every push builds Fernanda and runs its [test suite](../tests) on Linux and macOS, with the Linux build using AddressSanitizer and UndefinedBehaviorSanitizer. I run the tests on Windows before pushing.
+> Every push that changes more than documentation builds Fernanda and runs its [test suite](../tests) on Linux and macOS, with the Linux build using AddressSanitizer and UndefinedBehaviorSanitizer. I run the tests on Windows before pushing.
 >
 > If you find a problem, in the app, the code, or their documentation, please [open an issue](https://github.com/fairybow/Fernanda/issues).
 
@@ -25,7 +25,7 @@ Four structural commitments follow from them:
 - **No off-disk buffers.** Every open document is a file that exists on disk. This is what makes unconditional autosave possible, and it removes save prompts, modified markers, and untitled-document naming.
 - **No singletons and no service locator.** "Only one exists" and "reachable from anywhere" are different properties. Each object is owned by whatever owns the data it describes, and is handed to whoever needs it.
 - **No signal relays.** A signal is emitted by the object that owns the fact. It is not echoed up a chain of parents. Where an action belongs to a distant owner, the owner creates the action and hands the pointer down.
-- **One process.** `App` is a `QApplication`, and every open vault lives inside it. A second launch hands its arguments to the running instance and exits.
+- **One process.** `App` is a `QApplication`, and every open vault lives inside it. A second launch hands its arguments to the running instance and exits. The running instance doesn't act on them yet (`App::onRelaunch`).
 
 Obsidian is the behavioral reference. Where Fernanda's intended behavior is unclear, Obsidian's is looked up and either matched or diverged from on purpose. The divergences are listed in [Features.md](Features.md).
 
@@ -36,17 +36,17 @@ Everything is under `Fernanda/src/`, in the `Fernanda` namespace. Apart from `Ma
 | Folder | Holds |
 |---|---|
 | `src/` | `Main.cpp`, `App`, and the log window |
-| `core/` | `Vault`, the buffer store, file keys, the vault tree model, configuration, file IO, file types, action ids, the focus timer and its rules, the writing history |
+| `core/` | `Vault`, the buffer store, file keys, the vault tree model, configuration, file IO, file types, action ids, the focus timer and its rules, the writing history, the update check, the interface language, the app's folders, and the version and publication details |
 | `core/spell/` | Spellcheck: the dictionaries, the word rules, and the vault's word lists |
 | `core/git/` | The repository a vault is in, and reading what `git` prints: status, diffs, remote addresses, branch names as they're typed, and the folder Git refuses to trust |
 | `models/` | One buffer class per file type, and the prime document |
 | `views/` | One view class per file type, and the parts only views use: the text editor with its selection handles and typing helpers, the find bar and the search functions behind it, and the zoom control with its state |
 | `ui/` | The windows and what they open directly: workspace persistence, Go to File, the vault picker, the status bar items. Also the application's style |
 | `ui/tabs/` | The split tree, its leaves, the tab bar and its buttons, the new-tab page |
-| `ui/sidebar/` | The sidebar and its page buttons, the file trees, the common drawer, the vault switcher |
+| `ui/sidebar/` | The sidebar and its page buttons, the file trees, the common drawer, the vault switcher, the settings and focus timer buttons |
 | `ui/settings/` | The settings dialog, its pages, and their rows |
 | `ui/git/` | The sidebar's Git page with its branch and sync buttons, the New Branch dialog, the changes list's delegate, and the diff's tab |
-| `ui/widgets/` | Controls that know nothing of the app: glyph rendering, the flat-button wash, keeping hover in step with the pointer, the menu button, a menu item's shortcut hint, the toggle switch, the slider, name checking, the row labels shared by the file tree and Go to File |
+| `ui/widgets/` | Controls that know nothing of the app: glyph rendering, the glyph button, the flat-button wash, keeping hover in step with the pointer, the menu button, a menu item's shortcut hint, the toggle switch, the slider, name checking, the row labels shared by the file tree and Go to File |
 
 Folders are for finding files; they don't set namespaces. Everything under `ui/` is in `Fernanda::Ui`, whatever its subfolder; everything else is in `Fernanda`.
 
@@ -144,15 +144,20 @@ flowchart TD
     L3 -->|page| V3["PdfFileView"]
 ```
 
-- **`BaseWindow`** is what both window types share: a `TabPaneTree`, the action registry, the status bar, and the actions any window can perform itself (undo, redo, zoom).
+- **`BaseWindow`** is what both window types share: a `TabPaneTree`, the action registry, the status bar, and the actions any window can perform itself (undo and redo, zoom, find and replace, and the clipboard and selection commands).
 - **`VaultWindow`** adds the sidebar, file opening, workspace persistence, and the settings dialog. It is the only place pop-outs are created, and it wires every pop-out's tree the same way it wires its own.
 - **`PopoutWindow`** adds nothing. It has no close logic, because it has no state: buffers live in the `BufferStore`.
 
 ### The composition rule
 
-`VaultWindow` composes components and never reaches inside them. Each component handles its own interaction and emits a signal that states intent: the file tree emits "open this path" or "rename this to that", and the sidebar routes it to the vault that owns the path. If the window ever reads a component's internals, the rule is broken.
+`VaultWindow` composes components and never reaches inside them. Each component handles its own interaction and emits a signal that states intent: the file tree emits "open this path" or "rename this to that", and the sidebar sends it to the vault that tree shows. If the window ever reads a component's internals, the rule is broken.
 
 This is what keeps a main window from accumulating one method per interaction in the app.
+
+Two exceptions, each because the alternative is a relay:
+
+- **`WorkspaceFile` is handed the sidebar's file trees and drawer** (`Sidebar::fileTree`, `commonTree`, `commonDrawer`), since each serializes and restores itself (see "Workspace"). The window only passes them on.
+- **The window talks to the sidebar's Git page directly** (`Sidebar::gitPage`): it sets which files the page may open, takes the page's requests for a diff or a file, and asks whether the page is showing. Those requests are about tabs, which are the window's, and the page owns the facts, so the signals come from it rather than being echoed by the sidebar.
 
 ### Pages
 
@@ -328,7 +333,7 @@ A buffer's file is always on disk. If it is missing at save time, it was deleted
 
 The same rule holds one level up: a workspace save never creates a missing vault folder.
 
-File IO takes an explicit create-folders argument at every call. Only configuration writes, whose folders may not exist yet, pass yes.
+File IO takes an explicit create-folders argument at every call. Only two kinds of write pass yes: configuration and history writes, whose folders may not exist yet, and Go to File's create (`Vault::createFileAt`), which makes the folders in the path the user typed. Neither recreates a missing vault folder.
 
 ### Save failure
 
@@ -368,7 +373,7 @@ A folder can also move from inside Fernanda. Vaults nest, so a rename, move, or 
 
 - **The store announces it.** `BufferStore` emits `entryRelocated` or `entryRemoved` once every tree and buffer has followed the entry. Manage Vaults' rename goes through the store too (`App::renameVaultFolder_`), as a `Vault`'s own rename does: the store releases every watch inside the folder, `Io::rename` renames it, and the store applies the move.
 - **A rename or move is followed at once,** in `App`'s slot for the announcement (`App::followVaults_`). Every known vault's record at or under the entry takes its folder's new path. Every live `Vault` there, the Common Vault and each one with a window, moves to the new place (`Vault::moveRoot`): its root, its tree, which watches its listed folders again there, and where its settings and dictionary are written. `App`'s open-vaults map is keyed again, and for the Common Vault, `commonVaultPath` follows. A change of letter case alone, where case is ignored, is followed the same way.
-- **Every copy of a root follows `rootMoved`:** the vault switcher's, the Common Vault drawer's title, `WorkspaceFile`'s, and the settings dialog's title and label. A tree view keeps no copy; it asks its model.
+- **Every copy of a root follows `rootMoved`:** the vault switcher's, the Common Vault drawer's title, `WorkspaceFile`'s, the settings dialog's title and label, and the writing history dialog's vault name. The window also looks for the vault's repository again. A tree view keeps no copy; it asks its model.
 - **It's done before anything else reacts.** Each window looks at its relocated tabs a tick later (`VaultWindow::makeView_`), and by then their files must be in the moved vaults, or their tabs would close. And no event loop runs in between, so no window can be activated with its record and its root out of step: activation records a vault's use by its root's path, adding a record it doesn't find.
 - **Paths held elsewhere are followed by their holders.** A `PathKey` is a value and doesn't change under its holder. Besides `App`'s map, a window's recent files are rebased when the store announces a move (`RecentFiles::rebase`). What the window holds by pointer, its `Vault`, needs nothing.
 - **A trash waits a tick,** so the vault operation and the window that started it have finished before any window closes. Then one message says the folders went to the trash, and the windows close as in the outside case. A trashed Common Vault is unset.
@@ -409,7 +414,7 @@ The cost is that a vault moved outside Fernanda is a new vault. One moved inside
 
 - A rename's new name must be a single name.
 - A path read from `workspace.json` must be relative and plain before it is joined to a root, so a hand-edited entry can't name a file outside its vault.
-- `BufferStore::openModel` refuses only an empty key. Which files a window may open is the window's to decide: one inside either of its vaults.
+- `BufferStore::openModel` doesn't ask which vault a key is in. Which files a window may open is the window's to decide: one inside either of its vaults.
 
 `workspace.json` stores each tab and recent file as a vault label and a path relative to that vault's root: "this" for a file inside the window's vault, "common" otherwise.
 
@@ -447,7 +452,7 @@ All of it but a vault's dictionary is JSON, read and written by stateless free f
 - **A vault setting changes one way.** `Vault::setConfig` takes the `VaultConfig` setter to call and the value. It announces and saves only if that setter reports a change, so no setting has code of its own in `Vault` to get wrong.
 - **Settings are applied from the window's vault.** A Common Vault file in a project window takes the project's settings. A tab can only move within one window family, so a view's settings source never changes.
 - **The Microsoft Store version's app data is filed by Windows.** For a packaged app, Windows creates a new file under AppData in the package's own storage, which uninstalling removes, and reads and writes a file already there in place. Once the package's copy of a file exists, it hides the real one. So the Store version uses the downloaded version's `fernanda.json` if it's there before the Store version first writes one, and its own from then on otherwise. Fernanda does nothing about it: `AppDirs` names the same paths in both versions.
-- **`ui/UiConstants.h` and `views/ViewConstants.h` are not configuration.** They hold values tuned in code and constants shared between classes.
+- **`ui/UiConstants.h`, `views/ViewConstants.h`, and `core/CoreConstants.h` are not configuration.** They hold values tuned in code and constants shared between classes: in `CoreConstants.h`, the update check's timing, the Git timeouts, and the writing history's idle limit.
 
 ### The known-vaults list
 
@@ -650,6 +655,8 @@ A dialog run with `exec()` spins a nested event loop on its caller's stack. If t
 - The licenses dialog is window-modal over Manage Vaults, opened without `exec()`, and deletes itself when closed.
 - The writing history dialog is modeless, opened with `show()`, and deletes itself when closed. Its window owns it, so it stays above that window and closes with it, and holds one at a time: either window's word counter brings the open one forward rather than making another.
 - Go to File does use `exec()`, and is application-modal so that no other window can close its host meanwhile.
+- The other dialogs run with `exec()` (the new-vault and rename dialogs, the file tree's delete confirmation) set no modality of their own, so `exec()` makes them application-modal, with the same effect.
+- The non-UTF-8 warning (`LossyOpenPrompt`) and the save-failure message on a window close are window-modal and use `exec()`, which leaves other windows usable meanwhile. See [TODO.md](TODO.md).
 - The Git page's confirmations and failure messages, and the New Branch dialog, are opened with `open()` and delete themselves when closed.
 - No dialog is shown while a window is being constructed. Workspace restore, which runs then, refuses a file that would need a prompt.
 - The settings dialog has no default button. In a `QDialog` every push button is auto-default unless told otherwise, so one would become the default, take the accent, and be pressed by Enter anywhere in the dialog. `SettingsPage::addRow` turns auto-default off for every button in a row's control, so a page's buttons need nothing of their own.
@@ -661,7 +668,7 @@ A dialog run with `exec()` spins a nested event loop on its caller's stack. If t
 `Ui::Style` draws every standard control. It is a `QProxyStyle` over Qt's Fusion, and `App` installs it for the whole application before any window exists, so it replaces whatever a `-style` argument asks for.
 
 - **Fusion on every platform.** Fernanda looks the same everywhere, and Fusion draws every control from the palette alone. The palette is what follows the system's light or dark mode, so everything Fusion draws follows it too, on Windows 10 as well.
-- **Shapes in the style, colors in the palette.** The style decides shape, spacing, and which palette color goes where; it introduces no colors of its own. A shade the palette has no role for (a hover, a selected row, a divider) is the palette's text color at a low alpha, a wash, so it lands right over any background, light or dark.
+- **Shapes in the style, colors in the palette.** The style decides shape, spacing, and which palette color goes where; it introduces no colors of its own, apart from the menu's shadow, which is black at a low alpha. A shade the palette has no role for (a hover, a selected row, a divider) is the palette's text color at a low alpha, a wash, so it lands right over any background, light or dark.
 - **Every number the style draws with is a knob** in `ui/UiConstants.h`, prefixed `STYLE_` and grouped by what it shapes. Layout values that belong to a widget rather than the style (the tab height, the margins around the sidebar's footer) sit with that widget's other constants.
 - **A widget that paints itself uses the style's drawing, not a copy of it.** One that should look like a flat button asks the style for a tool button's panel through `ui/widgets/ButtonWash.h`. One that fills a shape of its own takes the color from `Style::buttonWash`, `Style::divider`, or `Style::blend`.
 - **Every one-pixel line is drawn by `Style::drawHairline`**: splitter handles, the marks between tabs, menu separators, the collapsed drawer's edge, and the settings rules (`SettingRule`). It draws the line a whole number of device pixels thick, the scale rounded down and at least one, as browsers draw a 1px border, centered on where the line goes. A line one logical pixel thick, filled or drawn with a pen, is 1.25 device pixels at 125%, and Qt, drawing without antialiasing, fills the device rows whose centers fall inside it: one row or two, depending on where the line lands. Lines meant to match came out in two thicknesses at any fractional scale. A band a whole number of rows thick covers exactly that many, wherever it lands. A rule is a widget one logical pixel thick with the line down its middle, so the line stays inside the widget's clip, which Qt also rounds to whole device pixels.
@@ -677,7 +684,12 @@ A dialog run with `exec()` spins a nested event loop on its caller's stack. If t
 - **Glyphs are drawn four times larger and scaled down** (`Glyph::render`). Lucide's stroke is a twelfth of the glyph, so a 12-pixel glyph at 100% scale has a 1-pixel stroke, and Qt draws lines that thin with a separate stroker that puts them half a pixel off, spreads each evenly over two pixels, and drops round caps: an X or a chevron comes out lopsided. Drawn larger, every stroke goes through the ordinary stroker, and scaling down averages each block into the coverage the glyph has at its own size. Two alternatives were tried and rejected. Shifting the drawing half a pixel does nothing for diagonals (it moves them along themselves) and blurs the glyphs whose lines fall on odd units, such as the pin and the vault mark. Drawing a glyph one pixel smaller, so its middle lines land on pixels, sharpens a + or a chevron and blurs a file or folder. No one glyph size is sharp at every scale either: a + at 12 is soft at 100% and sharp at 125%, at 13 the reverse
 - **Anything rendered once keeps the colors of the moment.** A widget that holds a rendered glyph (a tab's icon) renders it again when its palette, its style, or its window's activation changes. This is why a page carries which glyph marks its tab, not a rendered icon.
 - **A palette change reaches a parent before its children.** A widget reacting to its own palette change reads its own palette: a child's still holds the old one.
-- Colors come from palette roles, each named by a constant in `ui/UiConstants.h` (or `views/ViewConstants.h`, for the editor and zoom parts), so a tint can be changed in one place. The exceptions are the editor's current-line highlight, a fixed color for a light page and another for a dark one, and Git's change marks and diff tints, fixed colors (the tints with an alpha).
+- Colors come from palette roles, each named by a constant in `ui/UiConstants.h` (or `views/ViewConstants.h`, for the editor and zoom parts), so a tint can be changed in one place. The exceptions are fixed colors:
+  - the editor's current-line highlight, one color for a light page and another for a dark one;
+  - the spelling underline (`MISSPELLING_COLOR`);
+  - Git's change marks and diff tints (the tints with an alpha);
+  - the image view's black background, and the zoom control drawn over a PDF or an image;
+  - the label a dragged tab or file carries.
 - The tree model carries no icons. The tree's delegate and view paint the glyphs, extension labels, and chevrons, which keeps the model free of GUI types.
 
 ## Coming from Hearth
@@ -732,7 +744,7 @@ Each of these was built or seriously considered. They are recorded so they aren'
 - **Compound edits opened on the buffer** (Hearth's way of grouping a typing helper's steps into one undo). An edit block in the view already arrives as one edit.
 - **An event filter for the typing helpers** (Hearth's `KeyFilters`). The editor already overrides its key handling, so offering the key there first is one call and keeps the order with Qt's own handling plain.
 - **Painting selection handles on an overlay widget.** Hearth's approach. The overlay had to be realigned with the editor on every update; painted by the editor, the handles scroll with the text.
-- **Moving a vault from inside the app.** See [Future.md](Future.md).
+- **A Move Vault command** (Obsidian's, in its vault switcher), moving a vault's folder somewhere the user picks. Built, then removed: on Windows, programs outside Fernanda that hold a handle inside the folder stop it being moved, even right after launch. A vault's folder moved from the file tree of a vault that contains it is followed instead (see "Vault folders"), and one moved in a file manager is opened from its new place. See "No Move Vault command" in [Features.md](Features.md).
 - **Discarding by trashing a copy, so the file is never missing.** Built, then replaced. The trash records where an item was trashed from, and no system lets a program say otherwise, so putting the copy back put it in a temporary folder in Fernanda's data folder, where no one would look for it. The file itself goes to the trash now, and the store's hold keeps its tabs open while it's missing.
 - **The Git view taking the window's place.** The first Git view swapped out the sidebar and tabs, GitHub Desktop's layout in Fernanda's window. With the tabs out of sight, the window's own actions had to be locked while it showed, and it needed a diff pane, a top bar, and a branch list of its own beside the sidebar and tabs it hid. As a page of the sidebar, with diffs in tabs, it uses what the window already has, and the window works as usual.
 - **A diff as a file model and view.** `BufferStore` keeps one model per file key, which loads, watches, and saves the file; a diff would need a second model under the same key, or a key of its own for something that isn't a file. A plain page, as the new tab page is, needs neither.
