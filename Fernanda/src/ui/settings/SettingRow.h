@@ -18,7 +18,11 @@
 #include <QFont>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLineF>
+#include <QPaintEvent>
+#include <QPainter>
 #include <QPalette>
+#include <QRectF>
 #include <QSizePolicy>
 #include <QString>
 #include <QVBoxLayout>
@@ -26,6 +30,7 @@
 
 #include <Coco/Debug.h>
 
+#include "ui/Style.h"
 #include "ui/UiConstants.h"
 
 namespace Fernanda::Ui {
@@ -125,35 +130,58 @@ private:
 };
 
 // The thin line above each row on a settings page (Obsidian's row border),
-// laid in by the page before every SettingRow. A plain widget one pixel tall
-// that fills itself with its background role — no custom painting — so it
-// can't be skipped or painted over, and it follows palette changes like any
-// widget's background.
+// laid in by the page before every SettingRow, and, upright, the line between
+// the settings dialog's list and its pages. A widget one pixel thick that
+// draws a hairline down its middle (Style::drawHairline) in RULE_ROLE, so
+// every rule is the same number of device pixels thick, wherever it lands.
 //
-// A line drawn by each row along its own top edge in paintEvent shows above
-// some rows and not others on Windows 11 (above the rows holding a combo box
-// and a slider, never above those holding a switch), for a reason not pinned
-// down. A widget of its own takes that painting path out of the picture
+// The line is a widget of its own rather than an edge a row draws, so a page
+// is built from rows and the rules between them, and no row decides whether
+// the line above or below it is its own
 class SettingRule : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit SettingRule(QWidget* parentPage)
+    SettingRule(Qt::Orientation orientation, QWidget* parentPage)
         : QWidget(parentPage)
+        , orientation_(orientation)
     {
         setup_();
     }
 
     ~SettingRule() override { TRACER; }
 
+protected:
+    void paintEvent([[maybe_unused]] QPaintEvent* event) override
+    {
+        QRectF area(rect());
+        auto center = area.center();
+
+        auto line =
+            (orientation_ == Qt::Horizontal)
+                ? QLineF(area.left(), center.y(), area.right(), center.y())
+                : QLineF(center.x(), area.top(), center.x(), area.bottom());
+
+        QPainter painter(this);
+        Style::drawHairline(
+            &painter,
+            line,
+            palette().color(SETTING_ROW_RULE_ROLE));
+    }
+
 private:
+    Qt::Orientation orientation_;
+
     void setup_()
     {
-        setFixedHeight(SETTING_ROW_RULE_WIDTH);
-        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        setBackgroundRole(SETTING_ROW_RULE_ROLE);
-        setAutoFillBackground(true);
+        if (orientation_ == Qt::Horizontal) {
+            setFixedHeight(SETTING_ROW_RULE_WIDTH);
+            setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        } else {
+            setFixedWidth(SETTING_ROW_RULE_WIDTH);
+            setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+        }
     }
 };
 

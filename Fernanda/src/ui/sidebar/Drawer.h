@@ -18,6 +18,7 @@
 #include <QAbstractButton>
 #include <QFontMetrics>
 #include <QJsonObject>
+#include <QLineF>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPalette>
@@ -348,8 +349,11 @@ protected:
         // The collapsed drawer's bottom edge, drawn as the splitter handle
         // above it is: a divider line across the sidebar's whole width
         QPainter painter(this);
-        painter
-            .fillRect(0, height() - 1, width(), 1, Style::divider(palette()));
+        auto y = height() - 0.5;
+        Style::drawHairline(
+            &painter,
+            QLineF(0, y, width(), y),
+            Style::divider(palette()));
     }
 
     // Restore's deferred splitter sizing, one tick past the first show — the

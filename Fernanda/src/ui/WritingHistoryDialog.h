@@ -180,7 +180,7 @@ private:
         figure->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         setTabularNumerals(figure);
 
-        layout_->addWidget(new SettingRule(this));
+        layout_->addWidget(new SettingRule(Qt::Horizontal, this));
         layout_->addWidget(new SettingRow(name, description, figure, this));
         return figure;
     }

@@ -15,13 +15,17 @@
 
 #pragma once
 
+#include <cmath>
+
 #include <QAbstractItemView>
 #include <QAbstractScrollArea>
 #include <QBrush>
 #include <QColor>
 #include <QComboBox>
 #include <QFrame>
+#include <QLineF>
 #include <QMenu>
+#include <QPaintDevice>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPalette>
@@ -70,6 +74,9 @@ using namespace Qt::StringLiterals;
 //   the bar, with a wash on hover and a short divider between them
 // - Splitter handles are one-pixel dividers. A one-pixel handle is QSplitter's
 //   "tiny" mode, which keeps a wider area around it to grab
+// - Every one-pixel line (splitter handles, the marks between tabs, menu
+//   separators) is a hairline (drawHairline): the same number of device
+//   pixels thick wherever it lands
 // - Scroll bars are thin, with no arrows: a rounded handle on the scrolled
 //   content's own background
 // - Item-view rows (the file trees, Go to File, the settings nav) get a rounded
@@ -85,7 +92,8 @@ using namespace Qt::StringLiterals;
 //   handle
 // - Menus are rounded panels in the page's color, with a hairline border and
 //   a soft shadow, and their items and the menu bar's are highlighted with
-//   the rounded wash. A combo box's drop-down list is drawn the same way
+//   the rounded wash. Their separators are dividers, inset as far as the
+//   wash. A combo box's drop-down list is drawn the same way
 // - In a light palette, the window's color is moved toward the page's
 //   (polish), so the sidebar, tab bar, and dialogs are lighter than the
 //   platform's grey
@@ -128,11 +136,49 @@ public:
     }
 
     // The one-pixel lines between things: splitter handles, the short marks
-    // between tabs, and the Common Vault drawer's bottom edge when it's
-    // collapsed. Public so a widget that draws its own line matches these
+    // between tabs, menu separators, and the Common Vault drawer's bottom edge
+    // when it's collapsed. Public so a widget that draws its own line matches
+    // these
     [[nodiscard]] static QColor divider(const QPalette& palette)
     {
         return wash_(palette, STYLE_DIVIDER_ALPHA);
+    }
+
+    // A one-pixel line, horizontal or vertical, centered on line and running
+    // its length. It's a whole number of device pixels thick: the scale
+    // rounded down, and at least one, as browsers draw a 1px border. A band
+    // one logical pixel thick is 1.25 device pixels at 125%, and Qt fills it
+    // as one row or two depending on where it lands, so lines meant to match
+    // come out in two thicknesses. A band a whole number of rows thick always
+    // covers that many. Public so every widget that draws a line draws it
+    // this way (SettingRule)
+    static void
+    drawHairline(QPainter* painter, const QLineF& line, const QColor& color)
+    {
+        auto ratio = painter->device()->devicePixelRatio();
+        auto device_pixels = qMax(1.0, std::floor(ratio));
+        auto thickness = device_pixels / ratio;
+
+        QRectF band{};
+
+        if (qFuzzyIsNull(line.dy())) {
+            band = QRectF(
+                qMin(line.x1(), line.x2()),
+                line.y1() - thickness / 2,
+                qAbs(line.dx()),
+                thickness);
+        } else {
+            band = QRectF(
+                line.x1() - thickness / 2,
+                qMin(line.y1(), line.y2()),
+                thickness,
+                qAbs(line.dy()));
+        }
+
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing, false);
+        painter->fillRect(band, color);
+        painter->restore();
     }
 
     using QProxyStyle::polish;
@@ -530,7 +576,7 @@ public:
     {
         switch (element) {
         case CE_Splitter:
-            painter->fillRect(option->rect, divider(option->palette));
+            drawSplitterHandle_(option, painter);
             return;
 
         case CE_ShapedFrame:
@@ -1083,7 +1129,7 @@ private:
         const QWidget* widget) const
     {
         if (item->menuItemType == QStyleOptionMenuItem::Separator) {
-            QProxyStyle::drawControl(CE_MenuItem, item, painter, widget);
+            drawMenuSeparator_(item, painter, widget);
             return;
         }
 
@@ -1113,6 +1159,48 @@ private:
         copy.rect.setLeft(copy.rect.left() - STYLE_MENU_TEXT_TRIM);
         QProxyStyle::drawControl(CE_MenuItem, &copy, painter, widget);
         painter->restore();
+    }
+
+    // A plain separator is a divider, inset as far as the selected item's
+    // wash. One with a title (QMenu::addSection) is left to Fusion, which
+    // writes the title into the line
+    void drawMenuSeparator_(
+        const QStyleOptionMenuItem* item,
+        QPainter* painter,
+        const QWidget* widget) const
+    {
+        if (!item->text.isEmpty()) {
+            QProxyStyle::drawControl(CE_MenuItem, item, painter, widget);
+            return;
+        }
+
+        QRectF rect(item->rect);
+        auto y = rect.center().y();
+
+        drawHairline(
+            painter,
+            QLineF(
+                rect.left() + STYLE_MENU_ITEM_INSET,
+                y,
+                rect.right() - STYLE_MENU_ITEM_INSET,
+                y),
+            divider(item->palette));
+    }
+
+    // A splitter handle is a divider down its middle. State_Horizontal marks a
+    // horizontal splitter, whose handle stands upright between its widgets
+    void
+    drawSplitterHandle_(const QStyleOption* option, QPainter* painter) const
+    {
+        QRectF handle(option->rect);
+        auto center = handle.center();
+
+        auto line =
+            (option->state & State_Horizontal)
+                ? QLineF(center.x(), handle.top(), center.x(), handle.bottom())
+                : QLineF(handle.left(), center.y(), handle.right(), center.y());
+
+        drawHairline(painter, line, divider(option->palette));
     }
 
     // The menu's panel inside its window, which is see-through (polish): the
@@ -1215,10 +1303,10 @@ private:
             // next: its own shape separates them
             auto x = rect.right() - 0.5;
             auto margin = STYLE_TAB_DIVIDER_MARGIN;
-            painter->setPen(QPen(divider(palette), 1.0));
-            painter->drawLine(
-                QPointF(x, rect.top() + margin),
-                QPointF(x, rect.bottom() - margin));
+            drawHairline(
+                painter,
+                QLineF(x, rect.top() + margin, x, rect.bottom() - margin),
+                divider(palette));
         }
 
         painter->restore();

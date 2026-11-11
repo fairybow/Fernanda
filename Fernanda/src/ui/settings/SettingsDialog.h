@@ -39,6 +39,7 @@
 #include "core/Vault.h"
 #include "core/spell/SpellCheckers.h"
 #include "ui/UiConstants.h"
+#include "ui/settings/SettingRow.h"
 #include "ui/settings/SettingsAppearancePage.h"
 #include "ui/settings/SettingsEditorPage.h"
 #include "ui/settings/SettingsFocusTimerPage.h"
@@ -201,13 +202,8 @@ private:
         nav_host->setLayout(nav_column);
         nav_host->setFixedWidth(SETTINGS_NAV_WIDTH);
 
-        auto* divider = new QFrame(this);
-        divider->setFrameShape(QFrame::VLine);
-        divider->setFrameShadow(QFrame::Plain);
-        divider->setForegroundRole(QPalette::Mid);
-
         layout->addWidget(nav_host);
-        layout->addWidget(divider);
+        layout->addWidget(new SettingRule(Qt::Vertical, this));
         layout->addWidget(pages_, 1);
     }
 

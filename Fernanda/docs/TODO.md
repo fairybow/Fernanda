@@ -6,7 +6,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 ## Current (sort later)
 
 - [ ] Scrivener comparisons in README
-- [ ] In WritingHistoryDialog and SettingsDialog, some of the horizontal separator lines appear thicker than others, and it's deeply annoying
+- [x] At a fractional display scale (125%, 150%), some one-pixel lines came out thicker than others: the rules in the settings and Writing History dialogs, menu separators, splitter handles, and the marks between tabs. Each was one logical pixel thick, which Qt fills as one device row or two depending on where it lands. They're now drawn a whole number of device pixels thick (`Style::drawHairline`; see "The style" in [Architecture.md](Architecture.md))
 - [ ] Condense code comments
 - [ ] Places where logging would be useful but is missing
 - [x] The Writing History dialog, left open past midnight, kept showing the previous day under Today until the next edit updated it. It now checks the date once a minute, which also catches a computer that slept through midnight, where a timer set for midnight might not

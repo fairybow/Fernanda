@@ -84,7 +84,7 @@ protected:
     addRow(const QString& name, const QString& description, QWidget* control)
     {
         clearAutoDefaults_(control);
-        insert_(new SettingRule(content_));
+        insert_(new SettingRule(Qt::Horizontal, content_));
 
         auto* row = new SettingRow(name, description, control, content_);
         insert_(row);

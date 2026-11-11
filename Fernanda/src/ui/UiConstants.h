@@ -397,7 +397,8 @@ inline constexpr int WRITING_HISTORY_DIALOG_MIN_WIDTH = 520;
 // content; INFO_SPACING between the name and its description;
 // CONTROL_SPACING the least gap between the text and the control. The
 // description is set smaller (FONT_SCALE) in a muted role. The line above each
-// row (SettingRule) is RULE_WIDTH tall, filled with RULE_ROLE. A section
+// row (SettingRule) is a hairline in RULE_ROLE, down the middle of a widget
+// RULE_WIDTH thick, which also sets off the settings dialog's list. A section
 // heading (SettingHeading) gets TOP_PADDING above it and BOTTOM_PADDING before
 // its first row
 inline constexpr int SETTING_ROW_V_PADDING = 12;
@@ -487,9 +488,9 @@ inline constexpr auto GLYPH_BUTTON_CHECKED_ICON_ROLE =
 // color at an alpha, drawn over whatever is behind them: HOVER under the
 // pointer, PRESSED held down (and a checked tool button), SELECTED for a
 // selected row or menu item (SELECTED_HOVER for one that's both), DIVIDER for
-// the one-pixel lines (splitter handles, between tabs), CONTROL_BORDER around
-// a button, combo box, field, framed list, or menu. MUTED_TEXT is the title of
-// a tab that isn't current, and a combo box's arrow
+// the one-pixel lines (splitter handles, between tabs, menu separators),
+// CONTROL_BORDER around a button, combo box, field, framed list, or menu.
+// MUTED_TEXT is the title of a tab that isn't current, and a combo box's arrow
 inline constexpr qreal STYLE_HOVER_ALPHA = 0.06;
 inline constexpr qreal STYLE_PRESSED_ALPHA = 0.12;
 inline constexpr qreal STYLE_SELECTED_ALPHA = 0.10;
