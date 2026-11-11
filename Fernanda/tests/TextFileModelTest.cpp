@@ -341,12 +341,12 @@ private slots:
         view.typeAtEnd(u"two"_s);
         QVERIFY(model.isUndoAvailable());
 
-        model.undo();
+        model.undo(nullptr);
         QCOMPARE(model.data(), QByteArray("one\n"));
         QVERIFY(!model.isModified());
         QVERIFY(model.isRedoAvailable());
 
-        model.redo();
+        model.redo(nullptr);
         QCOMPARE(model.data(), QByteArray("one\ntwo"));
         QVERIFY(model.isModified());
     }
@@ -383,13 +383,13 @@ private slots:
         QVERIFY(!model.isModified());
         QVERIFY(model.isUndoAvailable());
 
-        model.undo();
+        model.undo(nullptr);
 
         // Now different from disk, so the next save writes it
         QCOMPARE(model.data(), QByteArray("one\n"));
         QVERIFY(model.isModified());
 
-        model.redo();
+        model.redo(nullptr);
 
         QCOMPARE(model.data(), QByteArray("two\n"));
     }
@@ -406,7 +406,7 @@ private slots:
         model.reloadContent("two\n");
         QCOMPARE(model.data(), QByteArray("two\n"));
 
-        model.undo();
+        model.undo(nullptr);
         QCOMPARE(model.data(), QByteArray("one\nunsaved"));
     }
 
@@ -425,11 +425,11 @@ private slots:
         view.typeAtEnd(u"!"_s);
         QCOMPARE(model.data(), QByteArray("two!"));
 
-        model.undo();
+        model.undo(nullptr);
         QCOMPARE(model.data(), QByteArray("two"));
         QVERIFY(model.isUndoAvailable());
 
-        model.undo();
+        model.undo(nullptr);
         QCOMPARE(model.data(), QByteArray("one"));
     }
 
@@ -468,7 +468,7 @@ private slots:
                 "\xEF\xBB\xBF"
                 "c\r\nd\r\n"));
 
-        model.undo();
+        model.undo(nullptr);
         QCOMPARE(
             model.data(),
             QByteArray(

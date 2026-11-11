@@ -205,23 +205,24 @@ public:
 
     // An undo is the user's edit, whatever it undoes. So undoing a reload
     // from disk counts its change to the word count, though the reload itself
-    // didn't
-    void undo()
+    // didn't. requester is the view document that asked for it, named as the
+    // edit's source (userEdited); nullptr names none
+    void undo(const QTextDocument* requester)
     {
         if (routing_ || !document_->isUndoAvailable()) {
             return;
         }
 
-        replayUserOperation_([this] { document_->undo(); });
+        replayUserOperation_(requester, [this] { document_->undo(); });
     }
 
-    void redo()
+    void redo(const QTextDocument* requester)
     {
         if (routing_ || !document_->isRedoAvailable()) {
             return;
         }
 
-        replayUserOperation_([this] { document_->redo(); });
+        replayUserOperation_(requester, [this] { document_->redo(); });
     }
 
     // --- Modification ------------------------------------------------------
@@ -254,9 +255,9 @@ signals:
     void cursorPositionHint(int position);
 
     // The user edited the text, changing its word count by wordDelta (zero
-    // for an edit that changed none). sourceView is the view document the edit
-    // was typed in, or nullptr for an undo or redo, which acts on the prime
-    void userEdited(const QTextDocument* sourceView, int wordDelta);
+    // for an edit that changed none). source is the view document the edit was
+    // typed in, or the one that asked for an undo or redo (nullptr for none)
+    void userEdited(const QTextDocument* source, int wordDelta);
 
 private:
     // When view A types a character, this object receives the contentsChange
@@ -328,15 +329,16 @@ private:
     }
 
     // An undo or redo, replayed out to the views and announced as the user's
-    // edit
+    // edit, made by requester
     template <typename OperationT>
-    void replayUserOperation_(OperationT&& operation)
+    void
+    replayUserOperation_(const QTextDocument* requester, OperationT&& operation)
     {
         auto words_before = wordsInLines_(0, document_->characterCount());
         replayPrimeOperation_(std::forward<OperationT>(operation));
         auto words_after = wordsInLines_(0, document_->characterCount());
 
-        emit userEdited(nullptr, words_after - words_before);
+        emit userEdited(requester, words_after - words_before);
     }
 
     // Replay a prime operation (undo/redo/insert) out to all view documents

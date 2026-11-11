@@ -114,21 +114,6 @@ public:
         return updateNotice_;
     }
 
-    // The active view of THIS window's tree — the current page of the active
-    // leaf when it's a file view, else nullptr (an empty leaf, or a
-    // NewTabPage). The active leaf follows focus, so with splits this is the
-    // pane being worked in. The window's view.zoom* actions dispatch through
-    // this; a view that can't zoom no-ops via AbstractFileView's defaults.
-    // Pointer identity only — the cast down (e.g. to a text or PDF view)
-    // happens at the use site. Public so VaultWindow can tell which view an
-    // undo was made in, here or in a pop-out
-    [[nodiscard]] AbstractFileView* activeFileView() const
-    {
-        auto* leaf = tree_->activeLeaf();
-        return leaf ? qobject_cast<AbstractFileView*>(leaf->currentPage())
-                    : nullptr;
-    }
-
     // The status bar's word counter. Public so VaultWindow can wire its
     // click, here and in each pop-out it makes
     [[nodiscard]] WordCounter* wordCounter() const noexcept
@@ -237,15 +222,18 @@ protected:
         return found;
     }
 
-    // The file model backing the active view, or nullptr when the active leaf
-    // is empty or its current page is not a file view. The window's Undo/Redo
-    // dispatch through this; a non-editable model (image/PDF) or none at all
-    // yields an inert undo via the base's no-op defaults. Pointer identity only
-    // — never dereferenced past the cast
-    [[nodiscard]] AbstractFileModel* activeFileModel() const
+    // The active view of THIS window's tree — the current page of the active
+    // leaf when it's a file view, else nullptr (an empty leaf, or a
+    // NewTabPage). The active leaf follows focus, so with splits this is the
+    // pane being worked in. The window's document.undo / redo, view.zoom*, and
+    // view.find* actions dispatch through this; a view that can't do one
+    // no-ops via AbstractFileView's defaults. Pointer identity only — the cast
+    // down (e.g. to a text or PDF view) happens at the use site
+    [[nodiscard]] AbstractFileView* activeFileView() const
     {
-        auto* view = activeFileView();
-        return view ? view->model() : nullptr;
+        auto* leaf = tree_->activeLeaf();
+        return leaf ? qobject_cast<AbstractFileView*>(leaf->currentPage())
+                    : nullptr;
     }
 
     void changeEvent(QEvent* event) override
@@ -376,10 +364,11 @@ private:
     // registry
     void buildSharedActions_()
     {
-        // Undo / redo dispatch to the active view's model, which is why each
-        // window mints its own rather than sharing App's. Left always-enabled:
-        // undo()/redo() no-op when the stack is empty or the active page has no
-        // editable model, so an always-live shortcut is harmless, and a focused
+        // Undo / redo dispatch to the active view, which asks its model and
+        // names itself, which is why each window mints its own rather than
+        // sharing App's. Left always-enabled: undo()/redo() no-op when the
+        // stack is empty or the active page has no editable model, so an
+        // always-live shortcut is harmless, and a focused
         // QLineEdit keeps its own undo because it accepts the ShortcutOverride
         // these never see. Nothing greys these when unavailable; the seam for
         // it is AbstractFileModel's undoAvailable / redoAvailable
@@ -388,8 +377,8 @@ private:
             tr("Undo"),
             QKeySequence::Undo);
         connect(undo, &QAction::triggered, this, [this] {
-            if (auto* model = activeFileModel()) {
-                model->undo();
+            if (auto* view = activeFileView()) {
+                view->undo();
             }
         });
 
@@ -398,8 +387,8 @@ private:
             tr("Redo"),
             QKeySequence::Redo);
         connect(redo, &QAction::triggered, this, [this] {
-            if (auto* model = activeFileModel()) {
-                model->redo();
+            if (auto* view = activeFileView()) {
+                view->redo();
             }
         });
 

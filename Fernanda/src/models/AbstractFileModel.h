@@ -92,11 +92,14 @@ public:
     // Undo state is model-owned, not view-owned: the single stack lives on the
     // buffer (for text, TextFileModel's PrimeDocument) and is shared across
     // every view of the file, so undo in one view reverses the same edit
-    // everywhere rather than drifting per view. The window's Undo/Redo actions
-    // dispatch here on whichever model backs the active view
-    // (BaseWindow::activeFileModel). That is why these live on the base and not
-    // on any view: two views of one file share one undo, not one each — a view
-    // forwarder would site a shared concept on the wrong object.
+    // everywhere rather than drifting per view. Two views of one file share
+    // one undo, not one each.
+    //
+    // A view asks for an undo (AbstractFileView::undo, which the window's Undo
+    // and Redo dispatch to) and names itself as requester: whatever identifies
+    // it to its model. The stack doesn't depend on who asks; the requester is
+    // only reported, so the edit is credited once, to the view it was made in
+    // (text reports it in TextFileModel::userEdited). nullptr names no one.
     //
     // The defaults are inert, so the non-editable types (image/PDF) inherit a
     // no-op undo and permanently-unavailable state with zero code. An editable
@@ -105,8 +108,8 @@ public:
     // need not pre-check availability
     [[nodiscard]] virtual bool isUndoAvailable() const { return false; }
     [[nodiscard]] virtual bool isRedoAvailable() const { return false; }
-    virtual void undo() {}
-    virtual void redo() {}
+    virtual void undo(const QObject* /*requester*/) {}
+    virtual void redo(const QObject* /*requester*/) {}
 
     // --- Views / eviction ----------------------------------------
 

@@ -82,6 +82,15 @@ public:
     virtual void zoomOut() {}
     virtual void zoomReset() {}
 
+    // Undo and redo, dispatched to by the window's document.undo / redo
+    // actions. The stack is the model's, shared by every view of the file
+    // (AbstractFileModel::undo); a view only asks for it, naming itself, so
+    // the edit is credited to the view it was made in. No-ops on the base: a
+    // view whose model has no undo inherits these and does nothing.
+    // TextFileView overrides them
+    virtual void undo() {}
+    virtual void redo() {}
+
     // Search within the file, dispatched to by the window's view.find*
     // actions. No-ops on the base, as zoom is: a view with nothing to search
     // (a PDF, an image) inherits these and does nothing. TextFileView

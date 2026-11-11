@@ -81,6 +81,15 @@ public:
 
     [[nodiscard]] QPlainTextEdit* editor() const noexcept { return editor_; }
 
+    // This view's own document, the one its editor shows and edits: local to
+    // the view, not the model's shared prime (PrimeDocument), which every view
+    // of the file feeds. An edit or undo made here names it as its source
+    // (TextFileModel::userEdited)
+    [[nodiscard]] QTextDocument* localDocument() const noexcept
+    {
+        return editor_->document();
+    }
+
     // --- Workspace persistence -----------------------------------------------
 
     // Per-view state: the caret offset and the scroll position (both axes) into
@@ -148,6 +157,13 @@ public:
     {
         editor_->setAcceptedWords(words);
     }
+
+    // --- Undo / redo ---------------------------------------------------------
+
+    // On the model's shared stack, naming this view's local document as the
+    // requester, which the edit then names as its source (userEdited)
+    void undo() override { model_->undo(localDocument()); }
+    void redo() override { model_->redo(localDocument()); }
 
     // --- Search --------------------------------------------------------------
 
@@ -223,9 +239,9 @@ protected:
     // keystroke; we catch that override first, ignore() it so the key is NOT
     // treated as overridden, and return true so the editor never re-accepts it.
     // The app-level QAction shortcut then fires and dispatches to
-    // activeFileModel() — this view's model when it holds focus. This makes the
-    // action the single source of truth rather than running a second, competing
-    // undo path here.
+    // activeFileView() — this view when it holds focus. This makes the action
+    // the single source of truth rather than running a second, competing undo
+    // path here.
     //
     // Only these two need yielding. Every other editing op (typing, cut, paste,
     // delete, select-all) mutates the view document and the prime relays it —
@@ -326,7 +342,7 @@ private:
     // in case the file shrank between sessions (an external edit)
     void setCursorPosition_(int position)
     {
-        auto max = qMax(0, editor_->document()->characterCount() - 1);
+        auto max = qMax(0, localDocument()->characterCount() - 1);
         auto cursor = editor_->textCursor();
         cursor.setPosition(qBound(0, position, max));
         editor_->setTextCursor(cursor);
@@ -451,7 +467,7 @@ private:
     void findMatches_()
     {
         matches_ = TextSearch::findAll(
-            editor_->document(),
+            localDocument(),
             findBar_->term(),
             findBar_->options());
 
@@ -535,7 +551,7 @@ private:
 
         if (index >= 0 && editor_->textCursor().selectedText() != replacement) {
             auto match = matches_.at(index);
-            TextSearch::replaceOne(editor_->document(), match, replacement);
+            TextSearch::replaceOne(localDocument(), match, replacement);
         }
 
         findNext();
@@ -547,7 +563,7 @@ private:
     void replaceAll_()
     {
         auto replaced = TextSearch::replaceAll(
-            editor_->document(),
+            localDocument(),
             findBar_->term(),
             findBar_->replacement(),
             findBar_->options());
@@ -648,7 +664,7 @@ private:
 
         auto* select_all = menu.addAction(
             Ui::MenuText::withKey(tr("Select All"), QKeySequence::SelectAll));
-        select_all->setEnabled(!editor_->document()->isEmpty());
+        select_all->setEnabled(!localDocument()->isEmpty());
 
         auto* chosen = menu.exec(editor_->viewport()->mapToGlobal(pos));
 
@@ -657,9 +673,9 @@ private:
         }
 
         if (chosen == undo) {
-            model_->undo();
+            this->undo();
         } else if (chosen == redo) {
-            model_->redo();
+            this->redo();
         } else if (chosen == cut) {
             editor_->cut();
         } else if (chosen == copy) {

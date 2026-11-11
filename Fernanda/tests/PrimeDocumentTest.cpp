@@ -441,10 +441,10 @@ private slots:
         if (initial != expected) {
             QVERIFY(f.prime.isUndoAvailable());
 
-            f.prime.undo();
+            f.prime.undo(nullptr);
             VERIFY_ALL_HOLD(f, initial);
 
-            f.prime.redo();
+            f.prime.redo(nullptr);
             VERIFY_ALL_HOLD(f, expected);
         }
     }
@@ -470,13 +470,13 @@ private slots:
         VERIFY_ALL_HOLD(f, u"ACone\ntwoB"_s);
 
         // One stack: undo runs back through both views' edits, newest first
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"Aone\ntwoB"_s);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"Aone\ntwo"_s);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"one\ntwo"_s);
 
         QVERIFY(!f.prime.isUndoAvailable());
@@ -503,8 +503,8 @@ private slots:
     {
         Fixture_ f(u"one"_s);
 
-        f.prime.undo();
-        f.prime.redo();
+        f.prime.undo(nullptr);
+        f.prime.redo(nullptr);
 
         VERIFY_ALL_HOLD(f, u"one"_s);
     }
@@ -522,12 +522,12 @@ private slots:
         QSignalSpy hint(&f.prime, &PrimeDocument::cursorPositionHint);
 
         // Undo removes "XYZ": the cursor belongs where it was
-        f.prime.undo();
+        f.prime.undo(nullptr);
         QCOMPARE(hint.count(), 1);
         QCOMPARE(hint.takeFirst().first().toInt(), 3);
 
         // Redo puts it back: the cursor belongs after it
-        f.prime.redo();
+        f.prime.redo(nullptr);
         QCOMPARE(hint.count(), 1);
         QCOMPARE(hint.takeFirst().first().toInt(), 6);
     }
@@ -549,10 +549,10 @@ private slots:
 
         VERIFY_ALL_HOLD(f, u"one (two)"_s);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"one two"_s);
 
-        f.prime.redo();
+        f.prime.redo(nullptr);
         VERIFY_ALL_HOLD(f, u"one (two)"_s);
     }
 
@@ -586,7 +586,7 @@ private slots:
         VERIFY_ALL_HOLD(f, u"one\nsix"_s);
         QVERIFY(f.prime.isUndoAvailable());
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"one\ntwo"_s);
     }
 
@@ -613,10 +613,10 @@ private slots:
         f.prime.replaceAllUndoable(u"three\nfour\nfive"_s);
         VERIFY_ALL_HOLD(f, u"three\nfour\nfive"_s);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"one\ntwo"_s);
 
-        f.prime.redo();
+        f.prime.redo(nullptr);
         VERIFY_ALL_HOLD(f, u"three\nfour\nfive"_s);
     }
 
@@ -627,7 +627,7 @@ private slots:
         f.prime.replaceAllUndoable(u""_s);
         VERIFY_ALL_HOLD(f, u""_s);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"one\ntwo"_s);
     }
 
@@ -638,7 +638,7 @@ private slots:
         f.prime.replaceAllUndoable(u"one\ntwo"_s);
         VERIFY_ALL_HOLD(f, u"one\ntwo"_s);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u""_s);
     }
 
@@ -663,10 +663,10 @@ private slots:
         cursor.insertText(u"!"_s);
         VERIFY_ALL_HOLD(f, u"two!"_s);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"two"_s);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"one"_s);
     }
 
@@ -678,7 +678,7 @@ private slots:
         f.prime.insertText(u"A\nB"_s);
         VERIFY_ALL_HOLD(f, u"A\nBone"_s);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         VERIFY_ALL_HOLD(f, u"one"_s);
     }
 
@@ -719,7 +719,7 @@ private slots:
         QCOMPARE(prime.viewCount(), 0);
         QCOMPARE(prime.text(), u"Xone"_s);
 
-        prime.undo();
+        prime.undo(nullptr);
         QCOMPARE(prime.text(), u"one"_s);
     }
 
@@ -807,7 +807,7 @@ private slots:
         unheard.insertText(u"DRIFT"_s);
         f.a.blockSignals(false);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
 
         VERIFY_ALL_HOLD(f, u"one"_s);
     }
@@ -938,7 +938,9 @@ private slots:
         QCOMPARE(edited.first().at(0).value<const QTextDocument*>(), &f.b);
     }
 
-    void undoAndRedoReportTheirDeltaWithNoView()
+    // An undo or redo names whatever asked for it, whichever view typed what
+    // it reverses
+    void undoAndRedoNameTheirRequester()
     {
         Fixture_ f(u"one"_s);
 
@@ -948,16 +950,21 @@ private slots:
 
         QSignalSpy edited(&f.prime, &PrimeDocument::userEdited);
 
-        f.prime.undo();
+        f.prime.undo(&f.b);
         QCOMPARE(edited.count(), 1);
-        QCOMPARE(edited.first().at(0).value<const QTextDocument*>(), nullptr);
+        QCOMPARE(edited.first().at(0).value<const QTextDocument*>(), &f.b);
         QCOMPARE(edited.first().at(1).toInt(), -2);
 
         edited.clear();
-        f.prime.redo();
+        f.prime.redo(&f.a);
+        QCOMPARE(edited.count(), 1);
+        QCOMPARE(edited.first().at(0).value<const QTextDocument*>(), &f.a);
+        QCOMPARE(edited.first().at(1).toInt(), 2);
+
+        edited.clear();
+        f.prime.undo(nullptr);
         QCOMPARE(edited.count(), 1);
         QCOMPARE(edited.first().at(0).value<const QTextDocument*>(), nullptr);
-        QCOMPARE(edited.first().at(1).toInt(), 2);
     }
 
     void undoAndRedoWithNothingToDoReportNothing()
@@ -965,8 +972,8 @@ private slots:
         Fixture_ f(u"one"_s);
         QSignalSpy edited(&f.prime, &PrimeDocument::userEdited);
 
-        f.prime.undo();
-        f.prime.redo();
+        f.prime.undo(nullptr);
+        f.prime.redo(nullptr);
 
         QCOMPARE(edited.count(), 0);
     }
@@ -980,7 +987,7 @@ private slots:
         f.prime.replaceAllUndoable(u"one two three"_s);
         QCOMPARE(edited.count(), 0);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
         QCOMPARE(edited.count(), 1);
         QCOMPARE(edited.first().at(1).toInt(), -2);
     }
@@ -1029,7 +1036,7 @@ private slots:
         QCOMPARE(undo_available.count(), 1);
         QCOMPARE(undo_available.takeFirst().first().toBool(), true);
 
-        f.prime.undo();
+        f.prime.undo(nullptr);
 
         QCOMPARE(contents.count(), 2);
         QCOMPARE(modification.count(), 1);

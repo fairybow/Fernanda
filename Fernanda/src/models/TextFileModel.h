@@ -81,8 +81,18 @@ public:
         return prime_->isRedoAvailable();
     }
 
-    void undo() override { prime_->undo(); }
-    void redo() override { prime_->redo(); }
+    // requester is the view document that asked (TextFileView::localDocument).
+    // Anything else, nullptr included, names no one: the undo still happens,
+    // and is credited to no view
+    void undo(const QObject* requester) override
+    {
+        prime_->undo(qobject_cast<const QTextDocument*>(requester));
+    }
+
+    void redo(const QObject* requester) override
+    {
+        prime_->redo(qobject_cast<const QTextDocument*>(requester));
+    }
 
     // --- AbstractFileModel contract ----------------------------------------
 
@@ -175,10 +185,10 @@ signals:
     void cursorPositionHint(int position);
 
     // Forwarded from the prime: the user edited the text, changing its word
-    // count by wordDelta. sourceView is the view document the edit was typed
-    // in, or nullptr for an undo or redo. Opening and reloading the file
-    // announce nothing
-    void userEdited(const QTextDocument* sourceView, int wordDelta);
+    // count by wordDelta. source is the view document the edit was typed in,
+    // or the one that asked for an undo or redo (nullptr for none). Opening and
+    // reloading the file announce nothing
+    void userEdited(const QTextDocument* source, int wordDelta);
 
 private:
     // The line ending the file uses on disk, restored by data() on write. The
@@ -219,8 +229,6 @@ private:
         return LineEnding_::Lf;
     }
 
-    // TODO: Note - we're bubbling signals up here. Avoidable? Worth avoiding,
-    // even if so?
     void setup_()
     {
         // Bubble the prime's state up as this model's own signals
