@@ -27,6 +27,7 @@
 #include <QtTypes>
 
 #include <Coco/Debug.h>
+#include <Coco/Time.h>
 
 #include "core/CoreConstants.h"
 #include "core/Vault.h"
@@ -43,10 +44,11 @@ namespace Fernanda::Ui {
 // being its figure. Read-only: there is nothing to set.
 //
 // The figures follow the history as it changes (Vault::historyChanged), since
-// the dialog blocks only its own window: typing in a pop-out, or an undo
-// there, goes on while it shows. Today is the local date at each update.
+// the dialog blocks no window: typing in any of the vault's windows goes on
+// while it shows. Today is the local date at each update, and the date is
+// checked once a minute, so Today turns over past midnight with no edit.
 //
-// Window-modal and opened with open(), never exec() (see "Dialogs and event
+// Modeless and opened with show(), never exec() (see "Dialogs and event
 // loops" in docs/Architecture.md). It deletes itself when closed. Ctrl+Q
 // works from in here because the quit action is added to it, as the settings
 // dialog does
@@ -76,8 +78,20 @@ private:
         QLabel* activeTime = nullptr;
     };
 
+    // A minute's check finds a new day at most a minute late, and finds it
+    // after the computer wakes, which a timer set for midnight may not, since
+    // its clock can stop while the computer sleeps
+    static constexpr int DATE_CHECK_INTERVAL_MS_ = 60 * 1000;
+
     Vault* vault_;
     QVBoxLayout* layout_ = new QVBoxLayout(this);
+
+    // The date the figures under Today are for
+    QDate shownDate_{};
+    Coco::Time::Ticker* dateCheck_ = Coco::Time::newTicker(
+        this,
+        &WritingHistoryDialog::checkDate_,
+        DATE_CHECK_INTERVAL_MS_);
 
     Figures_ today_{};
     Figures_ lifetime_{};
@@ -113,6 +127,8 @@ private:
             &Vault::historyChanged,
             this,
             &WritingHistoryDialog::showFigures_);
+
+        dateCheck_->start();
     }
 
     // What each figure means is said once, here, and not again under Lifetime
@@ -186,10 +202,18 @@ private:
     void showFigures_()
     {
         const auto& history = vault_->history();
+        shownDate_ = QDate::currentDate();
 
-        showSpan_(today_, history.day(QDate::currentDate()));
+        showSpan_(today_, history.day(shownDate_));
         showSpan_(lifetime_, history.lifetime());
         daysWritten_->setText(QLocale().toString(history.daysWritten()));
+    }
+
+    void checkDate_()
+    {
+        if (QDate::currentDate() != shownDate_) {
+            showFigures_();
+        }
     }
 
     // Numbers in the user's locale's format, and times in hours and minutes

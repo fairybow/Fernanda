@@ -9,7 +9,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] In WritingHistoryDialog and SettingsDialog, some of the horizontal separator lines appear thicker than others, and it's deeply annoying
 - [ ] Condense code comments
 - [ ] Places where logging would be useful but is missing
-- [ ] The Writing History dialog, left open past midnight, keeps showing the previous day under Today until the next edit updates it
+- [x] The Writing History dialog, left open past midnight, kept showing the previous day under Today until the next edit updated it. It now checks the date once a minute, which also catches a computer that slept through midnight, where a timer set for midnight might not
 - [ ] When scrolling the Git changes list (via grabbing the scroll bar handle, holding left click), if you move the mouse over an entry while still scrolling, the rows will show hover wash (good) but it won't go away when the mouse leaves the row (bad). Normally this doesn't happen, but it's happening presumably because we're holding left click when we pass over the row and because scrolling is happening?
 - [ ] Replace all C-style casts
 - [ ] Have installer(s) remove old or outdated files in app data directory? (Is this wise, on the off chance a user has put their own files in the directory? I would say this is a hard maybe, leaning toward don't do)

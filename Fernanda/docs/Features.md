@@ -213,7 +213,7 @@ How much you've written in a vault, today and over its life. Open it from File â
 - Opening a file doesn't count, and neither do changes made outside Fernanda, a Git pull, switch, or discard included. Undoing one of those does count, as an edit of yours
 - Writing counts toward the vault whose window it's done in, pop-outs included. A Common Vault file edited in a project's window counts toward the project
 - A day runs from midnight to midnight, local time. A gap across midnight counts toward the new day
-- The figures update as you write while the dialog is open, from a pop-out too
+- The dialog blocks no window, so it can stay open while you write in any of the vault's windows, and its figures update as you go. Left open past midnight, it moves on to the new day within a minute
 - Each computer keeps its own record in `.fernanda/history/`, so a vault synced between computers, or committed with Git, adds up the writing done on all of them, and no two computers ever write the same file. Each file is named with a code made from its computer's machine ID, from which the ID can't be recovered
 - Only files named that way are read, so a sync tool's copy of one ("â€¦ (conflicted copy).json") isn't counted twice
 - If this computer's file is damaged (a Git merge conflict in it, say), Fernanda leaves it as it is and records nothing until the vault is next opened with the file mended

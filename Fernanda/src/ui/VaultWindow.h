@@ -936,10 +936,10 @@ private:
         settingsDialog_->activateWindow();
     }
 
-    // Show this vault's writing history, window-modal over this window,
-    // whether asked for here or from a pop-out's word counter. A pop-out isn't
-    // blocked by it, so its counter can be clicked while the dialog shows:
-    // the one already open is brought forward rather than a second made
+    // Show this vault's writing history, owned by this window and blocking
+    // none, whether asked for here or from a pop-out's word counter. Either
+    // counter can be clicked while the dialog shows: the one already open is
+    // brought forward rather than a second made
     void showWritingHistory_()
     {
         if (!writingHistoryDialog_) {
@@ -952,7 +952,7 @@ private:
                 writingHistoryDialog_ = nullptr;
             });
 
-            writingHistoryDialog_->open();
+            writingHistoryDialog_->show();
         }
 
         writingHistoryDialog_->raise();

@@ -648,7 +648,7 @@ A dialog run with `exec()` spins a nested event loop on its caller's stack. If t
 
 - The settings dialog is window-modal and opened without `exec()`: Quit can be triggered from inside it and deletes its window.
 - The licenses dialog is window-modal over Manage Vaults, opened without `exec()`, and deletes itself when closed.
-- The writing history dialog is window-modal, opened without `exec()`, and deletes itself when closed. Its window holds one at a time: a pop-out, which it doesn't block, brings the open one forward rather than making another.
+- The writing history dialog is modeless, opened with `show()`, and deletes itself when closed. Its window owns it, so it stays above that window and closes with it, and holds one at a time: either window's word counter brings the open one forward rather than making another.
 - Go to File does use `exec()`, and is application-modal so that no other window can close its host meanwhile.
 - The Git page's confirmations and failure messages, and the New Branch dialog, are opened with `open()` and delete themselves when closed.
 - No dialog is shown while a window is being constructed. Workspace restore, which runs then, refuses a file that would need a prompt.

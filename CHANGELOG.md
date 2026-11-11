@@ -50,13 +50,13 @@ This is a soft release. For a full feature list, see [Features.md](https://githu
 
 **Linux:** Delete the `.AppImage`.
 
-Uninstalling leaves these folders in place. The first holds only app data and is safe to remove. Each vault's `.fernanda/` holds its settings and the words you've added to its dictionary. `Documents/Fernanda/` holds your writing: delete it only if you mean to.
+Uninstalling leaves these folders in place. The first holds only app data and is safe to remove. Each vault's `.fernanda/` holds its settings, the words you've added to its dictionary, and its writing history. `Documents/Fernanda/` holds your writing: delete it only if you mean to.
 
 | Folder | Location | Contents |
 |---|---|---|
 | App data | `AppData/Local/Fernanda` (Windows), `~/Library/Application Support/Fernanda` (macOS), `~/.local/share/Fernanda` (Linux) | Known vaults, session, logs, spelling dictionaries |
 | Default vault location | `Documents/Fernanda/` | Your vaults and the Common Vault |
-| Per-vault settings | `.fernanda/` inside each vault | Settings, layout, and the vault's dictionary |
+| Per-vault settings | `.fernanda/` inside each vault | Settings, layout, the vault's dictionary, and writing history |
 
 ## Platforms
 
@@ -115,7 +115,7 @@ git push origin v0.0.0-beta.0
 - **Net words** (words added minus words deleted), **words written** (words added, with nothing taken off for cutting), and **time writing**, for today and over the vault's life, along with how many days you've written
 - Every edit you make counts: typing, pasting, cutting, find and replace, undo, and redo. Changes made outside Fernanda (including by Git) don't count
 - Writing counts toward the vault whose window it's done in, pop-outs included, so a Common Vault file edited in a project's window counts toward the project
-- The figures update as you write while the dialog is open
+- The dialog doesn't block any window, so it can stay open while you write, and its figures update as you go
 - Each computer keeps its own record in the vault's `.fernanda/history/`, so a vault synced between computers, or committed with Git, adds up the writing done on all of them. Each file is named with a code made from its computer's machine ID, and the ID can't be worked out from the code
 
 See [Features.md](https://github.com/fairybow/Fernanda/blob/v0.29.0-beta.0/Fernanda/docs/Features.md#writing-history) for the details, and for how it compares with Scrivener's Writing History.
@@ -150,7 +150,6 @@ See [Features.md](https://github.com/fairybow/Fernanda/blob/v0.29.0-beta.0/Ferna
 - The Git page has no commit history yet, and no way to undo or amend a commit. Both are planned
 - A vault reads its settings only when it opens. If a discard, pull, or sync changes them on disk, the open vault keeps its old settings, and your next settings change writes them back over the new ones. Writing history from other computers is likewise read only when the vault opens
 - Discard all changes over a great many files can freeze the window for a moment
-- The Writing History dialog, left open past midnight, keeps showing the previous day under Today until your next edit
 - The Linux AppImage doesn't start on Ubuntu 22.04, Debian 12, Linux Mint 21, or other distros of that age. It runs on Ubuntu 24.04, Debian 13, Fedora 38 and later, and Arch
 - The Spanish translation is an unreviewed draft
 - On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
