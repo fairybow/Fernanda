@@ -141,6 +141,7 @@ See [Features.md](https://github.com/fairybow/Fernanda/blob/v0.29.0-beta.0/Ferna
 - A file changed from elsewhere while a discard question was up (committed from a terminal, say) could make the discard fail after every file had already gone to the trash, leaving them missing from the vault. A discard now reads Git's status when you confirm
 - A window closing partway through a discard could leave the files it was restoring missing from the vault
 - Discarding a changed submodule sent its whole folder to the trash, including the edits and untracked files inside it
+- At a display scale like 125% or 150%, some lines came out thicker than others: the rules in Settings and Writing History, menu separators, the lines between panes, and the marks between tabs. They're now all the same thickness
 
 ## Known Issues
 
