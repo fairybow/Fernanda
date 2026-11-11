@@ -106,6 +106,63 @@ git push origin v0.0.0-beta.0
 
 <a id="releases"></a>
 
+# 0.29.0-beta.0 (Git Discard All and Writing History) - tag v0.29.0-beta.0
+
+## What's New?
+
+**Writing history.** Fernanda now keeps track of how much you write in each vault, today and over the vault's life. Open it from **File → Writing History…**, or click the word counter in the status bar.
+
+- **Net words** (words added minus words deleted), **words written** (words added, with nothing taken off for cutting), and **time writing**, for today and over the vault's life, along with how many days you've written
+- Every edit you make counts: typing, pasting, cutting, find and replace, undo, and redo. Changes made outside Fernanda (including by Git) don't count
+- Writing counts toward the vault whose window it's done in, pop-outs included, so a Common Vault file edited in a project's window counts toward the project
+- The figures update as you write while the dialog is open
+- Each computer keeps its own record in the vault's `.fernanda/history/`, so a vault synced between computers, or committed with Git, adds up the writing done on all of them. Each file is named with a code made from its computer's machine ID, and the ID can't be worked out from the code
+
+See [Features.md](https://github.com/fairybow/Fernanda/blob/v0.29.0-beta.0/Fernanda/docs/Features.md#writing-history) for the details, and for how it compares with Scrivener's Writing History.
+
+**Discard all changes.** Right-click the header above the Git page's changes list (the box that checks every file, and its count) for **Discard all changes…**, as in GitHub Desktop. It discards every listed file, checked or not. It always asks first, with Cancel as the default, and the question names the files when there are ten or fewer, or else gives their count.
+
+- Conflicted files and submodules are left out, and the question says how many
+- When the vault is inside a larger repository, the question says how many of the files are outside the vault
+- A file the trash refuses (on a network share, for instance) is left as it was, and a message names it. If Git stops partway, a message says so, and discarding the files still listed finishes the job
+
+**Discarded files can be restored to the vault.** A discarded file now goes to the system trash from the vault itself, so restoring it from the trash puts it back in the vault with its changes. Before, a copy went to the trash, and restoring it put it in a temporary folder. On macOS, Finder offers no Put Back for anything an app moves to the trash: drag it back instead.
+
+**Git**
+
+- The Git page and diff tabs now update when Fernanda writes its own files in the vault (its settings, dictionary, and writing history), not only when the window comes forward
+
+**Microsoft Store.** Fernanda is now [in the Microsoft Store](https://apps.microsoft.com/detail/9NJMQV8QR056). Buying it there supports Fernanda's development. It stays free here, and the two are the same app.
+
+**Issues.** Bug reports and feature requests now have their own forms. If something doesn't work, or you'd like Fernanda to do something it doesn't, please [open an issue](https://github.com/fairybow/Fernanda/issues/new/choose).
+
+**Fixed**
+
+- A file changed from elsewhere while a discard question was up (committed from a terminal, say) could make the discard fail after every file had already gone to the trash, leaving them missing from the vault. A discard now reads Git's status when you confirm
+- A window closing partway through a discard could leave the files it was restoring missing from the vault
+- Discarding a changed submodule sent its whole folder to the trash, including the edits and untracked files inside it
+
+## Known Issues
+
+- Starting Fernanda while it's already open doesn't bring its window forward
+- Switching branches is refused while you have uncommitted changes. Commit or discard them first. Setting them aside (stashing) is planned
+- A pull only fast-forwards: if you've committed on two computers, the next pull is refused and nothing is merged
+- The Git page has no commit history yet, and no way to undo or amend a commit. Both are planned
+- A vault reads its settings only when it opens. If a discard, pull, or sync changes them on disk, the open vault keeps its old settings, and your next settings change writes them back over the new ones. Writing history from other computers is likewise read only when the vault opens
+- Discard all changes over a great many files can freeze the window for a moment
+- The Writing History dialog, left open past midnight, keeps showing the previous day under Today until your next edit
+- The Linux AppImage doesn't start on Ubuntu 22.04, Debian 12, Linux Mint 21, or other distros of that age. It runs on Ubuntu 24.04, Debian 13, Fedora 38 and later, and Arch
+- The Spanish translation is an unreviewed draft
+- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
+- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
+- Spelling suggestions can take a moment to appear for a long or badly garbled word
+- Pop-out windows can reopen behind their vault window
+- Closing all windows at once from the Windows taskbar reopens only one vault on the next launch
+- A file that can be reached two ways, through a symlinked folder and directly, is two documents, which can save over each other
+- macOS and Linux builds are not well-tested
+
+---
+
 # 0.28.0-beta.0 (A New Number) - tag v0.28.0-beta.0
 
 ## What's New?
