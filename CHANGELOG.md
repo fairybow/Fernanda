@@ -152,6 +152,8 @@ See [Features.md](https://github.com/fairybow/Fernanda/blob/v0.29.0-beta.0/Ferna
 
 ## Known Issues
 
+- A file changed outside Fernanda (by a sync client or Git) less than a second before an autosave can be written over by that save
+- If `fernanda.json` or a vault's `settings.json` or `appearance.json` has a mistake in it (a stray comma, say), Fernanda falls back to defaults and overwrites the file at the next change, losing what was in it
 - Starting Fernanda while it's already open doesn't bring its window forward
 - Switching branches is refused while you have uncommitted changes. Commit or discard them first. Setting them aside (stashing) is planned
 - A pull only fast-forwards: if you've committed on two computers, the next pull is refused and nothing is merged
