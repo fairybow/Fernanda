@@ -1,6 +1,6 @@
 # Changelog
 
-[Skip to release content](#releases)
+[Skip to release entries](#releases)
 
 ---
 
@@ -18,6 +18,30 @@ This is a soft release. For a full feature list, see [Features.md](https://githu
 > You should not trust your writing entirely to beta versions of this software. Regardless, always make regular backups of your work.
 
 <!-- release-preamble-end -->
+
+<!-- release-known-issues-start -->
+
+## Known Issues
+
+- A file changed outside Fernanda (by a sync client or Git) less than a second before an autosave can be written over by that save
+- If `fernanda.json` or a vault's `settings.json` or `appearance.json` has a mistake in it (a stray comma, say), Fernanda falls back to defaults and overwrites the file at the next change, losing what was in it
+- Starting Fernanda while it's already open doesn't bring its window forward
+- Switching branches is refused while you have uncommitted changes. Commit or discard them first. Setting them aside (stashing) is planned
+- A pull only fast-forwards: if you've committed on two computers, the next pull is refused and nothing is merged
+- The Git page has no commit history yet, and no way to undo or amend a commit. Both are planned
+- A vault reads its settings only when it opens. If a discard, pull, or sync changes them on disk, the open vault keeps its old settings, and your next settings change writes them back over the new ones. Writing history from other computers is likewise read only when the vault opens
+- Discard all changes over a great many files can freeze the window for a moment
+- The Linux AppImage doesn't start on Ubuntu 22.04, Debian 12, Linux Mint 21, or other distros of that age. It runs on Ubuntu 24.04, Debian 13, Fedora 38 and later, and Arch
+- The Spanish translation is an unreviewed draft
+- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
+- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
+- Spelling suggestions can take a moment to appear for a long or badly garbled word
+- Pop-out windows can reopen behind their vault window
+- Closing all windows at once from the Windows taskbar reopens only one vault on the next launch
+- A file that can be reached two ways, through a symlinked folder and directly, is two documents, which can save over each other
+- macOS and Linux builds are not well-tested
+
+<!-- release-known-issues-end -->
 
 <!-- release-footer-start -->
 
@@ -91,13 +115,9 @@ git push origin v0.0.0-beta.0
 # Release Entry Template
 
 ```
-# 0.0.0-beta.0 (Testing / Soft Release) - tag v0.0.0-beta.0
+# 0.0.0-beta.0 (Title) - tag v0.0.0-beta.0
 
 ## What's New?
-
-- ...
-
-## Known Issues
 
 - ...
 ```
@@ -150,26 +170,6 @@ See [Features.md](https://github.com/fairybow/Fernanda/blob/v0.29.0-beta.0/Ferna
 - At a display scale like 125% or 150%, some lines came out thicker than others: the rules in Settings and Writing History, menu separators, the lines between panes, and the marks between tabs. They're now all the same thickness
 - With more than one window open, quitting from another window, or coming back to Fernanda after a vault's folder was deleted, while the warning for a file that isn't UTF-8 or the "Couldn't save" message was up could crash Fernanda. Those two messages now block every window until they're answered, and a vault whose folder is gone is closed only once no dialog is open
 
-## Known Issues
-
-- A file changed outside Fernanda (by a sync client or Git) less than a second before an autosave can be written over by that save
-- If `fernanda.json` or a vault's `settings.json` or `appearance.json` has a mistake in it (a stray comma, say), Fernanda falls back to defaults and overwrites the file at the next change, losing what was in it
-- Starting Fernanda while it's already open doesn't bring its window forward
-- Switching branches is refused while you have uncommitted changes. Commit or discard them first. Setting them aside (stashing) is planned
-- A pull only fast-forwards: if you've committed on two computers, the next pull is refused and nothing is merged
-- The Git page has no commit history yet, and no way to undo or amend a commit. Both are planned
-- A vault reads its settings only when it opens. If a discard, pull, or sync changes them on disk, the open vault keeps its old settings, and your next settings change writes them back over the new ones. Writing history from other computers is likewise read only when the vault opens
-- Discard all changes over a great many files can freeze the window for a moment
-- The Linux AppImage doesn't start on Ubuntu 22.04, Debian 12, Linux Mint 21, or other distros of that age. It runs on Ubuntu 24.04, Debian 13, Fedora 38 and later, and Arch
-- The Spanish translation is an unreviewed draft
-- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
-- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
-- Spelling suggestions can take a moment to appear for a long or badly garbled word
-- Pop-out windows can reopen behind their vault window
-- Closing all windows at once from the Windows taskbar reopens only one vault on the next launch
-- A file that can be reached two ways, through a symlinked folder and directly, is two documents, which can save over each other
-- macOS and Linux builds are not well-tested
-
 ---
 
 # 0.28.0-beta.0 (A New Number) - tag v0.28.0-beta.0
@@ -183,21 +183,6 @@ See [Features.md](https://github.com/fairybow/Fernanda/blob/v0.29.0-beta.0/Ferna
 **Coming to the Microsoft Store.** Fernanda will also be sold in the Microsoft Store, as a way to support its development. It stays free here, and the two are the same app. The Store keeps its own version up to date, so that version doesn't check GitHub for updates; the [privacy statement](https://github.com/fairybow/Fernanda/blob/v0.28.0-beta.0/PRIVACY.md) says so.
 
 - The macOS build is now made on macOS 15, since GitHub has retired the macOS 14 machines that made it
-
-## Known Issues
-
-- Starting Fernanda while it's already open doesn't bring its window forward
-- Switching branches is refused while you have uncommitted changes. Commit or discard them first. Setting them aside (stashing) is planned
-- A pull only fast-forwards: if you've committed on two computers, the next pull is refused and nothing is merged
-- The Git page has no commit history yet, and no way to undo or amend a commit. Both are planned
-- The Spanish translation is an unreviewed draft
-- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
-- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
-- Spelling suggestions can take a moment to appear for a long or badly garbled word
-- Pop-out windows can reopen behind their vault window
-- Closing all windows at once from the Windows taskbar reopens only one vault on the next launch
-- A file that can be reached two ways, through a symlinked folder and directly, is two documents, which can save over each other
-- macOS and Linux builds are not well-tested
 
 ---
 
@@ -235,20 +220,6 @@ See [Features.md](https://github.com/fairybow/Fernanda/blob/v0.12.0-beta.0/Ferna
 **Beta alert**
 
 - Each beta now opens with a reminder not to trust your writing entirely to a beta version, and to keep backups. "Don't show this again for this version" silences it until the next release
-
-## Known Issues
-
-- Switching branches is refused while you have uncommitted changes. Commit or discard them first. Setting them aside (stashing) is planned
-- A pull only fast-forwards: if you've committed on two computers, the next pull is refused and nothing is merged
-- The Git page has no commit history yet, and no way to undo or amend a commit. Both are planned
-- The Spanish translation is an unreviewed draft
-- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
-- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
-- Spelling suggestions can take a moment to appear for a long or badly garbled word
-- Pop-out windows can reopen behind their vault window
-- Closing all windows at once from the Windows taskbar reopens only one vault on the next launch
-- A file that can be reached two ways, through a symlinked folder and directly, is two documents, which can save over each other
-- macOS and Linux builds are not well-tested
 
 ---
 
@@ -288,17 +259,6 @@ See [Features.md](https://github.com/fairybow/Fernanda/blob/v0.12.0-beta.0/Ferna
 - A rename onto the name of a file just deleted outside Fernanda could leave the deleted file open
 - Opening or closing the Common Vault drawer could leave a row lit under the pointer
 
-## Known Issues
-
-- The Spanish translation is an unreviewed draft, and some newer text isn't translated yet
-- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
-- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
-- Spelling suggestions can take a moment to appear for a long or badly garbled word
-- Pop-out windows can reopen behind their vault window
-- Closing all windows at once from the Windows taskbar reopens only one vault on the next launch
-- A file that can be reached two ways, through a symlinked folder and directly, is two documents, which can save over each other
-- macOS and Linux builds are not well-tested
-
 ---
 
 # 0.10.1-beta.0 (New Icon) - tag v0.10.1-beta.0
@@ -306,15 +266,6 @@ See [Features.md](https://github.com/fairybow/Fernanda/blob/v0.12.0-beta.0/Ferna
 ## What's New?
 
 - A refined icon: the ring's colors now blend with a long, soft middle, and its edges are a darker shade of the same colors
-
-## Known Issues
-
-- The Spanish translation is an unreviewed draft, and the typing helper settings aren't translated yet
-- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
-- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
-- Spelling suggestions can take a moment to appear for a long or badly garbled word
-- Pop-out windows can reopen behind their vault window
-- macOS and Linux builds are not well-tested
 
 ---
 
@@ -338,15 +289,6 @@ Fernanda installs as a new app, next to Suzuri rather than over it, and doesn't 
 
 Your vaults themselves can stay where they are. If you skip step 3, open them again from **Manage Vaults**.
 
-## Known Issues
-
-- The Spanish translation is an unreviewed draft, and the typing helper settings aren't translated yet
-- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
-- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
-- Spelling suggestions can take a moment to appear for a long or badly garbled word
-- Pop-out windows can reopen behind their vault window
-- macOS and Linux builds are not well-tested
-
 ---
 
 # 0.9.1-beta.0 (Fixes) - tag v0.9.1-beta.0
@@ -356,15 +298,6 @@ Your vaults themselves can stay where they are. If you skip step 3, open them ag
 - **Fixed:** typing a space after punctuation that had gone before a closing bracket or quote gave two spaces: `(word), ` and a space became `(word),  `. That space now counts as the one you'd type next, and Enter there no longer leaves a space at the end of the line
 - **Fixed:** closing a window with tabs open ran code on part of the window that had already been taken apart. No problems were seen from it, but it was the kind of mistake that can cause a crash
 - Suzuri's description, shown in the Windows file properties and the Linux app menu, now reads "A plain-text writing app for fiction, poetry, and long projects"
-
-## Known Issues
-
-- The Spanish translation is an unreviewed draft, and the typing helper settings aren't translated yet
-- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
-- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
-- Spelling suggestions can take a moment to appear for a long or badly garbled word
-- Pop-out windows can reopen behind their vault window
-- macOS and Linux builds are not well-tested
 
 ---
 
@@ -391,15 +324,6 @@ Also in this release:
 - **Fixed:** the **Options** heading in Settings lit up on hover, as if it could be chosen
 - The text in the editor now starts slightly lower on the page, leaving room for the selection handles
 
-## Known Issues
-
-- The Spanish translation is an unreviewed draft, and the new settings aren't translated yet
-- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
-- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
-- Spelling suggestions can take a moment to appear for a long or badly garbled word
-- Pop-out windows can reopen behind their vault window
-- macOS and Linux builds are not well-tested
-
 ---
 
 # 0.8.1-beta.0 (Fixes) - tag v0.8.1-beta.0
@@ -409,15 +333,6 @@ Also in this release:
 - **Fixed:** drop-down lists (in Settings, for example) showed a second, square edge around their rounded one, and could be too narrow for their longest choice. They're now drawn like the menus: rounded, with a soft shadow, and as wide as their box
 - **Fixed:** a drop-down box's longest choice could lose its last character, as in "English (United States)"
 - **Fixed:** clicking **Check for updates** moved the keyboard focus to the next setting
-
-## Known Issues
-
-- The Spanish translation is an unreviewed draft
-- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
-- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
-- Spelling suggestions can take a moment to appear for a long or badly garbled word
-- Pop-out windows can reopen behind their vault window
-- macOS and Linux builds are not well-tested
 
 ---
 
@@ -436,16 +351,6 @@ Also in this release:
 
 - **Fixed:** at 100% display scaling, the X on tabs and the arrows in the file tree were drawn lopsided
 
-## Known Issues
-
-- The Spanish translation is an unreviewed draft
-- Drop-down lists (in Settings, for example) are square, unlike the menus
-- On Linux without a compositing window manager, menus may show dark corners outside their rounded edges
-- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
-- Spelling suggestions can take a moment to appear for a long or badly garbled word
-- Pop-out windows can reopen behind their vault window
-- macOS and Linux builds are not well-tested
-
 ---
 
 # 0.7.0-beta.0 (Updates) - tag v0.7.0-beta.0
@@ -458,15 +363,6 @@ Suzuri can now tell you when a newer version is out.
 - **Suzuri checks on its own,** a few seconds after it starts and then once a day while it runs. To stop it, turn off **Check for updates automatically** in General. A check is one request to GitHub for the list of releases, and sends nothing about you or your files
 - **A "download arrow" icon appears in the status bar** of every window when a newer version is found. Click it to see the update in General. It then stays hidden until a still newer version comes out
 - Suzuri doesn't download or install updates itself. To update, download the installer from the release page and run it, just as you installed Suzuri
-
-## Known Issues
-
-- Drop-down lists (in Settings, for example) are square, unlike the menus
-- On Linux without a compositing window manager, menus may show dark corners outside their rounded edges
-- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
-- Spelling suggestions can take a moment to appear for a long or badly garbled word
-- Pop-out windows can reopen behind their vault window
-- macOS and Linux builds are not well-tested
 
 ---
 
@@ -488,15 +384,6 @@ Also in this release:
 
 - **Fixed:** the Common Vault mark on a tab now changes color with a light or dark switch
 
-## Known Issues
-
-- Drop-down lists (in Settings, for example) are square, unlike the menus
-- On Linux without a compositing window manager, menus may show dark corners outside their rounded edges
-- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
-- Spelling suggestions can take a moment to appear for a long or badly garbled word
-- Pop-out windows can reopen behind their vault window
-- macOS and Linux builds are not well-tested
-
 ---
 
 # 0.5.0-beta.0 (Go to File) - tag v0.5.0-beta.0
@@ -515,13 +402,6 @@ Also in this release:
 - **Fixed:** focus now lands in the editor after restoring a session, on the first click of a tab, and after dragging a tab to another pane or window
 - A spelling language in a hand-edited `settings.json` must now be a plain dictionary name. Anything else is treated as not installed
 
-## Known Issues
-
-- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
-- Spelling suggestions can take a moment to appear for a long or badly garbled word
-- Pop-out windows can reopen behind their vault window
-- macOS and Linux builds are not well-tested
-
 ---
 
 # 0.4.0-beta.0 (Licenses) - tag v0.4.0-beta.0
@@ -532,14 +412,6 @@ Suzuri now credits everything it's built with.
 
 - **Licenses**, under the version in Manage Vaults, lists Suzuri and everything it's built on or bundles: Qt, Hunspell, the English dictionary, the four bundled fonts, and the Lucide icons. Choose one to read its full license text
 - Suzuri's own license, the GNU GPL v3, is first in the list
-
-## Known Issues
-
-- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
-- Spelling suggestions can take a moment to appear for a long or badly garbled word
-- Focus doesn't always land in the editor after dragging a tab or restoring a session
-- Pop-out windows can reopen behind their vault window
-- macOS and Linux builds are not well-tested
 
 ---
 
@@ -557,14 +429,6 @@ The rest of the usual editing commands are now in the menus.
 Also in this release:
 
 - Selection handles now only appear (if enabled) once you've finished making a selection, when you let go of the mouse
-
-## Known Issues
-
-- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
-- Spelling suggestions can take a moment to appear for a long or badly garbled word
-- Focus doesn't always land in the editor after dragging a tab or restoring a session
-- Pop-out windows can reopen behind their vault window
-- macOS and Linux builds are not well-tested
 
 ---
 
@@ -588,14 +452,6 @@ Also in this release:
 
 - **Fixed:** the text editor's right-click menu opened to the left of the pointer when line numbers or a margin were on
 
-## Known Issues
-
-- Web addresses and file paths are checked piece by piece, so parts like "github" and "com" are marked
-- Suggestions can take a moment to appear for a long or badly garbled word
-- Focus doesn't always land in the editor after dragging a tab or restoring a session
-- Pop-out windows can reopen behind their vault window
-- macOS and Linux builds are not well-tested
-
 ---
 
 # 0.1.0-beta.0 (Find and Replace) - tag v0.1.0-beta.0
@@ -617,12 +473,6 @@ Also in this release:
 
 - The README now has a screenshot, a feature list, and build instructions
 
-## Known Issues
-
-- Focus doesn't always land in the editor after dragging a tab or restoring a session
-- Pop-out windows can reopen behind their vault window
-- macOS and Linux builds are not well-tested
-
 ---
 
 # 0.0.0-beta.1 (Soft Release) - tag v0.0.0-beta.1
@@ -636,12 +486,6 @@ A small release of fixes and safeguards.
 - If the views of a file open in more than one tab ever disagree about its text, Suzuri now notices and resets the view to the text that is being saved. No cause for this is known. It's a safety net
 - Suzuri now has automated tests for its file handling, run on Linux and macOS for every change
 
-## Known Issues
-
-- Focus doesn't always land in the editor after dragging a tab or restoring a session
-- Pop-out windows can reopen behind their vault window
-- macOS and Linux builds are not well-tested
-
 ---
 
 # 0.0.0-beta.0 (Initial Release) - tag v0.0.0-beta.0
@@ -653,9 +497,3 @@ This is Suzuri's first public release.
 Suzuri is a plain-text writing app for long-form fiction. Its design follows Obsidian: a vault is just a folder on your computer, and everything you write stays in ordinary files you own.
 
 It's a hobby project, the writing app I've wanted for myself, and I hope to keep working on it for a long time. This release is the starting point: vaults, a file tree, tabs and split panes, pop-out windows, and autosave.
-
-## Known Issues
-
-- Focus doesn't always land in the editor after dragging a tab or restoring a session
-- Pop-out windows can reopen behind their vault window
-- macOS and Linux builds are not well-tested
