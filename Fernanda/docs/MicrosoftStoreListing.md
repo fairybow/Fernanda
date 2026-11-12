@@ -35,9 +35,25 @@ Fernanda is still in beta, and new features should arrive somewhat regularly. Ke
 
 Fernanda is an independent project and isn't affiliated with or endorsed by Obsidian.
 
-See CHANGELOG.md in Fernanda's GitHub repository for details on the latest changes.
-
 *Fernanda is free and open source, under the GNU GPL, and you can download it from GitHub at no cost. If you buy it here, you're supporting its development directly, and I love you for it. You also get easy installation and automatic updates through the Microsoft Store, with every new feature and fix. In Ukraine, Fernanda is free in the Microsoft Store.
+```
+
+## What's new in this version
+
+Update per release. Summarize CHANGELOG entry.
+
+Last uploaded version: 0.29.0-beta.0
+
+```
+New: Writing History tracks your net words, words written, and time spent writing in each vault, combining the work done on every computer you sync the vault to. Open it from File > Writing History, or click the word counter.
+
+New: British English spellcheck. A vault you haven't chosen a language for now starts in your system's language.
+
+Git: Discard all changes, and discarded files can now be restored from the system trash straight back into the vault.
+
+Fixes: a crash when quitting with certain messages open, uneven line thickness at 125% and 150% display scale, and several issues when discarding Git changes.
+
+Full details: github.com/fairybow/Fernanda/releases
 ```
 
 ## Product features
@@ -62,10 +78,6 @@ Brackets and quotes pair as you type
 A word counter, fonts chosen for prose, and settings kept per vault
 In English, with a Spanish translation in progress
 ```
-
-## What's new in this version
-
-Leave blank.
 
 ## Keywords
 
