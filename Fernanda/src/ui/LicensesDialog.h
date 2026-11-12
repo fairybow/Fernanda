@@ -233,11 +233,26 @@ private:
 
         entries.append(
             { tr("English (US) dictionary"),
-              tr("The bundled spelling dictionary, made from SCOWL by Kevin "
+              tr("A bundled spelling dictionary, made from SCOWL by Kevin "
                  "Atkinson, as LibreOffice publishes it."),
               tr("SCOWL and its sources' terms"),
               u"http://wordlist.sourceforge.net"_s,
               { u":/licenses/en_US"_s } });
+
+        // Its notice names the LGPL without a version, which allows any, so
+        // the notice is followed by v2.1, the copy Hunspell already carries
+        QStringList en_gb_files{ u":/licenses/en_GB"_s,
+                                 u":/licenses/LGPL2.1"_s };
+
+        entries.append(
+            { tr("English (UK) dictionary"),
+              tr("A bundled spelling dictionary, by David Bartlett, Brian "
+                 "Kelk, Andrew Brown, and Marco A.G. Pinto, as LibreOffice "
+                 "publishes it. Its notice names the GNU LGPL without a "
+                 "version, which allows any; the text of v2.1 follows it."),
+              u"GNU LGPL"_s,
+              u"https://github.com/LibreOffice/dictionaries"_s,
+              en_gb_files });
 
         entries.append(
             { u"Courier Prime"_s,

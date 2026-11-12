@@ -1,0 +1,23 @@
+English (UK) spelling dictionary
+
+Files:    en_GB.aff, en_GB.dic, en_GB_README.txt
+From:     https://github.com/LibreOffice/dictionaries (folder "en")
+Commit:   c0865a8 (6 November 2026)
+Version:  2025.04.01, the English extension's version
+
+The word list began as a subset of Kevin Atkinson's, and was extended and
+corrected by David Bartlett, Brian Kelk, Andrew Brown, and Marco A.G. Pinto,
+who maintains it. It and the affix file are under the GNU LGPL, which the
+README names without a version; that allows any version, and the Licenses
+dialog shows v2.1, from the Hunspell submodule's COPYING.LESSER. Upstream,
+the README is named README_en_GB.txt, and en_GB_README.txt here.
+
+en_GB_LICENSE is the README's opening section, up to its first line of
+dashes, copied unchanged apart from the byte order mark the README starts
+with, so the Licenses dialog can show it on its own. It is the one file here
+that doesn't come from upstream, and is what Licenses.qrc compiles in.
+
+The other files are unmodified apart from the README's name. To update,
+replace them from the same folder upstream (renaming the README as above),
+copy the new README's opening section into en_GB_LICENSE again, and change
+the commit and version above.

@@ -1,0 +1,34 @@
+This dictionary was initially based on a subset of the
+original English wordlist created by Kevin Atkinson for
+Pspell and Aspell, and thus is covered by his original
+LGPL licence.
+
+It has been extensively updated by David Bartlett, Brian Kelk,
+Andrew Brown and Marco A.G.Pinto:
+ — Numerous Americanisms/spellings have been removed;
+ — Missing words have been added;
+ — Many errors have been corrected;
+ — Compound hyphenated words have been added where appropriate;
+ — Thousands of proper/places names have been added;
+ — Thousands of possessives have been added;
+ — Thousands of plurals have been added;
+ — Thousands of duplicates have been removed.
+
+Valuable inputs to this process were received from many other
+people — far too numerous to name. Serious thanks to all for
+your greatly appreciated help.
+
+This wordlist is intended to be a good representation of
+current modern British English, and thus it should be a good
+basis for Commonwealth English in most countries of the world
+outside North America.
+
+The affix file has been created completely from scratch
+by David Bartlett and Andrew Brown, based on the published
+rules for MySpell and is also provided under the LGPL.
+
+In creating the affix rules, an attempt has been made to
+reproduce the most general rules for English word
+formation, rather than merely use it to compress the
+size of the dictionary. It is hoped that this will
+facilitate future localisation to other variants of English.

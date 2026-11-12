@@ -51,7 +51,7 @@ Fernanda is early in development, and more features are planned. I expect to kee
 - **A Common Vault** shared by every project, for templates, notes, and reference material
 - **A file tree and Go to File** (Ctrl+O), with drag-and-drop moves and delete-to-trash
 - **Find and replace** in a file, with match case and whole word
-- **Spellcheck** as you write, with suggestions and a dictionary of your own words for each vault. US English is bundled, and other Hunspell dictionaries can be added
+- **Spellcheck** as you write, with suggestions and a dictionary of your own words for each vault. US and British English are bundled, and other Hunspell dictionaries can be added
 - **Changes made elsewhere are picked up.** A file edited in another program, by Git, or by a sync client reloads in place, as one undo step
 - **Git, built in,** for a vault in a Git repository: see what's changed, with each changed word marked, then commit, discard, switch and make branches, and sync with the remote, as GitHub Desktop does. It uses the Git on your computer, and reaches the remote only when you click
 - **A focus timer** for writing in focus periods, with a short break after each and a longer one after several

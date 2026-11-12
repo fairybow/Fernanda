@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
+        <file>dictionaries/en_GB.aff</file>
+        <file>dictionaries/en_GB.dic</file>
         <file>dictionaries/en_US.aff</file>
         <file>dictionaries/en_US.dic</file>
     </qresource>
