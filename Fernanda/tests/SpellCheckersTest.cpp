@@ -199,7 +199,7 @@ private slots:
         }
     }
 
-    // --- The dictionary that ships with Fernanda ----------------------------
+    // --- The dictionaries that ship with Fernanda --------------------------
 
     void installBundledPutsEnglishInTheFolder()
     {
@@ -210,10 +210,31 @@ private slots:
 
         SpellCheckers checkers{ path };
         QVERIFY(checkers.languages().contains(u"en_US"_s));
+        QVERIFY(checkers.languages().contains(u"en_GB"_s));
 
         // The folder is the user's to manage, so the copies can be written
         QVERIFY(QFileInfo(folder.filePath(u"en_US.aff"_s)).isWritable());
         QVERIFY(QFileInfo(folder.filePath(u"en_US.dic"_s)).isWritable());
+        QVERIFY(QFileInfo(folder.filePath(u"en_GB.aff"_s)).isWritable());
+        QVERIFY(QFileInfo(folder.filePath(u"en_GB.dic"_s)).isWritable());
+    }
+
+    // British English loads, in UTF-8, past the byte order mark its files
+    // start with, and checks British spelling
+    void bundledBritishEnglishChecksBritishSpelling()
+    {
+        QTemporaryDir folder{};
+        auto path = Coco::Path(folder.path());
+
+        SpellCheckers::installBundled(path);
+
+        SpellCheckers checkers{ path };
+        auto* british = checkers.checker(u"en_GB"_s);
+
+        QVERIFY(british != nullptr);
+        QVERIFY(british->isCorrect(u"colour"_s));
+        QVERIFY(british->isCorrect(u"realise"_s));
+        QVERIFY(!british->isCorrect(u"color"_s));
     }
 
     void installBundledMakesTheFolderIfItIsMissing()

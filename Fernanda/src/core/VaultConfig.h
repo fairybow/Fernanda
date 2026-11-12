@@ -19,6 +19,7 @@
 
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QLocale>
 #include <QString>
 #include <QtMinMax>
 
@@ -37,8 +38,9 @@
 // fall back to defaults when a key is unset, so no caller has to know whether a
 // value came from disk. And like AppConfig it houses its own defaults —
 // AppConfig's are AppDirs paths resolved at runtime, these are the compile-time
-// constants below. There is no separate defaults header and no runtime default
-// layer.
+// constants below, apart from the spelling language, which follows the
+// system's locale (defaultSpellcheckLanguage). There is no separate defaults
+// header and no runtime default layer.
 //
 // Only set keys are written, so "unset ⇒ absent ⇒ default" round-trips and a
 // fresh vault's files stay minimal (Obsidian writes its config files the same
@@ -124,7 +126,23 @@ public:
     // Spellcheck (core/spell/SpellChecker.h). The language is a dictionary's
     // name, the stem of its .aff and .dic files (core/spell/SpellCheckers.h)
     static constexpr bool DEFAULT_SPELLCHECK = true;
-    static constexpr auto DEFAULT_SPELLCHECK_LANGUAGE = "en_US";
+
+    // The language a vault checks until one is chosen, from locale (the
+    // system's, in use). Of the bundled dictionaries: British English for an
+    // English locale outside the United States, since Commonwealth English
+    // mostly spells as Britain does, and US English for any other locale.
+    // Never a language with no bundled dictionary, so a new vault always
+    // checks something
+    [[nodiscard]] static QString
+    defaultSpellcheckLanguage(const QLocale& locale)
+    {
+        if (locale.language() == QLocale::English &&
+            locale.territory() != QLocale::UnitedStates) {
+            return u"en_GB"_s;
+        }
+
+        return u"en_US"_s;
+    }
 
     static constexpr int MIN_LEFT_RIGHT_MARGIN = 0;
     static constexpr int MAX_LEFT_RIGHT_MARGIN = 40;
@@ -290,7 +308,7 @@ public:
     [[nodiscard]] QString spellcheckLanguage() const
     {
         return spellcheckLanguage_.isEmpty()
-                   ? QString::fromLatin1(DEFAULT_SPELLCHECK_LANGUAGE)
+                   ? defaultSpellcheckLanguage(QLocale::system())
                    : spellcheckLanguage_;
     }
 
