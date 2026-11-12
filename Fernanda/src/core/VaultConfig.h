@@ -128,20 +128,26 @@ public:
     static constexpr bool DEFAULT_SPELLCHECK = true;
 
     // The language a vault checks until one is chosen, from locale (the
-    // system's, in use). Of the bundled dictionaries: British English for an
-    // English locale outside the United States, since Commonwealth English
-    // mostly spells as Britain does, and US English for any other locale.
-    // Never a language with no bundled dictionary, so a new vault always
-    // checks something
+    // system's, in use). English outside the United States is British
+    // English, since Commonwealth English mostly spells as Britain does; in
+    // it, and with no locale set (the C locale), US English. Any other
+    // language is the locale's own name ("uk_UA"), as dictionaries are named,
+    // whether or not its dictionary is installed: one that isn't is shown as
+    // not installed and checks nothing, which is better than checking text in
+    // one language against another's dictionary
     [[nodiscard]] static QString
     defaultSpellcheckLanguage(const QLocale& locale)
     {
-        if (locale.language() == QLocale::English &&
-            locale.territory() != QLocale::UnitedStates) {
-            return u"en_GB"_s;
+        if (locale.language() == QLocale::C) {
+            return u"en_US"_s;
         }
 
-        return u"en_US"_s;
+        if (locale.language() == QLocale::English) {
+            return locale.territory() == QLocale::UnitedStates ? u"en_US"_s
+                                                               : u"en_GB"_s;
+        }
+
+        return locale.name();
     }
 
     static constexpr int MIN_LEFT_RIGHT_MARGIN = 0;

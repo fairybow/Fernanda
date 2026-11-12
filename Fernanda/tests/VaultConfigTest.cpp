@@ -25,8 +25,9 @@ using Fernanda::VaultConfig;
 
 // The spelling language a vault checks until one is chosen
 // (core/VaultConfig.h): British English for an English locale outside the
-// United States, US English for any other. The locale is given here, not read
-// from the system, which differs from machine to machine.
+// United States, US English in it or with no locale, and the locale's own name
+// for any other language. The locale is given here, not read from the system,
+// which differs from machine to machine.
 //
 // Qt Test runs every private slot as a test. A slot named <test>_data fills a
 // table, and <test> then runs once per row, reported under the row's name
@@ -50,8 +51,16 @@ private slots:
         // takes it
         QTest::newRow("English alone") << u"en"_s << u"en_US"_s;
 
-        // Another language has no bundled dictionary of its own
-        QTest::newRow("Spanish") << u"es_MX"_s << u"en_US"_s;
+        // Another language is named as its dictionary would be, installed or
+        // not
+        QTest::newRow("Ukrainian") << u"uk_UA"_s << u"uk_UA"_s;
+        QTest::newRow("Spanish") << u"es_MX"_s << u"es_MX"_s;
+        QTest::newRow("German") << u"de_DE"_s << u"de_DE"_s;
+
+        // A language alone takes QLocale's usual territory for it
+        QTest::newRow("Ukrainian alone") << u"uk"_s << u"uk_UA"_s;
+
+        // No locale set
         QTest::newRow("C locale") << u"C"_s << u"en_US"_s;
     }
 
