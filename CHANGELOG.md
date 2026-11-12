@@ -142,6 +142,7 @@ See [Features.md](https://github.com/fairybow/Fernanda/blob/v0.29.0-beta.0/Ferna
 - A window closing partway through a discard could leave the files it was restoring missing from the vault
 - Discarding a changed submodule sent its whole folder to the trash, including the edits and untracked files inside it
 - At a display scale like 125% or 150%, some lines came out thicker than others: the rules in Settings and Writing History, menu separators, the lines between panes, and the marks between tabs. They're now all the same thickness
+- With more than one window open, quitting from another window, or coming back to Fernanda after a vault's folder was deleted, while the warning for a file that isn't UTF-8 or the "Couldn’t save" message was up could crash Fernanda. Those two messages now block every window until they're answered, and a vault whose folder is gone is closed only once no dialog is open
 
 ## Known Issues
 
