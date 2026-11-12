@@ -128,6 +128,12 @@ See [Features.md](https://github.com/fairybow/Fernanda/blob/v0.29.0-beta.0/Ferna
 
 **Discarded files can be restored to the vault.** A discarded file now goes to the system trash from the vault itself, so restoring it from the trash puts it back in the vault with its changes. Before, a copy went to the trash, and restoring it put it in a temporary folder. On macOS, Finder offers no Put Back for anything an app moves to the trash: drag it back instead.
 
+**British English spellcheck.** Fernanda now comes with a British English dictionary alongside US English, for writers in the UK and in most Commonwealth countries (Singapore, Australia, India, and elsewhere). Choose it per vault in **Settings → Editor**, under the spelling language.
+
+- A vault you haven't chosen a language for now starts in your system's language: British English if your system is set to English anywhere but the United States, and US English in the United States
+- Another language starts as itself too. If Fernanda has no dictionary for it, it's listed as not installed and nothing is checked, rather than checking your writing against an English dictionary. Put its Hunspell dictionary's two files in the dictionaries folder (**Open folder**, beside the language list) and it starts working
+- Vaults with a language already chosen are unchanged
+
 **Git**
 
 - The Git page and diff tabs now update when Fernanda writes its own files in the vault (its settings, dictionary, and writing history), not only when the window comes forward
