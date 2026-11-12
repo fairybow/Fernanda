@@ -25,6 +25,7 @@
 #include <QSet>
 #include <QString>
 #include <QStringList>
+#include <QThread>
 #include <QWidget>
 
 #include <Coco/Debug.h>
@@ -213,6 +214,11 @@ private:
     // back meanwhile doesn't run the check again and stack a second box
     bool checkingVaultFolders_ = false;
 
+    // Set when checkVaultFolders_ was held off by a nested event loop, so the
+    // check runs when focus next moves (focusWindowChanged), as it does when a
+    // dialog closes
+    bool vaultFolderCheckPending_ = false;
+
     struct OpenVault_
     {
         Vault* vault = nullptr;
@@ -312,6 +318,14 @@ private:
             &App::applicationStateChanged,
             this,
             &App::onApplicationStateChanged_);
+
+        // A folder check held off by a nested event loop is retried when
+        // focus next moves (checkVaultFolders_ says why it waits)
+        connect(this, &App::focusWindowChanged, this, [this] {
+            if (vaultFolderCheckPending_) {
+                checkVaultFolders_();
+            }
+        });
 
         // Vaults follow a rename or move at once (followVaults_ says why); a
         // trash is handled a tick later (onVaultFoldersTrashed_ says why)
@@ -584,6 +598,20 @@ private:
         if (checkingVaultFolders_) {
             return;
         }
+
+        // Closing a window while a nested event loop runs (a dialog's exec(), a
+        // drag) deletes it with that loop still on its stack: the deferred
+        // delete runs in the loop it was posted from, and takes the window's
+        // children with it, a dialog on the stack included. Modality doesn't
+        // help, since activation still arrives. So the check waits until only
+        // the main loop runs. If focus moves while the closing dialog's loop
+        // is still unwinding, the check waits for the next activation instead
+        if (QThread::currentThread()->loopLevel() > 1) {
+            vaultFolderCheckPending_ = true;
+            return;
+        }
+
+        vaultFolderCheckPending_ = false;
 
         // A window already closed by an earlier pass is hidden but stays in
         // openVaults_ until its deferred delete runs, and an activation can

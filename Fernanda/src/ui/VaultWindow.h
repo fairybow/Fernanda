@@ -1532,7 +1532,10 @@ private:
                "drive), close again to retry.")
                 .arg(list));
         box.setTextInteractionFlags(Qt::TextSelectableByMouse);
-        box.setWindowModality(Qt::WindowModal);
+
+        // Application-modal: it runs with exec() from inside closeEvent, so no
+        // other window may close this one, or start closing it again, meanwhile
+        box.setWindowModality(Qt::ApplicationModal);
 
         auto* ok = box.addButton(QMessageBox::Ok);
         box.setDefaultButton(ok);

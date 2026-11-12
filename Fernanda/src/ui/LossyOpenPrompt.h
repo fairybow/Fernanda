@@ -126,13 +126,16 @@ inline constexpr qsizetype MAX_PREVIEW_LINE_CHARS_ = 200;
 // Enter and Esc take the path that changes nothing — set explicitly, since
 // the details button would otherwise be a candidate. The preview rides in
 // setDetailedText: Qt's built-in "Show Details..." pane, read-only,
-// scrollable, and selectable, with no widget of our own
+// scrollable, and selectable, with no widget of our own. Application-modal,
+// since it runs with exec() from inside VaultWindow::makeView_: no other window
+// can close the caller while the box's loop is on its stack (see "Dialogs and
+// event loops" in Architecture.md)
 [[nodiscard]] inline bool
 confirm(const Coco::Path& relative, const QByteArray& data, QWidget* parent)
 {
     QMessageBox box(parent);
     box.setIcon(QMessageBox::Warning);
-    box.setWindowModality(Qt::WindowModal);
+    box.setWindowModality(Qt::ApplicationModal);
 
     // A file name is never markup — QMessageBox would otherwise sniff for it
     box.setTextFormat(Qt::PlainText);
