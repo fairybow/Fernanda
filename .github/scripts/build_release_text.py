@@ -2,9 +2,13 @@
 """
 Assemble a GitHub Release body and title from CHANGELOG.md.
 
-The CHANGELOG is expected to contain two marker-delimited blocks for the
-reusable preamble and footer, then a releases anchor, followed by
-per-version entries whose headings end in " - tag v<VERSION>".
+The CHANGELOG is expected to contain three marker-delimited blocks, reused by
+every release: the preamble, the known issues, and the footer. Then a
+releases anchor, followed by per-version entries whose headings end in
+" - tag v<VERSION>". The body is the preamble, the entry, the known issues,
+and the footer, in that order. Entries carry no known issues of their own:
+the one list is kept in its block, and each release gets it as it stands at
+the tagged commit.
 
 Entries are only searched for after the releases anchor, so anything above
 it (e.g. a template entry) can never match. An entry's body runs to the next
@@ -26,6 +30,8 @@ from typing import NoReturn
 
 PREAMBLE_START = "<!-- release-preamble-start -->"
 PREAMBLE_END = "<!-- release-preamble-end -->"
+KNOWN_ISSUES_START = "<!-- release-known-issues-start -->"
+KNOWN_ISSUES_END = "<!-- release-known-issues-end -->"
 FOOTER_START = "<!-- release-footer-start -->"
 FOOTER_END = "<!-- release-footer-end -->"
 RELEASES_ANCHOR = '<a id="releases"></a>'
@@ -99,10 +105,12 @@ def main() -> None:
     text = args.changelog.read_text(encoding="utf-8")
 
     preamble = extract_between(text, PREAMBLE_START, PREAMBLE_END, "preamble")
+    known_issues = extract_between(
+        text, KNOWN_ISSUES_START, KNOWN_ISSUES_END, "known issues")
     footer = extract_between(text, FOOTER_START, FOOTER_END, "footer")
     title, body = find_entry(text, args.version)
 
-    assembled = f"{preamble}\n\n{body}\n\n{footer}\n"
+    assembled = f"{preamble}\n\n{body}\n\n{known_issues}\n\n{footer}\n"
     args.output.write_text(assembled, encoding="utf-8")
 
     print(f"title: {title}")
