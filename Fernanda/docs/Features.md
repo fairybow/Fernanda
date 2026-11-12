@@ -163,7 +163,7 @@ Ctrl+F opens a find bar across the top of the text, and Ctrl+H opens it with a s
 
 ## Spelling
 
-Misspelled words are underlined with a red wave as you write. Spelling is checked against a Hunspell dictionary, the format LibreOffice uses. US English is bundled.
+Misspelled words are underlined with a red wave as you write. Spelling is checked against a Hunspell dictionary, the format LibreOffice uses. US English and British English are bundled.
 
 - The word you are typing isn't marked until the cursor leaves it
 - Right-click a marked word for up to five suggestions. Choosing one replaces the word, and one undo puts it back. A suggestion takes the word's apostrophe, straight or curly
@@ -176,6 +176,7 @@ Misspelled words are underlined with a red wave as you write. Spelling is checke
 - Words with a digit in them aren't checked, and neither is Chinese or Japanese text
 - A vault's dictionary is `.fernanda/dictionary.txt`, one word per line, and can be edited by hand. A hand edit takes effect when the vault is next opened, or when a word is next added from the menu
 - Checking can be turned off, and the language chosen, per vault in Settings
+- Until a language is chosen, a vault checks British English if your system is set to English anywhere but the United States (the United Kingdom, Singapore, Australia, India, Canada, and so on), and US English otherwise. Such a vault follows the computer it's opened on, so the same vault can check British English on one computer and US English on another. Choosing a language keeps it in the vault; to keep the one already shown, choose another and then switch back
 - For another language, put its dictionary's two files (`.aff` and `.dic`) in Fernanda's dictionaries folder. The Open folder button beside the language list opens it. A dictionary the vault names but the folder doesn't have is listed as not installed, and nothing is checked
 - A dictionary in a text encoding Fernanda can't convert is listed as an unsupported encoding, and nothing is checked while it is chosen. UTF-8 and Latin-1 (ISO 8859-1) dictionaries always work; whether others do depends on how Qt was built
 
@@ -385,7 +386,7 @@ Fernanda's menus, settings, and messages are in English and Spanish.
 
 Deleting `.fernanda/` while the vault is closed resets its settings, layout, dictionary, and writing history, and nothing else.
 
-The list of known vaults, and which of them is the Common Vault, is kept outside any vault, in Fernanda's application data folder. So are the spelling dictionaries, in its `dictionaries` folder. The bundled one is copied there on launch if it's missing, and never overwritten.
+The list of known vaults, and which of them is the Common Vault, is kept outside any vault, in Fernanda's application data folder. So are the spelling dictionaries, in its `dictionaries` folder. The bundled ones are copied there on launch if they're missing, and never overwritten.
 
 ## Keyboard shortcuts
 
@@ -426,6 +427,7 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 - **Files created from Go to File are `.txt`** unless the name has another text extension. Obsidian's are Markdown. They always start at the vault's root; Obsidian follows its "Default location for new notes" setting, whose default is also the root
 - **Delete and Select All in the right-click menu.** Obsidian's editor menu has only Cut, Copy, and Paste
 - **One spelling language per vault.** Obsidian can check several at once
+- **The default spelling language is always a bundled one.** Obsidian starts with the system's language even when it has no dictionary for it, so nothing is checked. Fernanda uses British English for English outside the United States, and US English for everything else
 - **TIFF images** are supported. SVG and AVIF are not
 - **Images zoom**, like PDFs
 - **File and folder icons** in the file tree

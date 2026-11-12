@@ -146,6 +146,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Translate "Updates come from the Microsoft Store." into Spanish
 - [x] Make the Store listing's box art and take its screenshots ([MicrosoftStoreListing.md](MicrosoftStoreListing.md))
 - [ ] Review the Spanish translations in Qt Linguist and mark each done. They are a draft, left marked unfinished
+- [ ] Run `update_translations` for the Licenses dialog's dictionary entries ("A bundled spelling dictionary, made from SCOWL…", "English (UK) dictionary", and its description), and translate them into Spanish
 - [ ] Run `update_translations` for the Git page's strings, add the English plural forms of "%Ln changed file(s)", "Last fetched %Ln minute(s) ago" (and its hour and day forms), and "Git took longer than %Ln second(s), so it was stopped." to `Translation_en.ts`, and translate them into Spanish. The discard messages' plural forms ("%Ln file(s) couldn't be moved to the system trash…", "Are you sure you want to discard all %Ln changed file(s)?", "%Ln of these file(s) are outside this vault.", "%Ln conflicted file(s) will be left as they are.") are in `Translation_en.ts` already and need Spanish too
 - [x] `LogView` opens on every launch, for testing. Put it behind its command-line flag
 - [x] `CHANGELOG.md` has only a placeholder release entry. Write the real notes before tagging
@@ -154,7 +155,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] The Git hand pass, below, on Windows and macOS. Use a scratch repository on GitHub, so pushes and pulls are real, and a vault inside it with a few files
 - [x] Need the remaining Edit menu and text editor context menu options (cut, copy, paste, select all, delete)
 - [x] A warning at launch while Fernanda is in beta (`BetaAlert`), as Hearth had, which can be muted until the next version
-- [x] A licenses dialog crediting what Fernanda bundles: Qt, Hunspell, the en_US dictionary, the fonts, and Lucide
+- [x] A licenses dialog crediting what Fernanda bundles: Qt, Hunspell, the dictionaries, the fonts, and Lucide
 
 ### The Git hand pass
 

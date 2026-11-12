@@ -825,12 +825,24 @@
         <translation type="unfinished">Diccionario de inglés (EE. UU.)</translation>
     </message>
     <message>
+        <source>A bundled spelling dictionary, made from SCOWL by Kevin Atkinson, as LibreOffice publishes it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The bundled spelling dictionary, made from SCOWL by Kevin Atkinson, as LibreOffice publishes it.</source>
-        <translation type="unfinished">El diccionario ortográfico incluido, creado a partir de SCOWL por Kevin Atkinson, tal como lo publica LibreOffice.</translation>
+        <translation type="obsolete">El diccionario ortográfico incluido, creado a partir de SCOWL por Kevin Atkinson, tal como lo publica LibreOffice.</translation>
     </message>
     <message>
         <source>SCOWL and its sources&apos; terms</source>
         <translation type="unfinished">Condiciones de SCOWL y de sus fuentes</translation>
+    </message>
+    <message>
+        <source>English (UK) dictionary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A bundled spelling dictionary, by David Bartlett, Brian Kelk, Andrew Brown, and Marco A.G. Pinto, as LibreOffice publishes it. Its notice names the GNU LGPL without a version, which allows any; the text of v2.1 follows it.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The interface icons. Some derive from Feather, under the MIT license, as the text says.</source>
