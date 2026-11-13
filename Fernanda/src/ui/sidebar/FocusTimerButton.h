@@ -35,8 +35,8 @@
 #include <Coco/Path.h>
 #include <Coco/Time.h>
 
-#include "core/FocusCycle.h"
-#include "core/FocusTimer.h"
+#include "core/writing/FocusCycle.h"
+#include "core/writing/FocusTimer.h"
 #include "ui/Style.h"
 #include "ui/UiConstants.h"
 #include "ui/widgets/GlyphButton.h"

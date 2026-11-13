@@ -43,7 +43,7 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-#include "core/WorkspaceKeys.h"
+#include "core/workspaces/WorkspaceKeys.h"
 #include "ui/UiConstants.h"
 #include "ui/UiUtility.h"
 #include "ui/sidebar/VaultEntryDragMime.h"

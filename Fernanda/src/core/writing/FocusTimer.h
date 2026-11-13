@@ -20,7 +20,7 @@
 #include <Coco/Debug.h>
 #include <Coco/Time.h>
 
-#include "core/FocusCycle.h"
+#include "core/writing/FocusCycle.h"
 
 namespace Fernanda {
 

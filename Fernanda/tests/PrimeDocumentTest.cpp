@@ -26,7 +26,7 @@
 #include <QTextCursor>
 #include <QTextDocument>
 
-#include "core/TextCounts.h"
+#include "core/writing/TextCounts.h"
 #include "models/PrimeDocument.h"
 
 using namespace Qt::StringLiterals;

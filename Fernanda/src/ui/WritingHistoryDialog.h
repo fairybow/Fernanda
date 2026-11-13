@@ -31,7 +31,7 @@
 
 #include "core/CoreConstants.h"
 #include "core/vault/Vault.h"
-#include "core/WritingHistory.h"
+#include "core/writing/WritingHistory.h"
 #include "ui/UiConstants.h"
 #include "ui/UiUtility.h"
 #include "ui/settings/SettingRow.h"

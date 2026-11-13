@@ -40,7 +40,7 @@
 #include "core/vault/VaultConfig.h"
 #include "core/vault/VaultDotDir.h"
 #include "core/vault/VaultTreeModel.h"
-#include "core/WritingHistory.h"
+#include "core/writing/WritingHistory.h"
 #include "core/spell/WordList.h"
 
 namespace Fernanda {

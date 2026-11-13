@@ -43,7 +43,7 @@
 #include <Coco/Debug.h>
 #include <Coco/Time.h>
 
-#include "core/WorkspaceKeys.h"
+#include "core/workspaces/WorkspaceKeys.h"
 #include "models/ImageFileModel.h"
 #include "views/AbstractFileView.h"
 #include "views/ZoomControl.h"

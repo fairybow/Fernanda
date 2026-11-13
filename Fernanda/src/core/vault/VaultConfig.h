@@ -58,7 +58,7 @@
 // ui/CursorPosition.h): a switch for the item itself, and one for each thing
 // it can show. An item's parts keep their values while the item is off, so
 // turning it back on restores what it showed. The focus timer's settings
-// (core/FocusTimer.h) are the same shape: a switch, then its lengths. The
+// (core/writing/FocusTimer.h) are the same shape: a switch, then its lengths. The
 // sidebar's Git page has one switch (core/git/GitRepository.h).
 //
 // QtCore-only, like the Vault: it stores the font's parts, and the view that
@@ -156,7 +156,7 @@ public:
     static constexpr int MIN_TAB_WIDTH = 1;
     static constexpr int MAX_TAB_WIDTH = 16;
 
-    // The focus timer (core/FocusTimer.h): off, and when on, the usual 25
+    // The focus timer (core/writing/FocusTimer.h): off, and when on, the usual 25
     // minutes of focus, 5 of short break, and 15 of long break after every 4
     // focus periods. Lengths are in minutes. The MIN/MAX bounds are the
     // sliders' ranges and clamp a hand-edited file on load

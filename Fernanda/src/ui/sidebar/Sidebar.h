@@ -30,7 +30,7 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-#include "core/FocusTimer.h"
+#include "core/writing/FocusTimer.h"
 #include "core/files/PathKey.h"
 #include "core/vault/Vault.h"
 #include "core/app/VaultEntry.h"

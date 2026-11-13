@@ -478,7 +478,7 @@ All of it but a vault's dictionary is JSON, read and written by stateless free f
 - **Restore runs before the window is shown,** and observation starts after it, so rebuilding the layout doesn't schedule a save of what was just read.
 - **Scroll is applied after first show.** A scrollbar has no range until the view is laid out.
 - **Recent files follow the active page.** `VaultWindow` records the file of each page that becomes active, in any of its trees, in a `RecentFiles` list. The list is written at save time and schedules no save of its own; it is restored after the tabs, so restoring them doesn't reorder it. Files gone from disk are dropped when it is written.
-- **Every key is declared in `core/WorkspaceKeys.h`.**
+- **Every key is declared in `core/workspaces/WorkspaceKeys.h`.**
 
 ## Spelling
 

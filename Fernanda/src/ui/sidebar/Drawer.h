@@ -37,7 +37,7 @@
 #include <Coco/Path.h>
 #include <Coco/Time.h>
 
-#include "core/WorkspaceKeys.h"
+#include "core/workspaces/WorkspaceKeys.h"
 #include "ui/Style.h"
 #include "ui/UiConstants.h"
 #include "ui/widgets/ButtonWash.h"

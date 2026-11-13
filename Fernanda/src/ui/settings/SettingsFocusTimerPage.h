@@ -30,7 +30,7 @@
 namespace Fernanda::Ui {
 
 // The settings dialog's Focus timer page: whether this vault's windows show a
-// focus timer (core/FocusTimer.h), and how long its periods are. Obsidian has
+// focus timer (core/writing/FocusTimer.h), and how long its periods are. Obsidian has
 // no timer of its own, so the page is Fernanda's; its plugins keep their
 // settings per vault, as this does.
 //
