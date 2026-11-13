@@ -20,7 +20,7 @@
 #include <QTextBoundaryFinder>
 
 // What Fernanda counts in a piece of text, and how. Free functions in core, so
-// the status bar's items (ui/WordCounter.h, ui/CursorPosition.h) share one
+// the status bar's items (ui/statusbar/WordCounter.h, ui/statusbar/CursorPosition.h) share one
 // definition and it can be read in one place. QtCore-only.
 //
 // Every function takes ONE LINE's text (a QTextBlock's), never text holding

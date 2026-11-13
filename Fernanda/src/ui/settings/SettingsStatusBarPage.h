@@ -29,7 +29,7 @@
 namespace Fernanda::Ui {
 
 // The settings dialog's Status bar page: what the window status bar shows. One
-// section per item (ui/WordCounter.h, ui/CursorPosition.h), each led by the
+// section per item (ui/statusbar/WordCounter.h, ui/statusbar/CursorPosition.h), each led by the
 // item's own switch and followed by a switch for each thing it can show.
 // Obsidian has no such page — its word count is a core plugin with no options,
 // and it has no cursor position — so the layout is Fernanda's.

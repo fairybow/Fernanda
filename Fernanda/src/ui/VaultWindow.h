@@ -68,7 +68,7 @@
 #include "ui/OpenMode.h"
 #include "ui/PopoutWindow.h"
 #include "ui/UiConstants.h"
-#include "ui/WordCounter.h"
+#include "ui/statusbar/WordCounter.h"
 #include "ui/WorkspaceFile.h"
 #include "ui/WritingHistoryDialog.h"
 #include "ui/git/GitDiffPage.h"

@@ -54,8 +54,8 @@
 // status bar shows, and how the editor behaves and what it shows besides the
 // text. load reads both and save writes both.
 //
-// The status bar's settings are two groups, one per item (ui/WordCounter.h,
-// ui/CursorPosition.h): a switch for the item itself, and one for each thing
+// The status bar's settings are two groups, one per item (ui/statusbar/WordCounter.h,
+// ui/statusbar/CursorPosition.h): a switch for the item itself, and one for each thing
 // it can show. An item's parts keep their values while the item is off, so
 // turning it back on restores what it showed. The focus timer's settings
 // (core/writing/FocusTimer.h) are the same shape: a switch, then its lengths.

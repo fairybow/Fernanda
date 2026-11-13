@@ -272,6 +272,9 @@ set(APP_HEADERS
     src/ui/sidebar/VaultTreeItemDelegate.h
     src/ui/sidebar/VaultTreeView.h
 
+    src/ui/statusbar/CursorPosition.h
+    src/ui/statusbar/WordCounter.h
+
     src/ui/tabs/NewTabButton.h
     src/ui/tabs/NewTabPage.h
     src/ui/tabs/PageIcon.h
@@ -295,7 +298,6 @@ set(APP_HEADERS
     src/ui/AboutPanel.h
     src/ui/BaseWindow.h
     src/ui/BetaAlert.h
-    src/ui/CursorPosition.h
     src/ui/FileSwitcher.h
     src/ui/LicensesDialog.h
     src/ui/LossyOpenPrompt.h
@@ -310,7 +312,6 @@ set(APP_HEADERS
     src/ui/UpdateNotice.h
     src/ui/VaultOrderButton.h
     src/ui/VaultWindow.h
-    src/ui/WordCounter.h
     src/ui/WorkspaceFile.h
     src/ui/WritingHistoryDialog.h
 
