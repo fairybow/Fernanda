@@ -33,9 +33,9 @@ using Fernanda::TextSearch::Options;
 namespace TextSearch = Fernanda::TextSearch;
 
 // What counts as a match, and what replacing does to a document
-// (views/text/TextSearch.h). The last tests replace through a view's document on a
-// prime, as the app does, to check that the buffer and the other views follow
-// and that one undo takes a whole replace-all back.
+// (views/text/TextSearch.h). The last tests replace through a view's document
+// on a prime, as the app does, to check that the buffer and the other views
+// follow and that one undo takes a whole replace-all back.
 //
 // Text outside ASCII is built from code point numbers, so nothing here
 // depends on how the compiler reads this file.

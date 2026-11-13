@@ -47,10 +47,10 @@
 #include "models/text/TextFileModel.h"
 #include "ui/widgets/MenuText.h"
 #include "views/AbstractFileView.h"
+#include "views/ViewConstants.h"
 #include "views/text/FindBar.h"
 #include "views/text/TextEditor.h"
 #include "views/text/TextSearch.h"
-#include "views/ViewConstants.h"
 
 namespace Fernanda {
 

@@ -56,10 +56,10 @@
 #include "core/spell/SpellChecker.h"
 #include "core/spell/SpellWords.h"
 #include "core/spell/WordList.h"
+#include "views/ViewConstants.h"
 #include "views/text/SelectionHandles.h"
 #include "views/text/TextSearch.h"
 #include "views/text/TypingHelpers.h"
-#include "views/ViewConstants.h"
 
 namespace Fernanda {
 
@@ -141,13 +141,13 @@ private:
 // host). Nothing is stored about the text: the words in view are found and
 // looked up at each paint, and the checker remembers its answers.
 //
-// Selection handles (views/text/SelectionHandles.h): two draggable teardrops under
-// the ends of a selection. The editor's part is to paint them after the text
-// and to offer them each mouse event before handling it itself.
+// Selection handles (views/text/SelectionHandles.h): two draggable teardrops
+// under the ends of a selection. The editor's part is to paint them after the
+// text and to offer them each mouse event before handling it itself.
 //
-// Typing helpers (views/text/TypingHelpers.h): auto-pairing of brackets and quotes,
-// and stepping past closing punctuation. The editor offers them each key press
-// before handling it itself, and tells them when the caret moves
+// Typing helpers (views/text/TypingHelpers.h): auto-pairing of brackets and
+// quotes, and stepping past closing punctuation. The editor offers them each
+// key press before handling it itself, and tells them when the caret moves
 class TextEditor : public QPlainTextEdit
 {
     Q_OBJECT

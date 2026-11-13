@@ -19,8 +19,8 @@
 
 #include "core/app/AppActions.h"
 #include "core/dist/Updater.h"
-#include "ui/windows/BaseWindow.h"
 #include "ui/UiConstants.h"
+#include "ui/windows/BaseWindow.h"
 
 namespace Fernanda::Ui {
 

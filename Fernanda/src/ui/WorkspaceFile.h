@@ -37,10 +37,10 @@
 #include "core/files/Io.h"
 #include "core/files/JsonIo.h"
 #include "core/vault/VaultDotDir.h"
-#include "ui/windows/BaseWindow.h"
 #include "ui/sidebar/Drawer.h"
 #include "ui/sidebar/VaultFileTree.h"
 #include "ui/tabs/TabPaneTree.h"
+#include "ui/windows/BaseWindow.h"
 
 namespace Fernanda::Ui {
 

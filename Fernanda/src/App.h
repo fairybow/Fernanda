@@ -52,9 +52,9 @@
 #include "core/spell/SpellCheckers.h"
 #include "core/vault/BufferStore.h"
 #include "core/vault/Vault.h"
+#include "ui/Style.h"
 #include "ui/dialogs/BetaAlert.h"
 #include "ui/windows/ManageVaults.h"
-#include "ui/Style.h"
 #include "ui/windows/VaultWindow.h"
 
 namespace Fernanda {

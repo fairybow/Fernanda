@@ -54,12 +54,13 @@
 // status bar shows, and how the editor behaves and what it shows besides the
 // text. load reads both and save writes both.
 //
-// The status bar's settings are two groups, one per item (ui/statusbar/WordCounter.h,
-// ui/statusbar/CursorPosition.h): a switch for the item itself, and one for each thing
-// it can show. An item's parts keep their values while the item is off, so
-// turning it back on restores what it showed. The focus timer's settings
-// (core/writing/FocusTimer.h) are the same shape: a switch, then its lengths.
-// The sidebar's Git page has one switch (core/git/GitRepository.h).
+// The status bar's settings are two groups, one per item
+// (ui/statusbar/WordCounter.h, ui/statusbar/CursorPosition.h): a switch for the
+// item itself, and one for each thing it can show. An item's parts keep their
+// values while the item is off, so turning it back on restores what it showed.
+// The focus timer's settings (core/writing/FocusTimer.h) are the same shape: a
+// switch, then its lengths. The sidebar's Git page has one switch
+// (core/git/GitRepository.h).
 //
 // QtCore-only, like the Vault: it stores the font's parts, and the view that
 // applies them builds the QFont (TextFileView::applyConfig)
@@ -97,16 +98,16 @@ public:
     static constexpr bool DEFAULT_CURSOR_POSITION_LINE = true;
     static constexpr bool DEFAULT_CURSOR_POSITION_COLUMN = true;
 
-    // The editor's line-number gutter (views/text/TextEditor.h). Off: Fernanda is
-    // for prose, where a line is a paragraph
+    // The editor's line-number gutter (views/text/TextEditor.h). Off: Fernanda
+    // is for prose, where a line is a paragraph
     static constexpr bool DEFAULT_LINE_NUMBERS = false;
 
-    // The rest of the editor's settings (views/text/TextEditor.h). Wrapping on is
-    // how QPlainTextEdit wraps by default: at a word boundary, or anywhere in a
-    // word wider than the view. The left/right margin is a percentage of the
-    // editor's width, kept clear on each side of the text; the tab width is in
-    // spaces of the text font. The MIN/MAX bounds are the sliders' ranges and
-    // clamp a hand-edited file on load, as the font size's do
+    // The rest of the editor's settings (views/text/TextEditor.h). Wrapping on
+    // is how QPlainTextEdit wraps by default: at a word boundary, or anywhere
+    // in a word wider than the view. The left/right margin is a percentage of
+    // the editor's width, kept clear on each side of the text; the tab width is
+    // in spaces of the text font. The MIN/MAX bounds are the sliders' ranges
+    // and clamp a hand-edited file on load, as the font size's do
     static constexpr bool DEFAULT_WRAP_LINES = true;
     static constexpr int DEFAULT_LEFT_RIGHT_MARGIN = 0;
     static constexpr int DEFAULT_TAB_WIDTH = 4;
@@ -115,10 +116,10 @@ public:
     static constexpr bool DEFAULT_DOUBLE_CLICK_WHITESPACE = true;
     static constexpr bool DEFAULT_SELECTION_HANDLES = false;
 
-    // The typing helpers (views/text/TypingHelpers.h): a switch for all of them,
-    // and one for each. A helper keeps its own value while the switch is off,
-    // as the status bar's parts do. Auto-pairing is on, as Obsidian's is, and
-    // so is stepping past closers (barging), as Hearth's was
+    // The typing helpers (views/text/TypingHelpers.h): a switch for all of
+    // them, and one for each. A helper keeps its own value while the switch is
+    // off, as the status bar's parts do. Auto-pairing is on, as Obsidian's is,
+    // and so is stepping past closers (barging), as Hearth's was
     static constexpr bool DEFAULT_TYPING_HELPERS = true;
     static constexpr bool DEFAULT_AUTO_PAIRS = true;
     static constexpr bool DEFAULT_BARGING = true;
