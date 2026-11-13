@@ -23,8 +23,8 @@
 
 #include <Coco/Debug.h>
 
-#include "core/releases/Publication.h"
-#include "core/releases/Version.h"
+#include "core/dist/Publication.h"
+#include "core/dist/Version.h"
 #include "ui/LicensesDialog.h"
 
 namespace Fernanda::Ui {

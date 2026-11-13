@@ -22,7 +22,7 @@
 #include <Coco/StartCop.h>
 
 #include "App.h"
-#include "core/releases/Publication.h"
+#include "core/dist/Publication.h"
 
 int main(int argc, char* argv[])
 {

@@ -90,8 +90,8 @@ endif()
 # Parsing
 # =============================================================================
 
-set(_ver_header src/core/releases/Version.h)
-set(_pub_header src/core/releases/Publication.h)
+set(_ver_header src/core/dist/Version.h)
+set(_pub_header src/core/dist/Publication.h)
 
 # file(STRINGS) creates no dependency; without this, editing these headers
 # leaves the parsed values (and the bundle and .desktop metadata built from
@@ -196,6 +196,12 @@ set(APP_HEADERS
     src/core/app/VaultEntry.h
     src/core/app/VaultOrder.h
 
+    src/core/dist/Msix.h
+    src/core/dist/Publication.h
+    src/core/dist/UpdateCheck.h
+    src/core/dist/Updater.h
+    src/core/dist/Version.h
+
     src/core/files/FileTypes.h
     src/core/files/Io.h
     src/core/files/JsonIo.h
@@ -207,12 +213,6 @@ set(APP_HEADERS
     src/core/git/GitRepository.h
     src/core/git/GitSafeDirectory.h
     src/core/git/GitStatus.h
-
-    src/core/releases/Msix.h
-    src/core/releases/Publication.h
-    src/core/releases/UpdateCheck.h
-    src/core/releases/Updater.h
-    src/core/releases/Version.h
 
     src/core/spell/Misspelling.h
     src/core/spell/SpellChecker.h

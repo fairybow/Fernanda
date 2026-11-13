@@ -31,7 +31,7 @@
 #include "core/app/AppDirs.h"
 #include "core/files/JsonIo.h"
 #include "core/files/PathKey.h"
-#include "core/releases/Publication.h"
+#include "core/dist/Publication.h"
 #include "core/app/VaultOrder.h"
 
 // App-level configuration — the machine-local fernanda.json in appData(),

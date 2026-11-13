@@ -27,12 +27,12 @@
 
 #include <Coco/Debug.h>
 
-#include "core/releases/Msix.h"
-#include "core/releases/Publication.h"
+#include "core/dist/Msix.h"
+#include "core/dist/Publication.h"
 #include "core/app/Translations.h"
-#include "core/releases/Updater.h"
+#include "core/dist/Updater.h"
 #include "core/vault/Vault.h"
-#include "core/releases/Version.h"
+#include "core/dist/Version.h"
 #include "ui/settings/SettingRow.h"
 #include "ui/settings/SettingsPage.h"
 #include "ui/widgets/ToggleSwitch.h"

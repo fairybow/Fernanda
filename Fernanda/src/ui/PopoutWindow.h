@@ -18,7 +18,7 @@
 #include <Coco/Debug.h>
 
 #include "core/app/AppActions.h"
-#include "core/releases/Updater.h"
+#include "core/dist/Updater.h"
 #include "ui/BaseWindow.h"
 #include "ui/UiConstants.h"
 
