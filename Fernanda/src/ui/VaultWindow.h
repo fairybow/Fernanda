@@ -43,6 +43,8 @@
 #include <Coco/Path.h>
 #include <Coco/Time.h>
 
+#include "core/RecentFiles.h"
+#include "core/WorkspaceKeys.h"
 #include "core/app/ActionIds.h"
 #include "core/app/AppActions.h"
 #include "core/app/Translations.h"
@@ -56,8 +58,6 @@
 #include "core/vault/BufferStore.h"
 #include "core/vault/Vault.h"
 #include "core/vault/VaultConfig.h"
-#include "core/workspaces/RecentFiles.h"
-#include "core/workspaces/WorkspaceKeys.h"
 #include "core/writing/FocusCycle.h"
 #include "core/writing/FocusTimer.h"
 #include "models/ImageFileModel.h"

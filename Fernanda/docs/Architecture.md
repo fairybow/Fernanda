@@ -36,9 +36,14 @@ Everything is under `Fernanda/src/`, in the `Fernanda` namespace. Apart from `Ma
 | Folder | Holds |
 |---|---|
 | `src/` | `Main.cpp`, `App`, and the log window |
-| `core/` | `Vault`, the buffer store, file keys, the vault tree model, configuration, file IO, file types, action ids, the focus timer and its rules, the writing history, the update check, the interface language, the app's folders, and the version and publication details |
-| `core/spell/` | Spellcheck: the dictionaries, the word rules, and the vault's word lists |
+| `core/` | Constants shared by the folders below, the keys of `workspace.json`, and a window's recent files |
+| `core/app/` | What `App` owns: the app's settings file and folders, the actions it owns and the action ids, launch arguments, the interface language, the bundled fonts, the list of known vaults with its order, and the check that the build's own macros are defined |
+| `core/dist/` | The version and publication details, the update check, and whether Fernanda runs from the Microsoft Store package |
+| `core/files/` | File keys, file types, and file IO, plain and JSON |
 | `core/git/` | The repository a vault is in, and reading what `git` prints: status, diffs, remote addresses, branch names as they're typed, and the folder Git refuses to trust |
+| `core/spell/` | Spellcheck: the dictionaries, the word rules, and the vault's word lists |
+| `core/vault/` | `Vault`, the buffer store, the vault tree model, the vault's configuration, and its `.fernanda` folder |
+| `core/writing/` | The focus timer and its rules, the writing history, and the word and character counts |
 | `models/` | One buffer class per file type, and the prime document |
 | `views/` | One view class per file type, and the parts only views use: the text editor with its selection handles and typing helpers, the find bar and the search functions behind it, and the zoom control with its state |
 | `ui/` | The windows and what they open directly: workspace persistence, Go to File, the vault picker, the status bar items. Also the application's style |
@@ -478,7 +483,7 @@ All of it but a vault's dictionary is JSON, read and written by stateless free f
 - **Restore runs before the window is shown,** and observation starts after it, so rebuilding the layout doesn't schedule a save of what was just read.
 - **Scroll is applied after first show.** A scrollbar has no range until the view is laid out.
 - **Recent files follow the active page.** `VaultWindow` records the file of each page that becomes active, in any of its trees, in a `RecentFiles` list. The list is written at save time and schedules no save of its own; it is restored after the tabs, so restoring them doesn't reorder it. Files gone from disk are dropped when it is written.
-- **Every key is declared in `core/workspaces/WorkspaceKeys.h`.**
+- **Every key is declared in `core/WorkspaceKeys.h`.**
 
 ## Spelling
 

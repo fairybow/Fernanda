@@ -21,18 +21,18 @@
 
 #include <Coco/Path.h>
 
+#include "core/RecentFiles.h"
 #include "core/files/PathKey.h"
-#include "core/workspaces/RecentFiles.h"
 
 using namespace Qt::StringLiterals;
 
 using Fernanda::PathKey;
 using Fernanda::RecentFiles;
 
-// The files a window has made active most recently
-// (core/workspaces/RecentFiles.h): the order they're kept in, the limit, a list
-// restored from a save, and how they follow a rename. Two temporary folders
-// stand for a project vault and the Common Vault.
+// The files a window has made active most recently (core/RecentFiles.h): the
+// order they're kept in, the limit, a list restored from a save, and how they
+// follow a rename. Two temporary folders stand for a project vault and the
+// Common Vault.
 //
 // Qt Test runs every private slot as a test
 class RecentFilesTest : public QObject

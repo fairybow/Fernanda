@@ -227,15 +227,14 @@ set(APP_HEADERS
     src/core/vault/VaultTreeModel.h
     src/core/vault/VaultTreeNode.h
 
-    src/core/workspaces/RecentFiles.h
-    src/core/workspaces/WorkspaceKeys.h
-
     src/core/writing/FocusCycle.h
     src/core/writing/FocusTimer.h
     src/core/writing/TextCounts.h
     src/core/writing/WritingHistory.h
 
     src/core/CoreConstants.h
+    src/core/RecentFiles.h
+    src/core/WorkspaceKeys.h
 
     src/models/AbstractFileModel.h
     src/models/ImageFileModel.h

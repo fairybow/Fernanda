@@ -22,7 +22,7 @@
 #include <QString>
 #include <QtMinMax>
 
-#include "core/workspaces/WorkspaceKeys.h"
+#include "core/WorkspaceKeys.h"
 
 namespace Fernanda {
 
