@@ -304,16 +304,17 @@ set(APP_HEADERS
     src/ui/widgets/ToggleSwitch.h
     src/ui/widgets/UserTextEntry.h
 
-    src/ui/BaseWindow.h
-    src/ui/FileSwitcher.h
-    src/ui/ManageVaults.h
+    src/ui/windows/BaseWindow.h
+    src/ui/windows/FileSwitcher.h
+    src/ui/windows/ManageVaults.h
+    src/ui/windows/PopoutWindow.h
+    src/ui/windows/VaultOrderButton.h
+    src/ui/windows/VaultWindow.h
+
     src/ui/OpenMode.h
-    src/ui/PopoutWindow.h
     src/ui/Style.h
     src/ui/UiConstants.h
     src/ui/UiUtility.h
-    src/ui/VaultOrderButton.h
-    src/ui/VaultWindow.h
     src/ui/WorkspaceFile.h
 
     src/views/AbstractFileView.h

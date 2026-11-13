@@ -53,9 +53,9 @@
 #include "core/vault/BufferStore.h"
 #include "core/vault/Vault.h"
 #include "ui/dialogs/BetaAlert.h"
-#include "ui/ManageVaults.h"
+#include "ui/windows/ManageVaults.h"
 #include "ui/Style.h"
-#include "ui/VaultWindow.h"
+#include "ui/windows/VaultWindow.h"
 
 namespace Fernanda {
 

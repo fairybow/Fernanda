@@ -49,7 +49,7 @@
 #include "ui/dialogs/RenameDialog.h"
 #include "ui/UiConstants.h"
 #include "ui/UiUtility.h"
-#include "ui/VaultOrderButton.h"
+#include "ui/windows/VaultOrderButton.h"
 #include "ui/widgets/Glyph.h"
 
 namespace Fernanda::Ui {
