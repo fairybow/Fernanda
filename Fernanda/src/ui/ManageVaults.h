@@ -44,9 +44,9 @@
 
 #include "core/app/VaultEntry.h"
 #include "core/app/VaultOrder.h"
-#include "ui/AboutPanel.h"
-#include "ui/NewVaultDialog.h"
-#include "ui/RenameDialog.h"
+#include "ui/dialogs/AboutPanel.h"
+#include "ui/dialogs/NewVaultDialog.h"
+#include "ui/dialogs/RenameDialog.h"
 #include "ui/UiConstants.h"
 #include "ui/UiUtility.h"
 #include "ui/VaultOrderButton.h"

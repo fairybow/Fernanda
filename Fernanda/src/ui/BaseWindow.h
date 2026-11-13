@@ -39,7 +39,7 @@
 #include "core/vault/VaultConfig.h"
 #include "models/AbstractFileModel.h"
 #include "ui/statusbar/CursorPosition.h"
-#include "ui/UpdateNotice.h"
+#include "ui/dialogs/UpdateNotice.h"
 #include "ui/statusbar/WordCounter.h"
 #include "ui/tabs/TabPaneTree.h"
 #include "ui/widgets/MenuText.h"

@@ -52,7 +52,7 @@
 #include "core/spell/SpellCheckers.h"
 #include "core/vault/BufferStore.h"
 #include "core/vault/Vault.h"
-#include "ui/BetaAlert.h"
+#include "ui/dialogs/BetaAlert.h"
 #include "ui/ManageVaults.h"
 #include "ui/Style.h"
 #include "ui/VaultWindow.h"

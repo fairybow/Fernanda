@@ -242,6 +242,15 @@ set(APP_HEADERS
     src/models/PrimeDocument.h
     src/models/TextFileModel.h
 
+    src/ui/dialogs/AboutPanel.h
+    src/ui/dialogs/BetaAlert.h
+    src/ui/dialogs/LicensesDialog.h
+    src/ui/dialogs/LossyOpenPrompt.h
+    src/ui/dialogs/NewVaultDialog.h
+    src/ui/dialogs/RenameDialog.h
+    src/ui/dialogs/UpdateNotice.h
+    src/ui/dialogs/WritingHistoryDialog.h
+
     src/ui/git/GitBranchButton.h
     src/ui/git/GitChangeDelegate.h
     src/ui/git/GitDiffPage.h
@@ -295,25 +304,17 @@ set(APP_HEADERS
     src/ui/widgets/ToggleSwitch.h
     src/ui/widgets/UserTextEntry.h
 
-    src/ui/AboutPanel.h
     src/ui/BaseWindow.h
-    src/ui/BetaAlert.h
     src/ui/FileSwitcher.h
-    src/ui/LicensesDialog.h
-    src/ui/LossyOpenPrompt.h
     src/ui/ManageVaults.h
-    src/ui/NewVaultDialog.h
     src/ui/OpenMode.h
     src/ui/PopoutWindow.h
-    src/ui/RenameDialog.h
     src/ui/Style.h
     src/ui/UiConstants.h
     src/ui/UiUtility.h
-    src/ui/UpdateNotice.h
     src/ui/VaultOrderButton.h
     src/ui/VaultWindow.h
     src/ui/WorkspaceFile.h
-    src/ui/WritingHistoryDialog.h
 
     src/views/AbstractFileView.h
     src/views/FindBar.h

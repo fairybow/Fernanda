@@ -25,7 +25,7 @@
 
 #include "core/dist/Publication.h"
 #include "core/dist/Version.h"
-#include "ui/LicensesDialog.h"
+#include "ui/dialogs/LicensesDialog.h"
 
 namespace Fernanda::Ui {
 

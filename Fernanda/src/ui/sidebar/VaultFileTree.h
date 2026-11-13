@@ -33,7 +33,7 @@
 
 #include "core/vault/VaultTreeModel.h"
 #include "ui/OpenMode.h"
-#include "ui/RenameDialog.h"
+#include "ui/dialogs/RenameDialog.h"
 #include "ui/sidebar/VaultTreeView.h"
 
 namespace Fernanda::Ui {
