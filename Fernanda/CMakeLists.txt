@@ -185,6 +185,11 @@ set(APP_SOURCES
 # --- Headers ---
 
 set(APP_HEADERS
+    src/core/files/FileTypes.h
+    src/core/files/Io.h
+    src/core/files/JsonIo.h
+    src/core/files/PathKey.h
+
     src/core/git/GitDiff.h
     src/core/git/GitRefName.h
     src/core/git/GitRemote.h
@@ -213,13 +218,9 @@ set(APP_HEADERS
     src/core/Clargs.h
     src/core/CMakeMacroGuard.h
     src/core/CoreConstants.h
-    src/core/FileTypes.h
     src/core/FocusCycle.h
     src/core/FocusTimer.h
-    src/core/Io.h
-    src/core/JsonIo.h
     src/core/Msix.h
-    src/core/PathKey.h
     src/core/Publication.h
     src/core/RecentFiles.h
     src/core/TextCounts.h

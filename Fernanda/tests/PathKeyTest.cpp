@@ -25,14 +25,14 @@
 
 #include <Coco/Path.h>
 
-#include "core/PathKey.h"
+#include "core/files/PathKey.h"
 
 using namespace Qt::StringLiterals;
 
 using Fernanda::PathKey;
 
 // How a path becomes a key that is the same for every spelling of one path
-// (core/PathKey.h): normalizing, letter case, containment, and re-keying under
+// (core/files/PathKey.h): normalizing, letter case, containment, and re-keying under
 // a renamed folder. Keys are made from the path alone, so only the tests about
 // the file system's part (a file created later, a symlink) make real files.
 //

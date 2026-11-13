@@ -44,8 +44,8 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-#include "core/FileTypes.h"
-#include "core/PathKey.h"
+#include "core/files/FileTypes.h"
+#include "core/files/PathKey.h"
 #include "core/vault/Vault.h"
 #include "ui/OpenMode.h"
 #include "ui/UiConstants.h"

@@ -243,7 +243,7 @@ The file trees hand out absolute paths; the sidebar makes them keys.
 | `PdfFileModel` | The file's bytes and one parsed PDF document, shared by every view |
 | `ImageFileModel` | The file's bytes and one decoded image, shared by every view |
 
-Which class a file gets is decided by its extension, from one table in `core/FileTypes.h`. The same table decides what the file trees and Go to File list, so they can't disagree with what the vault will open. `BufferStore::openModel` refuses anything not in the table before reading it; that refusal is the authority, and the hiding upstream is a courtesy.
+Which class a file gets is decided by its extension, from one table in `core/files/FileTypes.h`. The same table decides what the file trees and Go to File list, so they can't disagree with what the vault will open. `BufferStore::openModel` refuses anything not in the table before reading it; that refusal is the authority, and the hiding upstream is a courtesy.
 
 PDF and image buffers share no base beyond `AbstractFileModel`. What they have in common is one byte array.
 
@@ -403,7 +403,7 @@ Outside programs are still blocked from renaming a folder that Fernanda has list
 
 The cost is that a vault moved outside Fernanda is a new vault. One moved inside Fernanda is followed, since Fernanda knows both ends of the move (see "Vault folders"). The benefit is that a copied vault folder is simply a second vault, with nothing to collide.
 
-**A file is its `PathKey`.** `Coco::Path` compares paths as written, so a trailing slash, `.` and `..` segments, and letter case make two spellings of one file differ. `Coco::Path` is deliberately not canonical on construction: that would make it impossible to name a path that doesn't exist yet, and would put a filesystem call in a value type. `PathKey` (`core/PathKey.h`) is the normalized form every buffer and file operation goes by:
+**A file is its `PathKey`.** `Coco::Path` compares paths as written, so a trailing slash, `.` and `..` segments, and letter case make two spellings of one file differ. `Coco::Path` is deliberately not canonical on construction: that would make it impossible to name a path that doesn't exist yet, and would put a filesystem call in a value type. `PathKey` (`core/files/PathKey.h`) is the normalized form every buffer and file operation goes by:
 
 - **Made from the path alone.** `.` and `..` are removed, and the path is written in its pretty form (below). Nothing asks the disk, so a file that doesn't exist yet (a new file, a rename's target) has the key it will have once it does. A relative path gives an empty key.
 - **Letter case is compared as the platform's file systems do.** On Windows and macOS, which ignore case by default, keys compare case-folded; elsewhere exactly. Qt reports a path in the case it was written, not the case on disk, so this can't be settled by asking. The path keeps the case it was written in, for display and for file operations.
@@ -436,7 +436,7 @@ The Common Vault is a role, not a place: one known vault whose files every windo
 
 ## Configuration and persistence
 
-All of it but a vault's dictionary is JSON, read and written by stateless free functions (`core/JsonIo.h` over `core/Io.h`, which writes atomically). A missing or unreadable file reads as an empty object, so callers fall to their defaults.
+All of it but a vault's dictionary is JSON, read and written by stateless free functions (`core/files/JsonIo.h` over `core/files/Io.h`, which writes atomically). A missing or unreadable file reads as an empty object, so callers fall to their defaults.
 
 | What | File | Type | Owner |
 |---|---|---|---|

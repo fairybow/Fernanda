@@ -33,7 +33,7 @@
 #include <Coco/Path.h>
 
 #include "core/vault/BufferStore.h"
-#include "core/PathKey.h"
+#include "core/files/PathKey.h"
 #include "models/AbstractFileModel.h"
 #include "models/ImageFileModel.h"
 #include "models/PdfFileModel.h"

@@ -53,7 +53,7 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-#include "core/PathKey.h"
+#include "core/files/PathKey.h"
 #include "core/git/GitRepository.h"
 #include "core/git/GitStatus.h"
 #include "ui/OpenMode.h"

@@ -25,8 +25,8 @@
 
 #include <Coco/Path.h>
 
-#include "core/Io.h"
-#include "core/JsonIo.h"
+#include "core/files/Io.h"
+#include "core/files/JsonIo.h"
 #include "core/vault/VaultDotDir.h"
 
 // Per-vault configuration — the committed files in <vaultRoot>/.fernanda/, the

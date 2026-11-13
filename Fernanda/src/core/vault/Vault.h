@@ -33,10 +33,10 @@
 #include <Coco/Time.h>
 
 #include "core/vault/BufferStore.h"
-#include "core/FileTypes.h"
-#include "core/Io.h"
-#include "core/JsonIo.h"
-#include "core/PathKey.h"
+#include "core/files/FileTypes.h"
+#include "core/files/Io.h"
+#include "core/files/JsonIo.h"
+#include "core/files/PathKey.h"
 #include "core/vault/VaultConfig.h"
 #include "core/vault/VaultDotDir.h"
 #include "core/vault/VaultTreeModel.h"

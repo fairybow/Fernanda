@@ -33,8 +33,8 @@
 #include <Coco/Time.h>
 
 #include "core/CoreConstants.h"
-#include "core/Io.h"
-#include "core/JsonIo.h"
+#include "core/files/Io.h"
+#include "core/files/JsonIo.h"
 #include "core/vault/VaultDotDir.h"
 #include "core/WorkspaceKeys.h"
 #include "ui/BaseWindow.h"

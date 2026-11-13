@@ -35,7 +35,7 @@
 #include <Coco/Path.h>
 #include <Coco/Time.h>
 
-#include "core/FileTypes.h"
+#include "core/files/FileTypes.h"
 #include "core/vault/VaultTreeNode.h"
 
 namespace Fernanda {

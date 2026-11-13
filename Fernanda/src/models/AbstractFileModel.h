@@ -21,7 +21,7 @@
 
 #include <Coco/Debug.h>
 
-#include "core/PathKey.h"
+#include "core/files/PathKey.h"
 
 namespace Fernanda {
 

@@ -31,7 +31,7 @@
 #include <Coco/Path.h>
 
 #include "core/FocusTimer.h"
-#include "core/PathKey.h"
+#include "core/files/PathKey.h"
 #include "core/vault/Vault.h"
 #include "core/VaultEntry.h"
 #include "core/git/GitRepository.h"

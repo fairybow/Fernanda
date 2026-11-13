@@ -37,7 +37,7 @@
 #include <Coco/Path.h>
 
 #include "core/vault/BufferStore.h"
-#include "core/PathKey.h"
+#include "core/files/PathKey.h"
 #include "core/vault/Vault.h"
 #include "core/git/GitDiff.h"
 #include "core/git/GitRepository.h"

@@ -32,9 +32,9 @@
 #include <Coco/Path.h>
 #include <Coco/Time.h>
 
-#include "core/FileTypes.h"
-#include "core/Io.h"
-#include "core/PathKey.h"
+#include "core/files/FileTypes.h"
+#include "core/files/Io.h"
+#include "core/files/PathKey.h"
 #include "core/vault/VaultTreeModel.h"
 #include "models/AbstractFileModel.h"
 #include "models/ImageFileModel.h"

@@ -26,7 +26,7 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-#include "core/Io.h"
+#include "core/files/Io.h"
 
 namespace Fernanda {
 

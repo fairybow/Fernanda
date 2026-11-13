@@ -24,7 +24,7 @@
 
 #include <Coco/Debug.h>
 
-#include "core/PathKey.h"
+#include "core/files/PathKey.h"
 #include "models/AbstractFileModel.h"
 #include "models/PrimeDocument.h"
 

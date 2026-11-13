@@ -29,8 +29,8 @@
 #include <Coco/Time.h>
 
 #include "core/AppDirs.h"
-#include "core/JsonIo.h"
-#include "core/PathKey.h"
+#include "core/files/JsonIo.h"
+#include "core/files/PathKey.h"
 #include "core/Publication.h"
 #include "core/VaultOrder.h"
 

@@ -24,7 +24,7 @@ Formatting is handled by `.clang-format` (run `wintools/ClangFormatAll.bat`): 80
 
 ## Includes
 
-- First-party includes use the full path from `src/`, even for a file in the same folder: `"core/PathKey.h"`, not `"PathKey.h"`. A file in `src/` itself is just its name: `"App.h"`.
+- First-party includes use the full path from `src/`, even for a file in the same folder: `"core/files/PathKey.h"`, not `"PathKey.h"`. A file in `src/` itself is just its name: `"App.h"`.
 - Order, each group separated by a blank line: standard library, Qt, Coco, first-party.
 - Include what a file names. Don't rely on another header pulling it in.
 

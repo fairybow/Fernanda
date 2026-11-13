@@ -24,7 +24,7 @@
 
 #include <Coco/Path.h>
 
-#include "core/PathKey.h"
+#include "core/files/PathKey.h"
 #include "models/AbstractFileModel.h"
 #include "models/TextFileModel.h"
 

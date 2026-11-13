@@ -23,7 +23,7 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-#include "core/Io.h"
+#include "core/files/Io.h"
 
 // The JSON layer over Fernanda::Io. JsonIo reads and serializes; Io moves the
 // bytes. Every config file (fernanda.json, settings.json, workspace.json) is a
