@@ -21,8 +21,8 @@
 
 #include <Coco/Path.h>
 
-#include "core/PathKey.h"
 #include "core/RecentFiles.h"
+#include "core/files/PathKey.h"
 
 using namespace Qt::StringLiterals;
 

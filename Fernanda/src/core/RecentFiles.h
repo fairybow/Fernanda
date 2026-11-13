@@ -18,7 +18,7 @@
 #include <QList>
 #include <QtTypes>
 
-#include "core/PathKey.h"
+#include "core/files/PathKey.h"
 
 namespace Fernanda {
 

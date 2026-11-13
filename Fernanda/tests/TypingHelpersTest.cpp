@@ -21,14 +21,14 @@
 #include <QTextBlock>
 #include <QTextCursor>
 
-#include "views/TypingHelpers.h"
+#include "views/text/TypingHelpers.h"
 
 using namespace Qt::StringLiterals;
 using Fernanda::TypingHelpers;
 
-// Auto-pairing and stepping past closers (views/TypingHelpers.h), typed into a
-// real QPlainTextEdit that offers its key presses to the helpers first and
-// tells them when the caret moves, as TextEditor does. Each test checks the
+// Auto-pairing and stepping past closers (views/text/TypingHelpers.h), typed
+// into a real QPlainTextEdit that offers its key presses to the helpers first
+// and tells them when the caret moves, as TextEditor does. Each test checks the
 // text and where the caret (or the selection) ends up.
 //
 // Qt Test runs every private slot as a test

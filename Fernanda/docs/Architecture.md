@@ -36,9 +36,14 @@ Everything is under `Fernanda/src/`, in the `Fernanda` namespace. Apart from `Ma
 | Folder | Holds |
 |---|---|
 | `src/` | `Main.cpp`, `App`, and the log window |
-| `core/` | `Vault`, the buffer store, file keys, the vault tree model, configuration, file IO, file types, action ids, the focus timer and its rules, the writing history, the update check, the interface language, the app's folders, and the version and publication details |
-| `core/spell/` | Spellcheck: the dictionaries, the word rules, and the vault's word lists |
+| `core/` | Constants shared by the folders below, the keys of `workspace.json`, and a window's recent files |
+| `core/app/` | What `App` owns: the app's settings file and folders, the actions it owns and the action ids, launch arguments, the interface language, the bundled fonts, the list of known vaults with its order, and the check that the build's own macros are defined |
+| `core/dist/` | The version and publication details, the update check, and whether Fernanda runs from the Microsoft Store package |
+| `core/files/` | File keys, file types, and file IO, plain and JSON |
 | `core/git/` | The repository a vault is in, and reading what `git` prints: status, diffs, remote addresses, branch names as they're typed, and the folder Git refuses to trust |
+| `core/spell/` | Spellcheck: the dictionaries, the word rules, and the vault's word lists |
+| `core/vault/` | `Vault`, the buffer store, the vault tree model, the vault's configuration, and its `.fernanda` folder |
+| `core/writing/` | The focus timer and its rules, the writing history, and the word and character counts |
 | `models/` | One buffer class per file type, and the prime document |
 | `views/` | One view class per file type, and the parts only views use: the text editor with its selection handles and typing helpers, the find bar and the search functions behind it, and the zoom control with its state |
 | `ui/` | The windows and what they open directly: workspace persistence, Go to File, the vault picker, the status bar items. Also the application's style |
@@ -243,7 +248,7 @@ The file trees hand out absolute paths; the sidebar makes them keys.
 | `PdfFileModel` | The file's bytes and one parsed PDF document, shared by every view |
 | `ImageFileModel` | The file's bytes and one decoded image, shared by every view |
 
-Which class a file gets is decided by its extension, from one table in `core/FileTypes.h`. The same table decides what the file trees and Go to File list, so they can't disagree with what the vault will open. `BufferStore::openModel` refuses anything not in the table before reading it; that refusal is the authority, and the hiding upstream is a courtesy.
+Which class a file gets is decided by its extension, from one table in `core/files/FileTypes.h`. The same table decides what the file trees and Go to File list, so they can't disagree with what the vault will open. `BufferStore::openModel` refuses anything not in the table before reading it; that refusal is the authority, and the hiding upstream is a courtesy.
 
 PDF and image buffers share no base beyond `AbstractFileModel`. What they have in common is one byte array.
 
@@ -403,7 +408,7 @@ Outside programs are still blocked from renaming a folder that Fernanda has list
 
 The cost is that a vault moved outside Fernanda is a new vault. One moved inside Fernanda is followed, since Fernanda knows both ends of the move (see "Vault folders"). The benefit is that a copied vault folder is simply a second vault, with nothing to collide.
 
-**A file is its `PathKey`.** `Coco::Path` compares paths as written, so a trailing slash, `.` and `..` segments, and letter case make two spellings of one file differ. `Coco::Path` is deliberately not canonical on construction: that would make it impossible to name a path that doesn't exist yet, and would put a filesystem call in a value type. `PathKey` (`core/PathKey.h`) is the normalized form every buffer and file operation goes by:
+**A file is its `PathKey`.** `Coco::Path` compares paths as written, so a trailing slash, `.` and `..` segments, and letter case make two spellings of one file differ. `Coco::Path` is deliberately not canonical on construction: that would make it impossible to name a path that doesn't exist yet, and would put a filesystem call in a value type. `PathKey` (`core/files/PathKey.h`) is the normalized form every buffer and file operation goes by:
 
 - **Made from the path alone.** `.` and `..` are removed, and the path is written in its pretty form (below). Nothing asks the disk, so a file that doesn't exist yet (a new file, a rename's target) has the key it will have once it does. A relative path gives an empty key.
 - **Letter case is compared as the platform's file systems do.** On Windows and macOS, which ignore case by default, keys compare case-folded; elsewhere exactly. Qt reports a path in the case it was written, not the case on disk, so this can't be settled by asking. The path keeps the case it was written in, for display and for file operations.
@@ -436,7 +441,7 @@ The Common Vault is a role, not a place: one known vault whose files every windo
 
 ## Configuration and persistence
 
-All of it but a vault's dictionary is JSON, read and written by stateless free functions (`core/JsonIo.h` over `core/Io.h`, which writes atomically). A missing or unreadable file reads as an empty object, so callers fall to their defaults.
+All of it but a vault's dictionary is JSON, read and written by stateless free functions (`core/files/JsonIo.h` over `core/files/Io.h`, which writes atomically). A missing or unreadable file reads as an empty object, so callers fall to their defaults.
 
 | What | File | Type | Owner |
 |---|---|---|---|
@@ -604,7 +609,7 @@ Divided by who touches vault folders on disk.
 
 ## Actions
 
-Every user-facing command is a `QAction` in its window's registry, keyed by a stable id from `core/ActionIds.h`.
+Every user-facing command is a `QAction` in its window's registry, keyed by a stable id from `core/app/ActionIds.h`.
 
 - **An id names the thing acted on, never the menu it sits in.** Menus move, and ids will be saved in hotkey settings and shown in a command palette. `document.undo` is named for the document because undo reverses in every view of it.
 - **An action is created where it can be performed.** `App` creates Quit and Manage Vaults, connects each once, and hands every window the set. A window adopts them to show them and to bind their shortcuts. It never forwards a "triggered" signal.
@@ -617,14 +622,14 @@ Every user-facing command is a `QAction` in its window's registry, keyed by a st
 
 Fernanda tells the user about a newer release and links to it. It doesn't download or install anything; see [Future.md](Future.md) for why.
 
-- **The decision is apart from the request.** `core/UpdateCheck.h` holds free functions, tested in `UpdateCheckTest`: Semantic Versioning precedence, and the newest release in GitHub's list that is newer than the running version. `Updater` fetches the list and asks. Versions are compared by precedence, never as strings or by the order GitHub lists releases in.
+- **The decision is apart from the request.** `core/dist/UpdateCheck.h` holds free functions, tested in `UpdateCheckTest`: Semantic Versioning precedence, and the newest release in GitHub's list that is newer than the running version. `Updater` fetches the list and asks. Versions are compared by precedence, never as strings or by the order GitHub lists releases in.
 - **A release's version is its tag.** `release.yml` requires the tag to be "v" plus `VERSION_FULL_STRING`, so the tag alone says whether a release is a prerelease. A prerelease build is offered prereleases; a stable build is only if `STABLE_BUILDS_SEE_PRERELEASES` says so.
 - **One `Updater`, owned by `App` and handed down.** `App` passes it to each `VaultWindow`, which passes it to its settings dialog and its pop-outs. The General page and every window's status-bar notice read it and follow its signals directly. `App` saves its two settings, whether it checks on its own and which version's notice was dismissed, to `fernanda.json`.
 - **The installer sets the default for checking on its own.** The Windows installer's "Check for updates automatically" box, when unchecked, writes `install.ini` beside the executable. `AppConfig` reads it as the default for that setting, and writes the setting to `fernanda.json` only when it differs from that default. The installer runs elevated, for every user, so it records the choice for the install rather than editing anyone's `fernanda.json`: a per-user path, resolved under elevation, names whichever account approved it, and the file would need merging, not overwriting, on an upgrade.
 - **The General page is the one page that follows a signal.** Its settings are `App`'s, shared by every vault's dialog, so it can't seed its controls once as the vault pages do.
 - **An automatic check that fails is only logged,** and the state goes back to what it was. A check the user asked for reports why it failed. One check runs at a time.
 - **The notice's click belongs to `VaultWindow`.** It wires the notice in its own status bar and in each pop-out's: dismiss the notice, which hides it in every window, and open the vault's settings on General.
-- **The Microsoft Store version never checks.** The Store updates it, and allows no other way to update. `Msix::runsFromPackage()` (`core/Msix.h`) asks Windows whether the process has a package identity. When it does, `App` never starts the `Updater`, so its state stays unchecked and no notice can show, and the General page shows the version without the update controls. The setting in `fernanda.json` is left as it was, so a downloaded version sharing the file keeps its choice.
+- **The Microsoft Store version never checks.** The Store updates it, and allows no other way to update. `Msix::runsFromPackage()` (`core/dist/Msix.h`) asks Windows whether the process has a package identity. When it does, `App` never starts the `Updater`, so its state stays unchecked and no notice can show, and the General page shows the version without the update controls. The setting in `fernanda.json` is left as it was, so a downloaded version sharing the file keeps its choice.
 
 ## The Microsoft Store package
 

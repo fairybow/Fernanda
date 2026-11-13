@@ -90,8 +90,8 @@ endif()
 # Parsing
 # =============================================================================
 
-set(_ver_header src/core/Version.h)
-set(_pub_header src/core/Publication.h)
+set(_ver_header src/core/dist/Version.h)
+set(_pub_header src/core/dist/Publication.h)
 
 # file(STRINGS) creates no dependency; without this, editing these headers
 # leaves the parsed values (and the bundle and .desktop metadata built from
@@ -185,6 +185,28 @@ set(APP_SOURCES
 # --- Headers ---
 
 set(APP_HEADERS
+    src/core/app/ActionIds.h
+    src/core/app/AppActions.h
+    src/core/app/AppConfig.h
+    src/core/app/AppDirs.h
+    src/core/app/BundledFonts.h
+    src/core/app/Clargs.h
+    src/core/app/CMakeMacroGuard.h
+    src/core/app/Translations.h
+    src/core/app/VaultEntry.h
+    src/core/app/VaultOrder.h
+
+    src/core/dist/Msix.h
+    src/core/dist/Publication.h
+    src/core/dist/UpdateCheck.h
+    src/core/dist/Updater.h
+    src/core/dist/Version.h
+
+    src/core/files/FileTypes.h
+    src/core/files/Io.h
+    src/core/files/JsonIo.h
+    src/core/files/PathKey.h
+
     src/core/git/GitDiff.h
     src/core/git/GitRefName.h
     src/core/git/GitRemote.h
@@ -198,44 +220,37 @@ set(APP_HEADERS
     src/core/spell/SpellWords.h
     src/core/spell/WordList.h
 
-    src/core/ActionIds.h
-    src/core/AppActions.h
-    src/core/AppConfig.h
-    src/core/AppDirs.h
-    src/core/BufferStore.h
-    src/core/BundledFonts.h
-    src/core/Clargs.h
-    src/core/CMakeMacroGuard.h
+    src/core/vault/BufferStore.h
+    src/core/vault/Vault.h
+    src/core/vault/VaultConfig.h
+    src/core/vault/VaultDotDir.h
+    src/core/vault/VaultTreeModel.h
+    src/core/vault/VaultTreeNode.h
+
+    src/core/writing/FocusCycle.h
+    src/core/writing/FocusTimer.h
+    src/core/writing/TextCounts.h
+    src/core/writing/WritingHistory.h
+
     src/core/CoreConstants.h
-    src/core/FileTypes.h
-    src/core/FocusCycle.h
-    src/core/FocusTimer.h
-    src/core/Io.h
-    src/core/JsonIo.h
-    src/core/Msix.h
-    src/core/PathKey.h
-    src/core/Publication.h
     src/core/RecentFiles.h
-    src/core/TextCounts.h
-    src/core/Translations.h
-    src/core/UpdateCheck.h
-    src/core/Updater.h
-    src/core/Vault.h
-    src/core/VaultConfig.h
-    src/core/VaultDotDir.h
-    src/core/VaultEntry.h
-    src/core/VaultOrder.h
-    src/core/VaultTreeModel.h
-    src/core/VaultTreeNode.h
-    src/core/Version.h
     src/core/WorkspaceKeys.h
-    src/core/WritingHistory.h
+
+    src/models/text/PrimeDocument.h
+    src/models/text/TextFileModel.h
 
     src/models/AbstractFileModel.h
     src/models/ImageFileModel.h
     src/models/PdfFileModel.h
-    src/models/PrimeDocument.h
-    src/models/TextFileModel.h
+
+    src/ui/dialogs/AboutPanel.h
+    src/ui/dialogs/BetaAlert.h
+    src/ui/dialogs/LicensesDialog.h
+    src/ui/dialogs/LossyOpenPrompt.h
+    src/ui/dialogs/NewVaultDialog.h
+    src/ui/dialogs/RenameDialog.h
+    src/ui/dialogs/UpdateNotice.h
+    src/ui/dialogs/WritingHistoryDialog.h
 
     src/ui/git/GitBranchButton.h
     src/ui/git/GitChangeDelegate.h
@@ -267,6 +282,9 @@ set(APP_HEADERS
     src/ui/sidebar/VaultTreeItemDelegate.h
     src/ui/sidebar/VaultTreeView.h
 
+    src/ui/statusbar/CursorPosition.h
+    src/ui/statusbar/WordCounter.h
+
     src/ui/tabs/NewTabButton.h
     src/ui/tabs/NewTabPage.h
     src/ui/tabs/PageIcon.h
@@ -287,37 +305,29 @@ set(APP_HEADERS
     src/ui/widgets/ToggleSwitch.h
     src/ui/widgets/UserTextEntry.h
 
-    src/ui/AboutPanel.h
-    src/ui/BaseWindow.h
-    src/ui/BetaAlert.h
-    src/ui/CursorPosition.h
-    src/ui/FileSwitcher.h
-    src/ui/LicensesDialog.h
-    src/ui/LossyOpenPrompt.h
-    src/ui/ManageVaults.h
-    src/ui/NewVaultDialog.h
+    src/ui/windows/BaseWindow.h
+    src/ui/windows/FileSwitcher.h
+    src/ui/windows/ManageVaults.h
+    src/ui/windows/PopoutWindow.h
+    src/ui/windows/VaultOrderButton.h
+    src/ui/windows/VaultWindow.h
+
     src/ui/OpenMode.h
-    src/ui/PopoutWindow.h
-    src/ui/RenameDialog.h
     src/ui/Style.h
     src/ui/UiConstants.h
     src/ui/UiUtility.h
-    src/ui/UpdateNotice.h
-    src/ui/VaultOrderButton.h
-    src/ui/VaultWindow.h
-    src/ui/WordCounter.h
     src/ui/WorkspaceFile.h
-    src/ui/WritingHistoryDialog.h
+
+    src/views/text/FindBar.h
+    src/views/text/SelectionHandles.h
+    src/views/text/TextEditor.h
+    src/views/text/TextFileView.h
+    src/views/text/TextSearch.h
+    src/views/text/TypingHelpers.h
 
     src/views/AbstractFileView.h
-    src/views/FindBar.h
     src/views/ImageFileView.h
     src/views/PdfFileView.h
-    src/views/SelectionHandles.h
-    src/views/TextEditor.h
-    src/views/TextFileView.h
-    src/views/TextSearch.h
-    src/views/TypingHelpers.h
     src/views/ViewConstants.h
     src/views/ZoomControl.h
     src/views/ZoomState.h

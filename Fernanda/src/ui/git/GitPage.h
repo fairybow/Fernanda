@@ -53,7 +53,7 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-#include "core/PathKey.h"
+#include "core/files/PathKey.h"
 #include "core/git/GitRepository.h"
 #include "core/git/GitStatus.h"
 #include "ui/OpenMode.h"
@@ -67,11 +67,10 @@ namespace Fernanda::Ui {
 using namespace Qt::StringLiterals;
 
 // The sidebar's Git page: a row with the current branch, whose menu switches
-// and makes branches (GitBranchButton), and the sync button
-// (GitSyncButton); then the repository's changed files, one row each
-// (GitChangeDelegate); and below them the commit box. The list covers the
-// whole repository, which may hold more than the vault. A renamed file is
-// listed at its new path.
+// and makes branches (GitBranchButton), and the sync button (GitSyncButton);
+// then the repository's changed files, one row each (GitChangeDelegate); and
+// below them the commit box. The list covers the whole repository, which may
+// hold more than the vault. A renamed file is listed at its new path.
 //
 // When git refuses to trust the repository (GitRepository::untrustedFolder),
 // a notice takes the page's place, worded as GitHub Desktop's, with its Trust
@@ -124,9 +123,8 @@ using namespace Qt::StringLiterals;
 // and how many of them are outside the vault, if any. Conflicted files and
 // submodules are left out, and the question says how many of each. The item is
 // disabled while the repository is busy, or while nothing listed can be
-// discarded. Like one file's, it acts on the files listed when the menu
-// opened, as the status has them when the discard runs
-// (GitRepository::discard)
+// discarded. Like one file's, it acts on the files listed when the menu opened,
+// as the status has them when the discard runs (GitRepository::discard)
 class GitPage : public QWidget
 {
     Q_OBJECT

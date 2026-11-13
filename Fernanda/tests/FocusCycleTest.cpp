@@ -17,13 +17,14 @@
 #include <QTest>
 #include <QtTypes>
 
-#include "core/FocusCycle.h"
+#include "core/writing/FocusCycle.h"
 
 using namespace Fernanda;
 
-// The focus timer's rules (core/FocusCycle.h). The cycle takes the time as an
-// argument, so every case runs on made-up times in milliseconds: nothing here
-// waits. Lengths are short and distinct, so a length read back names its period
+// The focus timer's rules (core/writing/FocusCycle.h). The cycle takes the time
+// as an argument, so every case runs on made-up times in milliseconds: nothing
+// here waits. Lengths are short and distinct, so a length read back names its
+// period
 class FocusCycleTest : public QObject
 {
     Q_OBJECT

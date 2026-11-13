@@ -32,12 +32,12 @@
 
 #include <Coco/Path.h>
 
-#include "core/BufferStore.h"
-#include "core/PathKey.h"
+#include "core/files/PathKey.h"
+#include "core/vault/BufferStore.h"
 #include "models/AbstractFileModel.h"
 #include "models/ImageFileModel.h"
 #include "models/PdfFileModel.h"
-#include "models/TextFileModel.h"
+#include "models/text/TextFileModel.h"
 
 using namespace Qt::StringLiterals;
 using Fernanda::AbstractFileModel;
@@ -45,7 +45,7 @@ using Fernanda::BufferStore;
 using Fernanda::PathKey;
 using Fernanda::TextFileModel;
 
-// What the buffer store does with open files (core/BufferStore.h), for
+// What the buffer store does with open files (core/vault/BufferStore.h), for
 // everything that happens at once: opening, flushing, freeing, and following
 // a vault's file operations. What waits on a timer or the file watcher
 // (autosave, external changes) is BufferStoreTimedTest's. Renames, moves, and

@@ -31,8 +31,8 @@
 #   .github/scripts/build_release_text.py
 #   .github/scripts/BuildMsix.ps1
 #   Fernanda/                        (CMake source dir)
-#   Fernanda/src/core/Version.h
-#   Fernanda/src/core/Publication.h
+#   Fernanda/src/core/dist/Version.h
+#   Fernanda/src/core/dist/Publication.h
 #   CHANGELOG.md
 #   README.md
 #   LICENSE
@@ -80,8 +80,8 @@ jobs:
       - name: Extract version and app name
         id: v
         run: |
-          VER_FILE=Fernanda/src/core/Version.h
-          PUB_FILE=Fernanda/src/core/Publication.h
+          VER_FILE=Fernanda/src/core/dist/Version.h
+          PUB_FILE=Fernanda/src/core/dist/Publication.h
 
           # NB: Each grep fails the step (bash -e) if its define is missing
           major=$(grep -oP '#define VERSION_MAJOR\s+\K[0-9]+' "$VER_FILE")

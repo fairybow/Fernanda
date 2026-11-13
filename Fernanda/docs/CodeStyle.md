@@ -18,13 +18,13 @@ Formatting is handled by `.clang-format` (run `wintools/ClangFormatAll.bat`): 80
 - Every file starts with the license statement (`wintools/ApplyLicenseStatement.bat`).
 - A file goes in the folder of the feature it belongs to; "Source layout" in [Architecture.md](Architecture.md) lists the folders. A control that knows nothing of the app goes in `ui/widgets/`. Something only views use goes in `views/`.
 - Includes run one way, as that section sets out: nothing in `core/` or `models/` includes `views/` or `ui/`, and `views/` takes only `ui/widgets/` from `ui/`.
-- No generic utility headers. Put a function in a header named for what it is about (`core/VaultDotDir.h`, not a `CoreUtility.h`). `ui/UiUtility.h` exists and should not grow.
+- No generic utility headers. Put a function in a header named for what it is about (`core/vault/VaultDotDir.h`, not a `CoreUtility.h`). `ui/UiUtility.h` exists and should not grow.
 - `ui/UiConstants.h` holds values tuned by hand and constants shared by more than one class; `views/ViewConstants.h` does the same for the parts in `views/`. Any other constant with one consumer stays private to that consumer.
 - Default values for user settings live in the config type that owns the setting, not in a separate header.
 
 ## Includes
 
-- First-party includes use the full path from `src/`, even for a file in the same folder: `"core/PathKey.h"`, not `"PathKey.h"`. A file in `src/` itself is just its name: `"App.h"`.
+- First-party includes use the full path from `src/`, even for a file in the same folder: `"core/files/PathKey.h"`, not `"PathKey.h"`. A file in `src/` itself is just its name: `"App.h"`.
 - Order, each group separated by a blank line: standard library, Qt, Coco, first-party.
 - Include what a file names. Don't rely on another header pulling it in.
 

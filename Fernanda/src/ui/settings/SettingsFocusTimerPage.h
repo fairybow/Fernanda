@@ -21,8 +21,8 @@
 
 #include <Coco/Debug.h>
 
-#include "core/Vault.h"
-#include "core/VaultConfig.h"
+#include "core/vault/Vault.h"
+#include "core/vault/VaultConfig.h"
 #include "ui/settings/SettingRow.h"
 #include "ui/settings/SettingsPage.h"
 #include "ui/widgets/DisplaySlider.h"
@@ -30,9 +30,9 @@
 namespace Fernanda::Ui {
 
 // The settings dialog's Focus timer page: whether this vault's windows show a
-// focus timer (core/FocusTimer.h), and how long its periods are. Obsidian has
-// no timer of its own, so the page is Fernanda's; its plugins keep their
-// settings per vault, as this does.
+// focus timer (core/writing/FocusTimer.h), and how long its periods are.
+// Obsidian has no timer of its own, so the page is Fernanda's; its plugins keep
+// their settings per vault, as this does.
 //
 // The lengths hang on the switch, disabled while it's off and keeping their
 // values. Each slider applies as it moves, through the Vault, which saves once

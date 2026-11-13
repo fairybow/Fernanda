@@ -36,14 +36,14 @@
 
 #include <Coco/Path.h>
 
-#include "core/BufferStore.h"
-#include "core/PathKey.h"
-#include "core/Vault.h"
+#include "core/files/PathKey.h"
 #include "core/git/GitDiff.h"
 #include "core/git/GitRepository.h"
 #include "core/git/GitStatus.h"
+#include "core/vault/BufferStore.h"
+#include "core/vault/Vault.h"
 #include "models/AbstractFileModel.h"
-#include "models/TextFileModel.h"
+#include "models/text/TextFileModel.h"
 
 using namespace Qt::StringLiterals;
 using namespace Fernanda;
@@ -1145,8 +1145,8 @@ private slots:
 
     // "[a].txt" as a pattern would match "a.txt" too. Git already takes a
     // path it knows as itself before trying it as a pattern, and every path
-    // given comes from the status, so this passes without
-    // --literal-pathspecs as well; the option makes it so in every case
+    // given comes from the status, so this passes without --literal-pathspecs
+    // as well; the option makes it so in every case
     void commitTakesAPathAsItself()
     {
         Fixture_ f{};

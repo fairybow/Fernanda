@@ -32,12 +32,12 @@
 
 #include <Coco/Path.h>
 
-#include "core/BufferStore.h"
-#include "core/PathKey.h"
-#include "core/Vault.h"
-#include "core/VaultConfig.h"
+#include "core/files/PathKey.h"
+#include "core/vault/BufferStore.h"
+#include "core/vault/Vault.h"
+#include "core/vault/VaultConfig.h"
 #include "models/AbstractFileModel.h"
-#include "models/TextFileModel.h"
+#include "models/text/TextFileModel.h"
 
 using namespace Qt::StringLiterals;
 using Fernanda::AbstractFileModel;
@@ -47,7 +47,7 @@ using Fernanda::TextFileModel;
 using Fernanda::Vault;
 using Fernanda::VaultConfig;
 
-// What a Vault does with the files inside it (core/Vault.h): creating,
+// What a Vault does with the files inside it (core/vault/Vault.h): creating,
 // renaming, moving, and trashing, with the open buffers following, and its
 // settings and dictionary. The buffers themselves are BufferStoreTest's.
 //

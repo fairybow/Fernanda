@@ -30,11 +30,11 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-#include "core/FocusTimer.h"
-#include "core/PathKey.h"
-#include "core/Vault.h"
-#include "core/VaultEntry.h"
+#include "core/app/VaultEntry.h"
+#include "core/files/PathKey.h"
 #include "core/git/GitRepository.h"
+#include "core/vault/Vault.h"
+#include "core/writing/FocusTimer.h"
 #include "ui/OpenMode.h"
 #include "ui/UiConstants.h"
 #include "ui/git/GitPage.h"

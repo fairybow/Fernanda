@@ -244,10 +244,10 @@ inline constexpr int SIDEBAR_FOOTER_BOTTOM_MARGIN = 0;
 // square, the footer's buttons' size, with its glyph ICON_EXTENT square. A
 // button's glyph is in ICON_ROLE, muted, and the active page's in
 // ACTIVE_ICON_ROLE, the text's own color, marked as ACTIVE_MARK says. The
-// buttons are SPACING apart. The margins keep the
-// washes off the sidebar's edges and the page below, as the footer's do. Files
-// is FILES_ICON_PATH and Git is GIT_ICON_PATH, a folder with Git's mark, set
-// apart from the branch glyph the Git page's branch button shows
+// buttons are SPACING apart. The margins keep the washes off the sidebar's
+// edges and the page below, as the footer's do. Files is FILES_ICON_PATH and
+// Git is GIT_ICON_PATH, a folder with Git's mark, set apart from the branch
+// glyph the Git page's branch button shows
 inline constexpr int SIDEBAR_PAGE_BUTTON_EXTENT = SETTINGS_BUTTON_EXTENT;
 
 // How the active page's button is marked (SidebarPages), beyond its glyph's

@@ -34,10 +34,10 @@
 
 #include <Coco/Debug.h>
 
-#include "core/Translations.h"
-#include "core/Updater.h"
-#include "core/Vault.h"
+#include "core/app/Translations.h"
+#include "core/dist/Updater.h"
 #include "core/spell/SpellCheckers.h"
+#include "core/vault/Vault.h"
 #include "ui/UiConstants.h"
 #include "ui/settings/SettingRow.h"
 #include "ui/settings/SettingsAppearancePage.h"

@@ -25,11 +25,11 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-#include "core/Vault.h"
-#include "core/VaultConfig.h"
 #include "core/git/GitDiff.h"
 #include "core/git/GitRepository.h"
 #include "core/git/GitStatus.h"
+#include "core/vault/Vault.h"
+#include "core/vault/VaultConfig.h"
 #include "ui/UiConstants.h"
 #include "ui/git/GitDiffView.h"
 #include "ui/tabs/PageIcon.h"

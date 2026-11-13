@@ -20,7 +20,7 @@
 
 #include <Coco/Path.h>
 
-#include "core/FileTypes.h"
+#include "core/files/FileTypes.h"
 
 using namespace Qt::StringLiterals;
 using Fernanda::FileTypes::Type;
@@ -28,7 +28,7 @@ using Fernanda::FileTypes::Type;
 // Lets a Type sit in a test table's column
 Q_DECLARE_METATYPE(Fernanda::FileTypes::Type)
 
-// Which files Fernanda opens, and as what (core/FileTypes.h).
+// Which files Fernanda opens, and as what (core/files/FileTypes.h).
 //
 // Qt Test runs every private slot as a test. A slot named <test>_data fills a
 // table, and <test> then runs once per row, reported under the row's name
