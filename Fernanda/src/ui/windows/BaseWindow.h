@@ -44,7 +44,7 @@
 #include "ui/tabs/TabPaneTree.h"
 #include "ui/widgets/MenuText.h"
 #include "views/AbstractFileView.h"
-#include "views/TextFileView.h"
+#include "views/text/TextFileView.h"
 
 namespace Fernanda::Ui {
 

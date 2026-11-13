@@ -26,7 +26,7 @@
 
 #include <Coco/Path.h>
 
-#include "models/TextFileModel.h"
+#include "models/text/TextFileModel.h"
 
 // The warning before Fernanda opens a text file that isn't valid UTF-8.
 // Fernanda reads only UTF-8, matching Obsidian, and does no conversion:

@@ -27,7 +27,7 @@
 #include <QTextDocument>
 
 #include "core/writing/TextCounts.h"
-#include "models/PrimeDocument.h"
+#include "models/text/PrimeDocument.h"
 
 using namespace Qt::StringLiterals;
 using Fernanda::PrimeDocument;
@@ -39,7 +39,7 @@ using Edit = std::function<void(QTextCursor&)>;
 // Lets an Edit sit in a test table's column
 Q_DECLARE_METATYPE(Edit)
 
-// How a prime document keeps its views in step (models/PrimeDocument.h): an
+// How a prime document keeps its views in step (models/text/PrimeDocument.h): an
 // edit made in any view must leave the prime and every view holding the same
 // text, and undo must take them all back together.
 //

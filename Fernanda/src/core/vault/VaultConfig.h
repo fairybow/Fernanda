@@ -97,11 +97,11 @@ public:
     static constexpr bool DEFAULT_CURSOR_POSITION_LINE = true;
     static constexpr bool DEFAULT_CURSOR_POSITION_COLUMN = true;
 
-    // The editor's line-number gutter (views/TextEditor.h). Off: Fernanda is
+    // The editor's line-number gutter (views/text/TextEditor.h). Off: Fernanda is
     // for prose, where a line is a paragraph
     static constexpr bool DEFAULT_LINE_NUMBERS = false;
 
-    // The rest of the editor's settings (views/TextEditor.h). Wrapping on is
+    // The rest of the editor's settings (views/text/TextEditor.h). Wrapping on is
     // how QPlainTextEdit wraps by default: at a word boundary, or anywhere in a
     // word wider than the view. The left/right margin is a percentage of the
     // editor's width, kept clear on each side of the text; the tab width is in
@@ -115,7 +115,7 @@ public:
     static constexpr bool DEFAULT_DOUBLE_CLICK_WHITESPACE = true;
     static constexpr bool DEFAULT_SELECTION_HANDLES = false;
 
-    // The typing helpers (views/TypingHelpers.h): a switch for all of them,
+    // The typing helpers (views/text/TypingHelpers.h): a switch for all of them,
     // and one for each. A helper keeps its own value while the switch is off,
     // as the status bar's parts do. Auto-pairing is on, as Obsidian's is, and
     // so is stepping past closers (barging), as Hearth's was

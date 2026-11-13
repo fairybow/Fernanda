@@ -43,7 +43,7 @@
 #include "core/vault/BufferStore.h"
 #include "core/vault/Vault.h"
 #include "models/AbstractFileModel.h"
-#include "models/TextFileModel.h"
+#include "models/text/TextFileModel.h"
 
 using namespace Qt::StringLiterals;
 using namespace Fernanda;

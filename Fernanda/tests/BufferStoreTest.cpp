@@ -37,7 +37,7 @@
 #include "models/AbstractFileModel.h"
 #include "models/ImageFileModel.h"
 #include "models/PdfFileModel.h"
-#include "models/TextFileModel.h"
+#include "models/text/TextFileModel.h"
 
 using namespace Qt::StringLiterals;
 using Fernanda::AbstractFileModel;

@@ -26,12 +26,12 @@
 
 #include "core/files/PathKey.h"
 #include "models/AbstractFileModel.h"
-#include "models/TextFileModel.h"
+#include "models/text/TextFileModel.h"
 
 using namespace Qt::StringLiterals;
 using Fernanda::TextFileModel;
 
-// What a text buffer does to a file's bytes (models/TextFileModel.h): what it
+// What a text buffer does to a file's bytes (models/text/TextFileModel.h): what it
 // hands back unchanged, what it changes, what it accepts as UTF-8, and how an
 // edit and a reload leave it.
 //

@@ -236,11 +236,12 @@ set(APP_HEADERS
     src/core/RecentFiles.h
     src/core/WorkspaceKeys.h
 
+    src/models/text/PrimeDocument.h
+    src/models/text/TextFileModel.h
+
     src/models/AbstractFileModel.h
     src/models/ImageFileModel.h
     src/models/PdfFileModel.h
-    src/models/PrimeDocument.h
-    src/models/TextFileModel.h
 
     src/ui/dialogs/AboutPanel.h
     src/ui/dialogs/BetaAlert.h
@@ -317,15 +318,16 @@ set(APP_HEADERS
     src/ui/UiUtility.h
     src/ui/WorkspaceFile.h
 
+    src/views/text/FindBar.h
+    src/views/text/SelectionHandles.h
+    src/views/text/TextEditor.h
+    src/views/text/TextFileView.h
+    src/views/text/TextSearch.h
+    src/views/text/TypingHelpers.h
+
     src/views/AbstractFileView.h
-    src/views/FindBar.h
     src/views/ImageFileView.h
     src/views/PdfFileView.h
-    src/views/SelectionHandles.h
-    src/views/TextEditor.h
-    src/views/TextFileView.h
-    src/views/TextSearch.h
-    src/views/TypingHelpers.h
     src/views/ViewConstants.h
     src/views/ZoomControl.h
     src/views/ZoomState.h

@@ -32,7 +32,7 @@
 #include <Coco/Path.h>
 
 #include "ui/widgets/GlyphButton.h"
-#include "views/TextSearch.h"
+#include "views/text/TextSearch.h"
 #include "views/ViewConstants.h"
 
 namespace Fernanda {

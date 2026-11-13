@@ -82,7 +82,7 @@
 #include "views/AbstractFileView.h"
 #include "views/ImageFileView.h"
 #include "views/PdfFileView.h"
-#include "views/TextFileView.h"
+#include "views/text/TextFileView.h"
 
 namespace Fernanda::Ui {
 

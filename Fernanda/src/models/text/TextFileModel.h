@@ -26,7 +26,7 @@
 
 #include "core/files/PathKey.h"
 #include "models/AbstractFileModel.h"
-#include "models/PrimeDocument.h"
+#include "models/text/PrimeDocument.h"
 
 namespace Fernanda {
 

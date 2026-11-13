@@ -37,7 +37,7 @@
 #include "core/vault/Vault.h"
 #include "core/vault/VaultConfig.h"
 #include "models/AbstractFileModel.h"
-#include "models/TextFileModel.h"
+#include "models/text/TextFileModel.h"
 
 using namespace Qt::StringLiterals;
 using Fernanda::AbstractFileModel;

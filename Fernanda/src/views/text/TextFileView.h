@@ -44,12 +44,12 @@
 #include "core/spell/SpellChecker.h"
 #include "core/spell/WordList.h"
 #include "core/vault/VaultConfig.h"
-#include "models/TextFileModel.h"
+#include "models/text/TextFileModel.h"
 #include "ui/widgets/MenuText.h"
 #include "views/AbstractFileView.h"
-#include "views/FindBar.h"
-#include "views/TextEditor.h"
-#include "views/TextSearch.h"
+#include "views/text/FindBar.h"
+#include "views/text/TextEditor.h"
+#include "views/text/TextSearch.h"
 #include "views/ViewConstants.h"
 
 namespace Fernanda {

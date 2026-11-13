@@ -35,7 +35,7 @@
 #include "core/files/PathKey.h"
 #include "core/vault/BufferStore.h"
 #include "models/AbstractFileModel.h"
-#include "models/TextFileModel.h"
+#include "models/text/TextFileModel.h"
 
 using namespace Qt::StringLiterals;
 using Fernanda::AbstractFileModel;
