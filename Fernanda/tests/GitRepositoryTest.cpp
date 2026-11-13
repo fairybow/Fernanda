@@ -1145,8 +1145,8 @@ private slots:
 
     // "[a].txt" as a pattern would match "a.txt" too. Git already takes a
     // path it knows as itself before trying it as a pattern, and every path
-    // given comes from the status, so this passes without
-    // --literal-pathspecs as well; the option makes it so in every case
+    // given comes from the status, so this passes without --literal-pathspecs
+    // as well; the option makes it so in every case
     void commitTakesAPathAsItself()
     {
         Fixture_ f{};

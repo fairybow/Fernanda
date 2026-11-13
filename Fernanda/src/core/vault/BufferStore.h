@@ -911,8 +911,7 @@ private:
 
     // One file the watcher reported, or a held file at its release: take in
     // what's on disk if it differs from what this store last wrote there. A
-    // file a hold covers is set aside for the release
-    // (holdAtOrUnder)
+    // file a hold covers is set aside for the release (holdAtOrUnder)
     void reconcileOne_(const Coco::Path& path)
     {
         auto key = PathKey::of(path);

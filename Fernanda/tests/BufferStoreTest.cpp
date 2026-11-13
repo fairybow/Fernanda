@@ -45,7 +45,7 @@ using Fernanda::BufferStore;
 using Fernanda::PathKey;
 using Fernanda::TextFileModel;
 
-// What the buffer store does with open files (core/BufferStore.h), for
+// What the buffer store does with open files (core/vault/BufferStore.h), for
 // everything that happens at once: opening, flushing, freeing, and following
 // a vault's file operations. What waits on a timer or the file watcher
 // (autosave, external changes) is BufferStoreTimedTest's. Renames, moves, and

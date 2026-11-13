@@ -43,9 +43,10 @@ using Fernanda::BufferStore;
 using Fernanda::PathKey;
 using Fernanda::TextFileModel;
 
-// What the buffer store does a moment later (core/BufferStore.h): saving after
-// typing, and taking in changes made to its open files by other programs. Both
-// run on real timers and the real file watcher, so these tests take real time.
+// What the buffer store does a moment later (core/vault/BufferStore.h): saving
+// after typing, and taking in changes made to its open files by other programs.
+// Both run on real timers and the real file watcher, so these tests take real
+// time.
 //
 // Something expected to happen is waited for with QTRY_COMPARE and
 // QTRY_VERIFY, which return as soon as it does and fail after five seconds.
