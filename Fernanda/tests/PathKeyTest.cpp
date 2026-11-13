@@ -32,9 +32,10 @@ using namespace Qt::StringLiterals;
 using Fernanda::PathKey;
 
 // How a path becomes a key that is the same for every spelling of one path
-// (core/files/PathKey.h): normalizing, letter case, containment, and re-keying under
-// a renamed folder. Keys are made from the path alone, so only the tests about
-// the file system's part (a file created later, a symlink) make real files.
+// (core/files/PathKey.h): normalizing, letter case, containment, and re-keying
+// under a renamed folder. Keys are made from the path alone, so only the tests
+// about the file system's part (a file created later, a symlink) make real
+// files.
 //
 // Each test works in its own temporary folder
 class PathKeyTest : public QObject

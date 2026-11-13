@@ -31,8 +31,8 @@
 
 #include <Coco/Path.h>
 
-#include "core/vault/BufferStore.h"
 #include "core/files/PathKey.h"
+#include "core/vault/BufferStore.h"
 #include "core/vault/Vault.h"
 #include "core/vault/VaultTreeModel.h"
 
@@ -42,9 +42,9 @@ using Fernanda::PathKey;
 using Fernanda::Vault;
 using Fernanda::VaultTreeModel;
 
-// The file tree every view of a vault shares (core/vault/VaultTreeModel.h): what it
-// lists and in what order, how it follows the vault's own file operations,
-// and how it follows changes made by other programs.
+// The file tree every view of a vault shares (core/vault/VaultTreeModel.h):
+// what it lists and in what order, how it follows the vault's own file
+// operations, and how it follows changes made by other programs.
 //
 // Each test gets its own vault in a temporary folder, and reaches the model
 // through it, as the app does. Most also run with Qt's model tester attached:

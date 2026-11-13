@@ -22,8 +22,8 @@
 #include <Coco/Path.h>
 
 #include "core/CoreConstants.h"
-#include "core/files/Io.h"
 #include "core/dist/Publication.h"
+#include "core/files/Io.h"
 
 namespace Fernanda {
 

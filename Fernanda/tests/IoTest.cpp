@@ -27,8 +27,8 @@
 
 using namespace Qt::StringLiterals;
 
-// Renaming files and folders on disk (core/files/Io.h): a plain rename, a refusal
-// when the name is taken, and a change of letter case alone, which goes
+// Renaming files and folders on disk (core/files/Io.h): a plain rename, a
+// refusal when the name is taken, and a change of letter case alone, which goes
 // through a temporary name. Each test works in its own temporary folder.
 //
 // Qt Test runs every private slot as a test

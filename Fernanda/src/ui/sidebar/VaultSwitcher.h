@@ -30,8 +30,8 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-#include "core/files/PathKey.h"
 #include "core/app/VaultEntry.h"
+#include "core/files/PathKey.h"
 #include "ui/UiConstants.h"
 #include "ui/widgets/MenuButton.h"
 

@@ -32,8 +32,8 @@
 
 #include <Coco/Path.h>
 
-#include "core/vault/BufferStore.h"
 #include "core/files/PathKey.h"
+#include "core/vault/BufferStore.h"
 #include "core/vault/Vault.h"
 #include "core/vault/VaultConfig.h"
 #include "models/AbstractFileModel.h"

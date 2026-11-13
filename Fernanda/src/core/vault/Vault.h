@@ -32,16 +32,16 @@
 #include <Coco/Path.h>
 #include <Coco/Time.h>
 
-#include "core/vault/BufferStore.h"
 #include "core/files/FileTypes.h"
 #include "core/files/Io.h"
 #include "core/files/JsonIo.h"
 #include "core/files/PathKey.h"
+#include "core/spell/WordList.h"
+#include "core/vault/BufferStore.h"
 #include "core/vault/VaultConfig.h"
 #include "core/vault/VaultDotDir.h"
 #include "core/vault/VaultTreeModel.h"
 #include "core/writing/WritingHistory.h"
-#include "core/spell/WordList.h"
 
 namespace Fernanda {
 

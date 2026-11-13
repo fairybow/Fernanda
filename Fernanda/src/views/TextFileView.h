@@ -39,11 +39,11 @@
 #include <Coco/Debug.h>
 #include <Coco/Time.h>
 
-#include "core/vault/VaultConfig.h"
-#include "core/workspaces/WorkspaceKeys.h"
 #include "core/spell/Misspelling.h"
 #include "core/spell/SpellChecker.h"
 #include "core/spell/WordList.h"
+#include "core/vault/VaultConfig.h"
+#include "core/workspaces/WorkspaceKeys.h"
 #include "models/TextFileModel.h"
 #include "ui/widgets/MenuText.h"
 #include "views/AbstractFileView.h"

@@ -36,9 +36,9 @@ using namespace Qt::StringLiterals;
 using Fernanda::AppConfig;
 using Fernanda::VaultOrder;
 
-// The app's own settings file (core/app/AppConfig.h): the known-vaults list, whose
-// records name folders by any spelling, the Common Vault's three states, the
-// vault list's order, and what survives a save and a load.
+// The app's own settings file (core/app/AppConfig.h): the known-vaults list,
+// whose records name folders by any spelling, the Common Vault's three states,
+// the vault list's order, and what survives a save and a load.
 //
 // Qt's test mode puts the settings file in a folder of its own, away from the
 // real one, and each test starts with no file there. The vault folders are

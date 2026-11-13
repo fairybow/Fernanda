@@ -29,9 +29,9 @@
 using namespace Fernanda;
 using namespace Qt::StringLiterals;
 
-// A vault's writing history (core/writing/WritingHistory.h). The history takes the
-// time as an argument, so every case runs on made-up local times: nothing here
-// waits. The dates are in June, away from any daylight saving change
+// A vault's writing history (core/writing/WritingHistory.h). The history takes
+// the time as an argument, so every case runs on made-up local times: nothing
+// here waits. The dates are in June, away from any daylight saving change
 class WritingHistoryTest : public QObject
 {
     Q_OBJECT

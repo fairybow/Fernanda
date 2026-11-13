@@ -25,8 +25,8 @@
 
 #include <Coco/Debug.h>
 
-#include "core/writing/TextCounts.h"
 #include "core/vault/VaultConfig.h"
+#include "core/writing/TextCounts.h"
 #include "ui/UiConstants.h"
 #include "ui/UiUtility.h"
 

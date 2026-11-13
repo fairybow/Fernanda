@@ -21,8 +21,9 @@
 
 using namespace Qt::StringLiterals;
 
-// What counts as a word and as a character (core/writing/TextCounts.h). Each function
-// under test takes one line of text, so no case here holds a line break.
+// What counts as a word and as a character (core/writing/TextCounts.h). Each
+// function under test takes one line of text, so no case here holds a line
+// break.
 //
 // Qt Test runs every private slot as a test. A slot named <test>_data fills a
 // table, and <test> then runs once per row, reported under the row's name.
