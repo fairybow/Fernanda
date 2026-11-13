@@ -33,8 +33,8 @@
 
 #include <Coco/Debug.h>
 
-#include "core/ActionIds.h"
-#include "core/AppActions.h"
+#include "core/app/ActionIds.h"
+#include "core/app/AppActions.h"
 #include "core/Updater.h"
 #include "core/vault/VaultConfig.h"
 #include "models/AbstractFileModel.h"

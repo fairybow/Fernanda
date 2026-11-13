@@ -29,7 +29,7 @@
 
 #include "core/Msix.h"
 #include "core/Publication.h"
-#include "core/Translations.h"
+#include "core/app/Translations.h"
 #include "core/Updater.h"
 #include "core/vault/Vault.h"
 #include "core/Version.h"

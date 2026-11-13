@@ -28,11 +28,11 @@
 #include <Coco/Path.h>
 #include <Coco/Time.h>
 
-#include "core/AppDirs.h"
+#include "core/app/AppDirs.h"
 #include "core/files/JsonIo.h"
 #include "core/files/PathKey.h"
 #include "core/Publication.h"
-#include "core/VaultOrder.h"
+#include "core/app/VaultOrder.h"
 
 // App-level configuration — the machine-local fernanda.json in appData(),
 // mirroring Obsidian's obsidian.json. Owned by App as a plain by-value member:

@@ -185,6 +185,17 @@ set(APP_SOURCES
 # --- Headers ---
 
 set(APP_HEADERS
+    src/core/app/ActionIds.h
+    src/core/app/AppActions.h
+    src/core/app/AppConfig.h
+    src/core/app/AppDirs.h
+    src/core/app/BundledFonts.h
+    src/core/app/Clargs.h
+    src/core/app/CMakeMacroGuard.h
+    src/core/app/Translations.h
+    src/core/app/VaultEntry.h
+    src/core/app/VaultOrder.h
+
     src/core/files/FileTypes.h
     src/core/files/Io.h
     src/core/files/JsonIo.h
@@ -210,13 +221,6 @@ set(APP_HEADERS
     src/core/vault/VaultTreeModel.h
     src/core/vault/VaultTreeNode.h
 
-    src/core/ActionIds.h
-    src/core/AppActions.h
-    src/core/AppConfig.h
-    src/core/AppDirs.h
-    src/core/BundledFonts.h
-    src/core/Clargs.h
-    src/core/CMakeMacroGuard.h
     src/core/CoreConstants.h
     src/core/FocusCycle.h
     src/core/FocusTimer.h
@@ -224,11 +228,8 @@ set(APP_HEADERS
     src/core/Publication.h
     src/core/RecentFiles.h
     src/core/TextCounts.h
-    src/core/Translations.h
     src/core/UpdateCheck.h
     src/core/Updater.h
-    src/core/VaultEntry.h
-    src/core/VaultOrder.h
     src/core/Version.h
     src/core/WorkspaceKeys.h
     src/core/WritingHistory.h

@@ -42,8 +42,8 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-#include "core/VaultEntry.h"
-#include "core/VaultOrder.h"
+#include "core/app/VaultEntry.h"
+#include "core/app/VaultOrder.h"
 #include "ui/AboutPanel.h"
 #include "ui/NewVaultDialog.h"
 #include "ui/RenameDialog.h"

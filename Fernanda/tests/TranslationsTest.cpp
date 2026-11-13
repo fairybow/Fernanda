@@ -18,12 +18,12 @@
 #include <QStringList>
 #include <QTest>
 
-#include "core/Translations.h"
+#include "core/app/Translations.h"
 
 using namespace Qt::StringLiterals;
 using Fernanda::Translations;
 
-// Which language the interface uses (core/Translations.h): the setting when
+// Which language the interface uses (core/app/Translations.h): the setting when
 // there's a translation for it, else the system's preferred languages in
 // order, else English. The available languages are given here, not read from
 // the embedded catalogs, which the tests don't have.

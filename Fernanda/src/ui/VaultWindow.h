@@ -43,19 +43,19 @@
 #include <Coco/Path.h>
 #include <Coco/Time.h>
 
-#include "core/ActionIds.h"
-#include "core/AppActions.h"
+#include "core/app/ActionIds.h"
+#include "core/app/AppActions.h"
 #include "core/vault/BufferStore.h"
 #include "core/files/FileTypes.h"
 #include "core/FocusCycle.h"
 #include "core/FocusTimer.h"
 #include "core/files/PathKey.h"
 #include "core/RecentFiles.h"
-#include "core/Translations.h"
+#include "core/app/Translations.h"
 #include "core/Updater.h"
 #include "core/vault/Vault.h"
 #include "core/vault/VaultConfig.h"
-#include "core/VaultEntry.h"
+#include "core/app/VaultEntry.h"
 #include "core/WorkspaceKeys.h"
 #include "core/git/GitRepository.h"
 #include "core/git/GitStatus.h"

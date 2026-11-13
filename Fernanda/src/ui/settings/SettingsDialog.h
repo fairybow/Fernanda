@@ -34,7 +34,7 @@
 
 #include <Coco/Debug.h>
 
-#include "core/Translations.h"
+#include "core/app/Translations.h"
 #include "core/Updater.h"
 #include "core/vault/Vault.h"
 #include "core/spell/SpellCheckers.h"

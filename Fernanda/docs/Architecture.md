@@ -604,7 +604,7 @@ Divided by who touches vault folders on disk.
 
 ## Actions
 
-Every user-facing command is a `QAction` in its window's registry, keyed by a stable id from `core/ActionIds.h`.
+Every user-facing command is a `QAction` in its window's registry, keyed by a stable id from `core/app/ActionIds.h`.
 
 - **An id names the thing acted on, never the menu it sits in.** Menus move, and ids will be saved in hotkey settings and shown in a command palette. `document.undo` is named for the document because undo reverses in every view of it.
 - **An action is created where it can be performed.** `App` creates Quit and Manage Vaults, connects each once, and hands every window the set. A window adopts them to show them and to bind their shortcuts. It never forwards a "triggered" signal.

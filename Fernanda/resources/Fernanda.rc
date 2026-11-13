@@ -17,7 +17,7 @@
 
 #include <Windows.h>
 
-#include "core/CMakeMacroGuard.h"
+#include "core/app/CMakeMacroGuard.h"
 #include "core/Publication.h"
 #include "core/Version.h"
 

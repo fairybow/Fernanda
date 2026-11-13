@@ -25,7 +25,7 @@
 
 #include <Coco/Debug.h>
 
-#include "core/BundledFonts.h"
+#include "core/app/BundledFonts.h"
 #include "core/vault/VaultConfig.h"
 #include "ui/UiConstants.h"
 

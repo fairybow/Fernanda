@@ -22,7 +22,7 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-#include "core/VaultOrder.h"
+#include "core/app/VaultOrder.h"
 #include "ui/UiConstants.h"
 #include "ui/widgets/GlyphButton.h"
 

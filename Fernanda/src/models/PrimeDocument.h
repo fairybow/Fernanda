@@ -28,7 +28,7 @@
 
 #include <Coco/Debug.h>
 
-#include "core/CMakeMacroGuard.h"
+#include "core/app/CMakeMacroGuard.h"
 #include "core/TextCounts.h"
 
 namespace Fernanda {

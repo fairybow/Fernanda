@@ -31,7 +31,7 @@
 #include <Coco/Path.h>
 
 #include "core/files/PathKey.h"
-#include "core/VaultEntry.h"
+#include "core/app/VaultEntry.h"
 #include "ui/UiConstants.h"
 #include "ui/widgets/MenuButton.h"
 
