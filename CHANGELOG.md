@@ -126,6 +126,18 @@ git push origin v0.0.0-beta.0
 
 <a id="releases"></a>
 
+# 0.30.0-beta.0 (Title) - tag v0.30.0-beta.0
+
+## What's New?
+
+- ...
+
+**Fixed**
+
+- 
+
+---
+
 # 0.29.0-beta.0 (Git Discard All and Writing History) - tag v0.29.0-beta.0
 
 ## What's New?
