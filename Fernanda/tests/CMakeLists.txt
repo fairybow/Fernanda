@@ -68,9 +68,9 @@ endfunction()
 # base class.
 add_library(AppTestMocs OBJECT
     ${PROJECT_SOURCE_DIR}/src/core/git/GitRepository.h
-    ${PROJECT_SOURCE_DIR}/src/core/BufferStore.h
-    ${PROJECT_SOURCE_DIR}/src/core/Vault.h
-    ${PROJECT_SOURCE_DIR}/src/core/VaultTreeModel.h
+    ${PROJECT_SOURCE_DIR}/src/core/vault/BufferStore.h
+    ${PROJECT_SOURCE_DIR}/src/core/vault/Vault.h
+    ${PROJECT_SOURCE_DIR}/src/core/vault/VaultTreeModel.h
     ${PROJECT_SOURCE_DIR}/src/models/AbstractFileModel.h
     ${PROJECT_SOURCE_DIR}/src/models/ImageFileModel.h
     ${PROJECT_SOURCE_DIR}/src/models/PdfFileModel.h

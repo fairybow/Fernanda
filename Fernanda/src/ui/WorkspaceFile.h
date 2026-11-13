@@ -35,7 +35,7 @@
 #include "core/CoreConstants.h"
 #include "core/Io.h"
 #include "core/JsonIo.h"
-#include "core/VaultDotDir.h"
+#include "core/vault/VaultDotDir.h"
 #include "core/WorkspaceKeys.h"
 #include "ui/BaseWindow.h"
 #include "ui/sidebar/Drawer.h"

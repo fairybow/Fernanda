@@ -36,7 +36,7 @@
 #include "core/ActionIds.h"
 #include "core/AppActions.h"
 #include "core/Updater.h"
-#include "core/VaultConfig.h"
+#include "core/vault/VaultConfig.h"
 #include "models/AbstractFileModel.h"
 #include "ui/CursorPosition.h"
 #include "ui/UpdateNotice.h"

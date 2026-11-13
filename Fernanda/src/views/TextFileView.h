@@ -39,7 +39,7 @@
 #include <Coco/Debug.h>
 #include <Coco/Time.h>
 
-#include "core/VaultConfig.h"
+#include "core/vault/VaultConfig.h"
 #include "core/WorkspaceKeys.h"
 #include "core/spell/Misspelling.h"
 #include "core/spell/SpellChecker.h"

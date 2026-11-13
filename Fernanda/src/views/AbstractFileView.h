@@ -23,7 +23,7 @@
 
 #include <Coco/Debug.h>
 
-#include "core/VaultConfig.h"
+#include "core/vault/VaultConfig.h"
 #include "core/spell/SpellChecker.h"
 #include "core/spell/WordList.h"
 #include "models/AbstractFileModel.h"

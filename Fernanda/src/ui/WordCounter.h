@@ -31,7 +31,7 @@
 #include <Coco/Time.h>
 
 #include "core/TextCounts.h"
-#include "core/VaultConfig.h"
+#include "core/vault/VaultConfig.h"
 #include "ui/UiConstants.h"
 #include "ui/UiUtility.h"
 

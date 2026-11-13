@@ -27,7 +27,7 @@
 
 #include "core/Io.h"
 #include "core/JsonIo.h"
-#include "core/VaultDotDir.h"
+#include "core/vault/VaultDotDir.h"
 
 // Per-vault configuration — the committed files in <vaultRoot>/.fernanda/, the
 // vault-local counterpart of AppConfig. Owned by Vault as a plain by-value

@@ -19,8 +19,8 @@
 
 #include <Coco/Debug.h>
 
-#include "core/Vault.h"
-#include "core/VaultConfig.h"
+#include "core/vault/Vault.h"
+#include "core/vault/VaultConfig.h"
 #include "ui/settings/SettingsPage.h"
 
 namespace Fernanda::Ui {

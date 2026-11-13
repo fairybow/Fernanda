@@ -18,13 +18,13 @@
 #include <QString>
 #include <QTest>
 
-#include "core/VaultConfig.h"
+#include "core/vault/VaultConfig.h"
 
 using namespace Qt::StringLiterals;
 using Fernanda::VaultConfig;
 
 // The spelling language a vault checks until one is chosen
-// (core/VaultConfig.h): British English for an English locale outside the
+// (core/vault/VaultConfig.h): British English for an English locale outside the
 // United States, US English in it or with no locale, and the locale's own name
 // for any other language. The locale is given here, not read from the system,
 // which differs from machine to machine.

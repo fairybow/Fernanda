@@ -45,7 +45,7 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-#include "core/VaultTreeModel.h"
+#include "core/vault/VaultTreeModel.h"
 #include "ui/Style.h"
 #include "ui/UiConstants.h"
 #include "ui/UiUtility.h"

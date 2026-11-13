@@ -32,14 +32,14 @@
 #include <Coco/Path.h>
 #include <Coco/Time.h>
 
-#include "core/BufferStore.h"
+#include "core/vault/BufferStore.h"
 #include "core/FileTypes.h"
 #include "core/Io.h"
 #include "core/JsonIo.h"
 #include "core/PathKey.h"
-#include "core/VaultConfig.h"
-#include "core/VaultDotDir.h"
-#include "core/VaultTreeModel.h"
+#include "core/vault/VaultConfig.h"
+#include "core/vault/VaultDotDir.h"
+#include "core/vault/VaultTreeModel.h"
 #include "core/WritingHistory.h"
 #include "core/spell/WordList.h"
 

@@ -32,7 +32,7 @@
 
 #include <Coco/Path.h>
 
-#include "core/BufferStore.h"
+#include "core/vault/BufferStore.h"
 #include "core/PathKey.h"
 #include "models/AbstractFileModel.h"
 #include "models/TextFileModel.h"

@@ -198,11 +198,17 @@ set(APP_HEADERS
     src/core/spell/SpellWords.h
     src/core/spell/WordList.h
 
+    src/core/vault/BufferStore.h
+    src/core/vault/Vault.h
+    src/core/vault/VaultConfig.h
+    src/core/vault/VaultDotDir.h
+    src/core/vault/VaultTreeModel.h
+    src/core/vault/VaultTreeNode.h
+
     src/core/ActionIds.h
     src/core/AppActions.h
     src/core/AppConfig.h
     src/core/AppDirs.h
-    src/core/BufferStore.h
     src/core/BundledFonts.h
     src/core/Clargs.h
     src/core/CMakeMacroGuard.h
@@ -220,13 +226,8 @@ set(APP_HEADERS
     src/core/Translations.h
     src/core/UpdateCheck.h
     src/core/Updater.h
-    src/core/Vault.h
-    src/core/VaultConfig.h
-    src/core/VaultDotDir.h
     src/core/VaultEntry.h
     src/core/VaultOrder.h
-    src/core/VaultTreeModel.h
-    src/core/VaultTreeNode.h
     src/core/Version.h
     src/core/WorkspaceKeys.h
     src/core/WritingHistory.h

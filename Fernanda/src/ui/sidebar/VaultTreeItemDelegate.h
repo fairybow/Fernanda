@@ -34,7 +34,7 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-#include "core/VaultTreeModel.h"
+#include "core/vault/VaultTreeModel.h"
 #include "ui/UiConstants.h"
 #include "ui/widgets/Glyph.h"
 #include "ui/widgets/RowBadges.h"

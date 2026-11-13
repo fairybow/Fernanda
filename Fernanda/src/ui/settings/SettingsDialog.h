@@ -36,7 +36,7 @@
 
 #include "core/Translations.h"
 #include "core/Updater.h"
-#include "core/Vault.h"
+#include "core/vault/Vault.h"
 #include "core/spell/SpellCheckers.h"
 #include "ui/UiConstants.h"
 #include "ui/settings/SettingRow.h"

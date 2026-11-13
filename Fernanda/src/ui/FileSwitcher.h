@@ -46,7 +46,7 @@
 
 #include "core/FileTypes.h"
 #include "core/PathKey.h"
-#include "core/Vault.h"
+#include "core/vault/Vault.h"
 #include "ui/OpenMode.h"
 #include "ui/UiConstants.h"
 #include "ui/widgets/RowBadges.h"

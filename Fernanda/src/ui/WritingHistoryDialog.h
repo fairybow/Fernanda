@@ -30,7 +30,7 @@
 #include <Coco/Time.h>
 
 #include "core/CoreConstants.h"
-#include "core/Vault.h"
+#include "core/vault/Vault.h"
 #include "core/WritingHistory.h"
 #include "ui/UiConstants.h"
 #include "ui/UiUtility.h"

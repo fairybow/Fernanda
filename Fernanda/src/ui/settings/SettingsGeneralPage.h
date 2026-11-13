@@ -31,7 +31,7 @@
 #include "core/Publication.h"
 #include "core/Translations.h"
 #include "core/Updater.h"
-#include "core/Vault.h"
+#include "core/vault/Vault.h"
 #include "core/Version.h"
 #include "ui/settings/SettingRow.h"
 #include "ui/settings/SettingsPage.h"

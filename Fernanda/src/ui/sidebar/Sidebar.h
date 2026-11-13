@@ -32,7 +32,7 @@
 
 #include "core/FocusTimer.h"
 #include "core/PathKey.h"
-#include "core/Vault.h"
+#include "core/vault/Vault.h"
 #include "core/VaultEntry.h"
 #include "core/git/GitRepository.h"
 #include "ui/OpenMode.h"

@@ -35,7 +35,7 @@
 #include "core/FileTypes.h"
 #include "core/Io.h"
 #include "core/PathKey.h"
-#include "core/VaultTreeModel.h"
+#include "core/vault/VaultTreeModel.h"
 #include "models/AbstractFileModel.h"
 #include "models/ImageFileModel.h"
 #include "models/PdfFileModel.h"
