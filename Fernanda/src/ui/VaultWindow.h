@@ -52,7 +52,7 @@
 #include "core/files/PathKey.h"
 #include "core/RecentFiles.h"
 #include "core/app/Translations.h"
-#include "core/Updater.h"
+#include "core/releases/Updater.h"
 #include "core/vault/Vault.h"
 #include "core/vault/VaultConfig.h"
 #include "core/app/VaultEntry.h"

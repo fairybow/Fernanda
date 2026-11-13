@@ -20,7 +20,7 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-#include "core/Publication.h"
+#include "core/releases/Publication.h"
 
 // For creating and retrieving non-configurable application paths
 // (NB: Coco::Path::SystemDir methods won't work as static member variables,

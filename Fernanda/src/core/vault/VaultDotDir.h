@@ -23,7 +23,7 @@
 
 #include "core/CoreConstants.h"
 #include "core/files/Io.h"
-#include "core/Publication.h"
+#include "core/releases/Publication.h"
 
 namespace Fernanda {
 

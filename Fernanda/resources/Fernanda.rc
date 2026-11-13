@@ -18,8 +18,8 @@
 #include <Windows.h>
 
 #include "core/app/CMakeMacroGuard.h"
-#include "core/Publication.h"
-#include "core/Version.h"
+#include "core/releases/Publication.h"
+#include "core/releases/Version.h"
 
 // NB: Built as part of the target, so this receives the target's compile
 // definitions (APP_DEBUG) and include directories. The fallback include only

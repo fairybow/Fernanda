@@ -22,12 +22,12 @@
 #include <QTest>
 #include <QUrl>
 
-#include "core/UpdateCheck.h"
+#include "core/releases/UpdateCheck.h"
 
 using namespace Qt::StringLiterals;
 using namespace Fernanda;
 
-// Whether a newer release exists (core/UpdateCheck.h): how two versions
+// Whether a newer release exists (core/releases/UpdateCheck.h): how two versions
 // compare, and which release in a list GitHub returned is offered. A list is
 // built here in GitHub's shape, holding only the fields the check reads.
 //

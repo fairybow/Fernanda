@@ -29,7 +29,7 @@
 
 #include "core/app/AppConfig.h"
 #include "core/app/AppDirs.h"
-#include "core/Publication.h"
+#include "core/releases/Publication.h"
 
 using namespace Qt::StringLiterals;
 

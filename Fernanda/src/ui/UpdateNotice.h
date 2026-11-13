@@ -22,7 +22,7 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-#include "core/Updater.h"
+#include "core/releases/Updater.h"
 #include "ui/UiConstants.h"
 #include "ui/widgets/GlyphButton.h"
 
