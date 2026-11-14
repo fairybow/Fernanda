@@ -16,9 +16,12 @@
 #pragma once
 
 #include <QApplication>
+#include <QEvent>
 #include <QMouseEvent>
 #include <QPoint>
 #include <QSize>
+#include <QStyle>
+#include <QStyleOption>
 #include <QTabBar>
 #include <QtMinMax>
 
@@ -28,11 +31,18 @@
 
 namespace Fernanda::Ui {
 
-// A plain QTabBar with three behaviors:
+// A plain QTabBar with four behaviors:
 //
 //   - built-in horizontal reordering (free from QTabBar),
 //   - detection of a vertical drag-off that emits detachDragged() as intent,
-//   - shrink-then-scroll tab sizing.
+//   - shrink-then-scroll tab sizing,
+//   - hover reporting for the style's dividers.
+//
+// Hover: a divider between two tabs is drawn by the tab on its left
+// (Style::drawTabShape_), so whether it shows can depend on the tab to its
+// right. isTabHovered lets the style ask, and the bar repaints whole when the
+// hovered tab changes, since QTabBar itself repaints only the tab entered and
+// the tab left, not the neighbor whose divider changes with them
 //
 // Sizing: every tab prefers MAX_TAB_WIDTH_ and compresses no smaller than
 // MIN_TAB_WIDTH_ as more tabs are added; once even the floor won't fit, the bar
@@ -77,6 +87,20 @@ public:
         return { 0, QTabBar::minimumSizeHint().height() };
     }
 
+    // Whether QTabBar marks the tab at index as hovered. This reads QTabBar's
+    // own record, through the style option it builds for the tab, so it always
+    // agrees with the hover wash (no tab is hovered during a drag, for one)
+    [[nodiscard]] bool isTabHovered(int index) const
+    {
+        if (index < 0 || index >= count()) {
+            return false;
+        }
+
+        QStyleOptionTab option{};
+        QTabBar::initStyleOption(&option, index);
+        return option.state.testFlag(QStyle::State_MouseOver);
+    }
+
 signals:
     // A tab was dragged clear of the bar vertically. Pure intent — the owning
     // leaf decides what happens
@@ -112,6 +136,24 @@ protected:
 
         size.setHeight(rowHeight_(size.height()));
         return size;
+    }
+
+    // QTabBar works out the hovered tab from these events
+    bool event(QEvent* event) override
+    {
+        auto handled = QTabBar::event(event);
+
+        switch (event->type()) {
+        case QEvent::HoverEnter:
+        case QEvent::HoverMove:
+        case QEvent::HoverLeave:
+            repaintIfHoveredTabChanged_();
+            break;
+        default:
+            break;
+        }
+
+        return handled;
     }
 
     void mousePressEvent(QMouseEvent* event) override
@@ -158,6 +200,35 @@ protected:
 private:
     QPoint dragStartPos_{};
     int dragPressIndex_ = -1;
+    int lastHoveredIndex_ = -1;
+
+    [[nodiscard]] int hoveredTabIndex_() const
+    {
+        for (auto i = 0; i < count(); ++i) {
+            if (isTabHovered(i)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    // With STYLE_TAB_HOVER_HIDES_DIVIDERS off, a tab's dividers never depend
+    // on hover, and QTabBar's own repaint is enough
+    void repaintIfHoveredTabChanged_()
+    {
+        if (!STYLE_TAB_HOVER_HIDES_DIVIDERS) {
+            return;
+        }
+
+        auto hovered = hoveredTabIndex_();
+        if (hovered == lastHoveredIndex_) {
+            return;
+        }
+
+        lastHoveredIndex_ = hovered;
+        update();
+    }
 
     // A tab's full height: TAB_HEIGHT (or, at -1, the height Qt would give it)
     // plus STYLE_TAB_TOP_GAP, which the style leaves empty above the tab

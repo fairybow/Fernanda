@@ -515,10 +515,13 @@ inline constexpr qreal STYLE_WINDOW_TOWARD_BASE = 0.6;
 // Tabs (Style). TAB_TOP_GAP is left above every tab, so the current one's
 // rounded top shows against the bar (the bar is TAB_HEIGHT plus this). A
 // hovered tab's wash is inset TAB_HOVER_INSET, and the divider between tabs
-// stops TAB_DIVIDER_MARGIN short of the tab's top and bottom
+// stops TAB_DIVIDER_MARGIN short of the tab's top and bottom.
+// TAB_HOVER_HIDES_DIVIDERS removes the dividers on both sides of a hovered
+// tab; off, a hovered tab keeps both
 inline constexpr int STYLE_TAB_TOP_GAP = 4;
 inline constexpr int STYLE_TAB_HOVER_INSET = 3;
 inline constexpr int STYLE_TAB_DIVIDER_MARGIN = 8;
+inline constexpr bool STYLE_TAB_HOVER_HIDES_DIVIDERS = false;
 
 // Item-view rows (Style). Every row's wash, in a tree or a list, is inset
 // ROW_INSET from the view's sides (the drawer header's Row wash is too). A

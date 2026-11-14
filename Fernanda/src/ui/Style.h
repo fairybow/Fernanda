@@ -46,6 +46,7 @@
 #include <QtMinMax>
 
 #include "ui/UiConstants.h"
+#include "ui/tabs/TabBar.h"
 
 namespace Fernanda::Ui {
 
@@ -71,7 +72,8 @@ using namespace Qt::StringLiterals;
 //   press
 // - Tabs are flat. The current tab is the page's own color with rounded top
 //   corners, so it reads as part of the page below it; the others are text on
-//   the bar, with a wash on hover and a short divider between them
+//   the bar, with a wash on hover and a short divider between them (none on
+//   either side of a hovered tab, with STYLE_TAB_HOVER_HIDES_DIVIDERS)
 // - Splitter handles are one-pixel dividers. A one-pixel handle is QSplitter's
 //   "tiny" mode, which keeps a wider area around it to grab
 // - Every one-pixel line (splitter handles, the marks between tabs, menu
@@ -606,7 +608,7 @@ public:
 
         case CE_TabBarTabShape:
             if (auto* tab = qstyleoption_cast<const QStyleOptionTab*>(option)) {
-                drawTabShape_(tab, painter);
+                drawTabShape_(tab, painter, widget);
                 return;
             }
             break;
@@ -1261,7 +1263,10 @@ private:
     // something to be rounded against. The current tab is filled with the
     // page's color (Base) right down to the bar's bottom edge, where the page
     // begins
-    static void drawTabShape_(const QStyleOptionTab* tab, QPainter* painter)
+    static void drawTabShape_(
+        const QStyleOptionTab* tab,
+        QPainter* painter,
+        const QWidget* widget)
     {
         auto rect = QRectF(tab->rect).adjusted(0, STYLE_TAB_TOP_GAP, 0, 0);
         const auto& palette = tab->palette;
@@ -1302,9 +1307,9 @@ private:
                 rect.adjusted(inset, inset, -inset, -inset),
                 STYLE_TOOL_BUTTON_RADIUS,
                 STYLE_TOOL_BUTTON_RADIUS);
-        } else if (tab->selectedPosition != QStyleOptionTab::NextIsSelected) {
-            // A short divider at the right edge, unless the current tab is
-            // next: its own shape separates them
+        }
+
+        if (hasRightDivider_(tab, widget)) {
             auto x = rect.right() - 0.5;
             auto margin = STYLE_TAB_DIVIDER_MARGIN;
             drawHairline(
@@ -1314,6 +1319,30 @@ private:
         }
 
         painter->restore();
+    }
+
+    // An unselected tab has a short divider at its right edge, unless the
+    // current tab is next (its own shape separates them). With
+    // STYLE_TAB_HOVER_HIDES_DIVIDERS, a hovered tab has none on either side:
+    // not its own, and not its left neighbor's, which that neighbor learns
+    // from the TabBar
+    [[nodiscard]] static bool
+    hasRightDivider_(const QStyleOptionTab* tab, const QWidget* widget)
+    {
+        if (tab->selectedPosition == QStyleOptionTab::NextIsSelected) {
+            return false;
+        }
+
+        if (!STYLE_TAB_HOVER_HIDES_DIVIDERS) {
+            return true;
+        }
+
+        if (tab->state & State_MouseOver) {
+            return false;
+        }
+
+        auto* bar = qobject_cast<const TabBar*>(widget);
+        return !bar || !bar->isTabHovered(tab->tabIndex + 1);
     }
 
     // --- Item views --------------------------------------------------------
