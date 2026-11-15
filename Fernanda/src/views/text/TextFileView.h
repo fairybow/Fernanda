@@ -231,21 +231,13 @@ signals:
     void ignoreWordRequested(const QString& word);
 
 protected:
-    // Yield Ctrl+Z / Ctrl+Y to the window's document.undo / document.redo
-    // actions instead of letting the editor consume them. This view's own
-    // document has undo disabled — the model's prime holds the single shared
-    // stack — so the editor would otherwise swallow these keys to no effect.
-    // QPlainTextEdit accepts the ShortcutOverride for undo/redo to claim the
-    // keystroke; we catch that override first, ignore() it so the key is NOT
-    // treated as overridden, and return true so the editor never re-accepts it.
-    // The app-level QAction shortcut then fires and dispatches to
-    // activeFileView() — this view when it holds focus. This makes the action
-    // the single source of truth rather than running a second, competing undo
-    // path here.
-    //
-    // Only these two need yielding. Every other editing op (typing, cut, paste,
-    // delete, select-all) mutates the view document and the prime relays it —
-    // or the view is read-only — so none of them are intercepted.
+    // Ctrl+Z and Ctrl+Y go to the window's document.undo and document.redo,
+    // the only undo path. This view's document has undo disabled (the model's
+    // prime holds the shared stack), so the editor would swallow them to no
+    // effect. It claims them by accepting the ShortcutOverride; ignoring that
+    // here and returning true lets the window's shortcut fire instead. Every
+    // other edit changes the view's document, which the prime relays, so none
+    // is intercepted.
     //
     // Esc in the editor closes the find bar while it is open
     bool eventFilter(QObject* watched, QEvent* event) override

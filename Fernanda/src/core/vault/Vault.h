@@ -288,23 +288,16 @@ public:
         return relocate_(entry, PathKey::of(entry.path().parent() / newLeaf));
     }
 
-    // Move a file or folder into a different directory. A move is a rename with
-    // a new parent, so it shares relocate_'s core: the leaf name is preserved,
-    // so the new path is destDir/name. entry is an existing entry in this
-    // vault; destDir is where it lands (a tree folder, or the vault root for a
-    // drop on empty space). Any open buffer at or under the entry is re-keyed
-    // just as a folder rename does. Returns the new key (empty on failure — a
-    // name collision, a locked entry, or an invalid target). Declines cleanly,
-    // never corrupts.
+    // Move an entry of this vault into destDir (a tree folder, or the root for
+    // a drop on empty space), keeping its name. It's a rename with a new parent
+    // (relocate_), so open buffers at or under it are re-keyed. Returns the new
+    // key, or an empty one on refusal (a name collision, a locked entry, an
+    // invalid target); never corrupts.
     //
-    // The guards below are defensive, behind the tree's advisory ones: the tree
-    // suppresses these drops (no indicator, ignored), but the disk op stays
-    // authoritative, so a race or a future non-tree caller can't drive a
-    // corrupting move through. Vault scope is relocate_'s to check, for rename
-    // and move alike. The no-op case (dropping an entry into its own current
-    // parent) is the tree's to filter — it's a pure path comparison needing no
-    // Vault, and letting it reach here would only turn a harmless nothing into
-    // a spurious failure warning
+    // The guards below back up the tree's, which ignore these drops, so a race
+    // or a non-tree caller can't force a bad move. relocate_ checks vault
+    // scope. A drop into the entry's own parent is the tree's to filter; here
+    // it would turn a harmless nothing into a spurious warning
     PathKey move(const PathKey& entry, const PathKey& destDir)
     {
         if (!destDir.path().isDir()) {

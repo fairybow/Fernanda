@@ -654,25 +654,18 @@ private:
         FileGone
     };
 
-    // The single write site. Every path to disk — the debounce, the ceiling,
-    // the exit flushes, the eviction flush — funnels through here, so the
-    // watcher's self-write suppression records its fingerprint in one place,
-    // and a failed write shouts in one place. Leaves the model dirty on
-    // failure: a buffer is never abandoned, so the next save trigger retries
-    // it.
+    // The single write site: the debounce, the ceiling, and every flush come
+    // through here, so the watcher's self-write fingerprint is recorded, and a
+    // failure reported, in one place. On failure the model stays dirty, and
+    // the next save retries.
     //
-    // It only ever OVERWRITES. A live buffer's file is always on disk, so a
-    // missing file means it was deleted or moved outside Fernanda, its folder
-    // included, and the watcher hasn't said so — deleting or renaming a PARENT
-    // folder may produce no fileChanged for the file under it. Writing anyway
-    // would recreate the file, and with CreateDirs its whole folder chain,
-    // somewhere the user just emptied. Instead the path goes to
-    // reconcileChanges_ as if the watcher had reported it: its deletion branch
-    // discards the buffer and closes the views, matching Obsidian, which sees
-    // an outside folder move as a delete per file. Not discarded here: callers
-    // are iterating models_. And the debounce lets a brief disappearance (a git
-    // checkout deleting and recreating a folder) come back before anything is
-    // discarded
+    // It only OVERWRITES. A live buffer's file is always on disk, so a missing
+    // one was deleted or moved outside Fernanda, perhaps with a parent folder,
+    // which may raise no fileChanged for it. Writing would recreate it, and
+    // with CreateDirs its folders. Instead its path is queued for
+    // reconcileChanges_, which discards the buffer and closes its views, as
+    // Obsidian does. Not here, since callers iterate models_; and the debounce
+    // lets a brief disappearance (a git checkout) come back first
     WriteResult_ writeModel_(AbstractFileModel* model)
     {
         auto key = model->key();

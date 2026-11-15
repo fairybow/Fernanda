@@ -127,20 +127,14 @@ public:
     ~VaultWindow() override { TRACER; }
 
     // Sidebar activation lands here. The mode says where the file goes:
-    //   ReplaceActive — a double-click or a newly-created file — takes over the
-    //     active leaf's current tab (Obsidian's behavior) UNLESS it's pinned,
-    //     in which case a new tab; an empty active leaf has no current tab, so
-    //     it also just adds.
-    //   NewTab — the menu's "Open in new tab" — always adds to the active leaf.
-    //   SplitRight — the menu's "Open to the right" — splits the active leaf to
-    //     the right and opens in the fresh leaf. Always splits, matching
-    //     Obsidian, even off an empty active leaf (which then lingers beside
-    //     the file until it's used).
-    //   NewWindow — the menu's "Open in new window" — opens in a fresh pop-out.
-    // Duping is allowed and we never focus an already-open file, matching
-    // Obsidian. The model comes from the vault vaultOf_ names, so a Common
-    // Vault file outside this vault resolves to the Common Vault's shared model
-    // and syncs across windows for free
+    //   ReplaceActive (double-click, new file): the active leaf's current tab,
+    //     as in Obsidian, or a new tab if that's pinned or the leaf is empty
+    //   NewTab: a new tab in the active leaf
+    //   SplitRight: splits the active leaf, even an empty one, as Obsidian does
+    //   NewWindow: a new pop-out
+    // As in Obsidian, a file may be open in several tabs, and opening one never
+    // just focuses its tab. The model comes from the vault vaultOf_ names, so a
+    // Common Vault file outside this vault shares the Common Vault's model
     void openFile(const PathKey& key, OpenMode mode)
     {
         auto* view = makeView_(key, lossyOpenPrompt_(this));
