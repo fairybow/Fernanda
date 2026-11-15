@@ -49,6 +49,7 @@
 #include "core/vault/Vault.h"
 #include "ui/OpenMode.h"
 #include "ui/UiConstants.h"
+#include "ui/widgets/HoverSync.h"
 #include "ui/widgets/RowBadges.h"
 #include "ui/widgets/UserTextEntry.h"
 
@@ -358,6 +359,9 @@ private:
         list_->setFocusPolicy(Qt::NoFocus); // typing always lands in the field
         list_->setUniformItemSizes(true);   // cheap layout for long listings
         list_->setItemDelegate(new Internal::FileSwitcherDelegate_(list_));
+
+        // The hovered row follows the pointer while the scroll bar is dragged
+        HoverSync::followScrollBars(list_);
 
         connect(
             list_,

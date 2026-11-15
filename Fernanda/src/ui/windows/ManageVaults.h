@@ -50,6 +50,7 @@
 #include "ui/dialogs/NewVaultDialog.h"
 #include "ui/dialogs/RenameDialog.h"
 #include "ui/widgets/Glyph.h"
+#include "ui/widgets/HoverSync.h"
 #include "ui/windows/VaultOrderButton.h"
 
 namespace Fernanda::Ui {
@@ -259,6 +260,9 @@ private:
             MANAGE_VAULTS_MISSING_ICON_EXTENT,
             MANAGE_VAULTS_MISSING_ICON_EXTENT));
         recentsList_->setUniformItemSizes(true);
+
+        // The hovered row follows the pointer while the scroll bar is dragged
+        HoverSync::followScrollBars(recentsList_);
 
         // Activation (double-click / Enter) opens; a stray single click while
         // scanning the list shouldn't launch a window. Single-click-to-open is

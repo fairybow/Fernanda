@@ -46,6 +46,7 @@
 #include "ui/settings/SettingsGeneralPage.h"
 #include "ui/settings/SettingsGitPage.h"
 #include "ui/settings/SettingsStatusBarPage.h"
+#include "ui/widgets/HoverSync.h"
 
 namespace Fernanda::Ui {
 
@@ -239,6 +240,9 @@ private:
         // white, so the nav reads as a sidebar beside the page
         nav_->viewport()->setAutoFillBackground(false);
         nav_->setAutoFillBackground(false);
+
+        // The hovered row follows the pointer while the scroll bar is dragged
+        HoverSync::followScrollBars(nav_);
     }
 
     // A group title (Obsidian's "Options", "Core plugins"): a row that can be
