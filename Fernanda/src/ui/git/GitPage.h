@@ -21,6 +21,7 @@
 #include <QAbstractItemView>
 #include <QAction>
 #include <QCheckBox>
+#include <QEvent>
 #include <QFont>
 #include <QFontMetrics>
 #include <QFrame>
@@ -33,6 +34,8 @@
 #include <QListWidgetItem>
 #include <QMenu>
 #include <QMessageBox>
+#include <QModelIndex>
+#include <QMouseEvent>
 #include <QPlainTextEdit>
 #include <QPoint>
 #include <QPushButton>
@@ -78,8 +81,13 @@ using namespace Qt::StringLiterals;
 //
 // It shows the repository's last status and follows statusChanged, and asks
 // for a new status each time it shows, since files may have changed while it
-// was hidden. The selected file stays selected across a new status while it's
-// still changed. With no changes, a line says so in the list's place.
+// was hidden. No file is selected until one is clicked, or reached with the
+// keys: a diff opens only on a double-click or Enter, so a selection marks only
+// the file last chosen. The selected file stays selected across a new status
+// while it's still changed, and while the page is switched away from. A press
+// below the rows, or on the header beside the check-all box and its count,
+// clears it, as a press off the file tree's rows does. With no changes, a line
+// says so in the list's place.
 //
 // Each file has a checkbox, checked unless it's been unchecked by hand. A
 // file unchecked stays unchecked across new statuses while it's listed; once
@@ -160,6 +168,33 @@ protected:
         repository_->refresh();
     }
 
+    // A press below the list's rows, with either button, clears the selection
+    // and does nothing else. A press on the header clears it and goes on, so
+    // a right-click still opens the header's menu. The check-all box takes a
+    // left press on itself and its count, which never reaches the header
+    bool eventFilter(QObject* watched, QEvent* event) override
+    {
+        if (event->type() != QEvent::MouseButtonPress) {
+            return QWidget::eventFilter(watched, event);
+        }
+
+        if (watched == header_) {
+            clearSelection_();
+            return QWidget::eventFilter(watched, event);
+        }
+
+        if (watched == list_->viewport()) {
+            auto mouse_event = static_cast<QMouseEvent*>(event);
+
+            if (!list_->indexAt(mouse_event->position().toPoint()).isValid()) {
+                clearSelection_();
+                return true;
+            }
+        }
+
+        return QWidget::eventFilter(watched, event);
+    }
+
 private:
     GitRepository* repository_;
     std::function<bool(const PathKey&)> canOpen_{};
@@ -176,7 +211,8 @@ private:
     QWidget* changes_ = nullptr;
     QLabel* message_ = nullptr;
 
-    // Shows the count of changed files too
+    // Holds the check-all box, which shows the count of changed files too
+    QWidget* header_ = nullptr;
     QCheckBox* allBox_ = nullptr;
     QListWidget* list_ = nullptr;
 
@@ -379,8 +415,8 @@ private:
         // own, so they're the layout's around it. Its left edge is where the
         // style puts a row's checkbox: the list's text margin from the row's
         // edge (PM_FocusFrameHMargin, plus one)
-        auto* header = new QWidget(changes_);
-        auto* header_layout = new QHBoxLayout(header);
+        header_ = new QWidget(changes_);
+        auto* header_layout = new QHBoxLayout(header_);
         auto row_margin =
             style()->pixelMetric(QStyle::PM_FocusFrameHMargin, nullptr, list_) +
             1;
@@ -393,29 +429,32 @@ private:
         // Partly checked shows that some files are and some aren't. A click
         // is settled by onAllBoxClicked_, not left to the box's own cycle,
         // which would go to partly checked after unchecked
-        allBox_ = new QCheckBox(header);
+        allBox_ = new QCheckBox(header_);
         allBox_->setTristate(true);
         header_layout->addWidget(allBox_);
 
         auto* layout = new QVBoxLayout(changes_);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(0);
-        layout->addWidget(header);
+        layout->addWidget(header_);
         layout->addWidget(list_, 1);
 
         connect(allBox_, &QCheckBox::clicked, this, &GitPage::onAllBoxClicked_);
 
         // A right-click on the box itself reaches the header too: the box has
         // no menu of its own, so it passes the event to its parent
-        header->setContextMenuPolicy(Qt::CustomContextMenu);
+        header_->setContextMenuPolicy(Qt::CustomContextMenu);
 
         connect(
-            header,
+            header_,
             &QWidget::customContextMenuRequested,
             this,
-            [this, header](const QPoint& position) {
-                showHeaderContextMenu_(header->mapToGlobal(position));
+            [this](const QPoint& position) {
+                showHeaderContextMenu_(header_->mapToGlobal(position));
             });
+
+        header_->installEventFilter(this);
+        list_->viewport()->installEventFilter(this);
 
         connect(
             list_,
@@ -498,13 +537,20 @@ private:
     // The list made again from the status, with its signals held: the
     // selected file kept selected if it's still listed, and each file
     // checked unless it was unchecked by hand. A file no longer listed is
-    // forgotten from the unchecked
+    // forgotten from the unchecked.
+    //
+    // The selection is what's kept, not the current row: a view given the
+    // focus with no current row makes its first row current without
+    // selecting it, and that row isn't one the user chose
     void rebuild_()
     {
         Coco::Path selected{};
 
-        if (auto row = list_->currentRow(); row >= 0 && row < entries_.size()) {
-            selected = entries_[row].path;
+        if (const auto items = list_->selectedItems(); !items.isEmpty()) {
+            if (auto row = list_->row(items.first());
+                row >= 0 && row < entries_.size()) {
+                selected = entries_[row].path;
+            }
         }
 
         entries_ = repository_->status().entries;
@@ -538,7 +584,11 @@ private:
                 }
             }
 
-            list_->setCurrentRow(selected_row);
+            if (selected_row >= 0) {
+                list_->setCurrentRow(selected_row);
+            } else {
+                clearSelection_();
+            }
         }
 
         unchecked_.intersect(listed);
@@ -555,6 +605,18 @@ private:
         }
 
         updateCommitBox_();
+    }
+
+    // No file selected and none current. Set through the view, not the
+    // selection model: the view then counts its current row as set, so the
+    // focus coming to it doesn't make the first row current. The arrow keys
+    // still start from the first or last row, and Enter opens nothing. Every
+    // rebuild calls this when nothing is selected, since clearing the list
+    // resets the view and its count with it
+    void clearSelection_()
+    {
+        list_->clearSelection();
+        list_->setCurrentIndex(QModelIndex{});
     }
 
     // A file checked or unchecked by hand: its box, or Space
