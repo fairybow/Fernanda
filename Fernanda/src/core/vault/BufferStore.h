@@ -345,30 +345,24 @@ public:
         return true;
     }
 
-    // While something outside Fernanda rewrites files at or under the entry
-    // (a Git switch, pull, or discard), the store leaves their buffers alone
-    // until it's done.
+    // While something outside Fernanda rewrites files at or under entry (a Git
+    // switch, pull, or discard), the store leaves their buffers alone.
     //
-    // Autosave doesn't write them: typing goes on in the buffer, unwritten,
-    // so it can't land over what the other program writes. Without this, an
-    // autosave between that program's write and the watcher's reconcile would
-    // write the old text back over it, and the watcher would take that write
-    // for its own. Writes asked for outright (a flush, a window closing, a
-    // tab's last view closing) still happen: the text must never be dropped.
-    // A file gone meanwhile is never written back (writeModel_), so one of
-    // these can't bring back a file the other program removed.
+    // Autosave skips them, so typing stays in the buffer and can't land over
+    // the other program's write. Otherwise an autosave between that write and
+    // the watcher's reconcile would put the old text back, and the watcher
+    // would take it for its own. Writes asked for outright (a flush, a window
+    // or a tab's last view closing) still happen, so text is never dropped, and
+    // a file gone meanwhile is never written back (writeModel_).
     //
-    // And what the watcher reports about them waits for the release
-    // (reconcileOne_). A file the other program removes and then puts back (a
-    // discard trashes a file, and Git restores it) would otherwise be taken
-    // for deleted if the watcher's pass fell between the two, and its buffer
-    // and every view on it closed.
+    // The watcher's reports wait for the release too (reconcileOne_). A file
+    // removed and put back (a discard trashes it, Git restores it) would
+    // otherwise be taken for deleted if a pass fell between the two, closing
+    // its buffer and every view on it.
     //
-    // Holds may overlap, from two windows over one repository; each hold is
-    // released once.
-    //
-    // What each held buffer's file holds now is noted, so the release can
-    // tell which files changed during the hold
+    // Holds may overlap, from two windows over one repository; each is released
+    // once. What each held file holds now is noted, so the release can tell
+    // which changed
     void holdAtOrUnder(const PathKey& entry)
     {
         Hold_ hold{};

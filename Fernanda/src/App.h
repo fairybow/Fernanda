@@ -660,32 +660,27 @@ private:
             common_missing);
     }
 
-    // A rename or move took entry to newEntry: a Vault's, or Manage Vaults'
-    // (renameVaultFolder_). Vaults nest, so entry may be, or hold, vaults'
-    // folders, the Common Vault's among them.
+    // A rename or move took entry to newEntry, from a Vault or from Manage
+    // Vaults (renameVaultFolder_). Vaults nest, so entry may be or hold vault
+    // folders, the Common Vault's included. Each vault follows its folder, and
+    // its window stays open; a case-only change, where case is ignored, is
+    // followed the same way.
     //
-    // Each vault follows its folder: the folder is the same, with everything
-    // in it, so its Vault carries on at the new place (Vault::moveRoot), and
-    // its window stays open. A change of letter case alone, where case is
-    // ignored, is the same folder spelled anew, and is followed the same way.
-    //
-    //   - Every known vault's record at or under entry takes its folder's new
-    //     path, open or not, keeping its place in the recents and its open
-    //     flag.
-    //   - Every live Vault there moves: the Common Vault, and each vault with
-    //     a window. Its tree and every window's copy of its root follow
-    //     through rootMoved.
+    //   - Every known vault's record at or under entry takes the new path, open
+    //     or not, keeping its recents place and open flag.
+    //   - Every live Vault there (the Common Vault, and each with a window)
+    //     moves (Vault::moveRoot); its tree and the windows' copies of its root
+    //     follow through rootMoved.
     //   - openVaults_ is keyed again, since a QHash keeps the key an entry was
     //     inserted with.
-    //   - The Common Vault's path in AppConfig follows it, so the next launch
-    //     finds it there.
+    //   - AppConfig's Common Vault path follows, for the next launch.
     //
-    // Done as soon as the store announces the move, before anything else
-    // reacts: each window looks at its relocated tabs a tick later
-    // (VaultWindow::makeView_), and by then their files must be in the moved
-    // vaults, or their tabs would close. And nothing runs an event loop in
-    // between, so no window can be activated with its record and its root out
-    // of step: activation records a vault's use by its root's path
+    // Runs as soon as the store announces the move, before anything else
+    // reacts: each window checks its relocated tabs a tick later
+    // (VaultWindow::makeView_), and their files must be in the moved vaults by
+    // then or the tabs close. No event loop runs in between, so no window can
+    // be activated (which records a vault's use by its root's path) while its
+    // record and root disagree
     void followVaults_(const PathKey& entry, const PathKey& newEntry)
     {
         auto changed = false;

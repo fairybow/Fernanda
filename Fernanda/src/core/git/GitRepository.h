@@ -408,47 +408,37 @@ public:
         enqueue_(std::move(command));
     }
 
-    // Throw these files' changes away, returning each to the last commit,
-    // the index included, as GitHub Desktop does. discarded or discardFailed
-    // answers, and the status is read again either way. Every modified buffer
-    // in the repository is saved first; if one can't be, nothing is
-    // discarded.
+    // Throw these files' changes away, back to the last commit, index included,
+    // as GitHub Desktop does. discarded or discardFailed answers, and the
+    // status is read again either way. Every modified buffer in the repository
+    // is saved first; if one can't be, nothing is discarded.
     //
-    // The entries name the files asked for, by path, and nothing more: the
-    // question asked about them may have been up for a while, and the files
-    // changed since, from a terminal, say. So the status is read again first,
-    // and each file's changes are thrown away as that status has them
-    // (discardAskedFiles_). A file no longer changed has nothing to discard,
-    // and a file conflicted by then isn't discarded: that's a merge's to
-    // settle. Nor is a submodule: its changes are in a repository of its own,
-    // and Git can only throw those away for good, not to the trash (GitHub
-    // Desktop resets one with submodule update --force). Deciding from the old
-    // entries could ask git to restore a path it no longer has, and git would
-    // then restore none of the files, all of them already in the trash.
+    // The entries only name files, and may be stale: the files may have changed
+    // since the question went up, from a terminal, say. So the status is read
+    // again, and each file is discarded as that status has it
+    // (discardAskedFiles_). Stale entries could ask git to restore a path it no
+    // longer has, and git would then restore none of the files, all of them
+    // already in the trash. A file no longer changed is skipped, as is a
+    // conflicted one (a merge's to settle) and a submodule, whose changes live
+    // in its own repository and can only be thrown away for good (Desktop runs
+    // submodule update --force).
     //
-    // What's thrown away goes to the system trash first, from where it is,
-    // so the trash records the vault as where it came from and putting it
-    // back puts it there. Git itself keeps no copy of changes never
-    // committed, so a file whose changes can't go to the trash is left as it
-    // was, and discarded names it. When none can go, nothing is discarded,
-    // and discardFailed says so (discardPathsOf_ says what goes for each
-    // kind of change):
-    // - A file in the last commit goes to the trash, and git then restores
-    //   it in place (restore --source=HEAD --staged --worktree)
-    // - A file not in the last commit (untracked, newly added, or a rename's
-    //   new path) goes to the trash, and leaves the index (rm --cached)
+    // Each file goes to the system trash first, from where it is, so putting it
+    // back returns it to the vault: Git keeps no copy of uncommitted changes. A
+    // file that can't go is left as it was, and discarded names it; when none
+    // can, discardFailed says so. Then (discardPathsOf_):
+    // - A file in the last commit is restored in place (restore --source=HEAD
+    //   --staged --worktree)
+    // - Any other (untracked, newly added, or a rename's new path) leaves the
+    //   index (rm --cached)
+    // Each command runs at most once, given every file's path.
     //
-    // Git runs at most those two commands, each given every file's path,
-    // however many files there are.
-    //
-    // The store is held from just before the first file goes to the trash
-    // until the discard ends (holdAtOrUnder, releaseDiscardHold_). A file
-    // git restores is missing until then, and unheld, the store would take
-    // it for deleted and close every view on it. Held, the release finds it
-    // back with the last commit's text and takes that in as one undoable
-    // change, so Ctrl+Z in an open tab brings the changes back. A file not in
-    // the last commit is still gone at the release, and its views close, as
-    // for any file deleted outside Fernanda
+    // The store is held from just before the first file goes to the trash until
+    // the discard ends (holdAtOrUnder, releaseDiscardHold_), or it would take a
+    // file git restores for deleted and close its views. The release takes the
+    // restored text in as one undoable change, so Ctrl+Z in an open tab brings
+    // the changes back. A file not in the last commit stays gone, and its views
+    // close
     void discard(const QList<GitStatus::Entry>& entries)
     {
         if (!isFound() || isBusy()) {
@@ -526,29 +516,24 @@ public:
             true);
     }
 
-    // Talk to the branch's remote (syncRemote): fetch, pull, push, or
-    // publish. synced or syncFailed answers, and the status is read again
-    // either way, so the counts follow. Only ever run when asked: nothing
-    // here fetches on its own.
+    // Talk to the branch's remote (syncRemote): fetch, pull, push, or publish.
+    // synced or syncFailed answers, and the status is read again either way, so
+    // the counts follow. Runs only when asked: nothing here fetches on its own.
     //
     // - Fetch: fetch --prune, so a branch deleted on the remote goes here too
-    // - Pull: what git pull does, in two steps: a fetch, then merge
-    //   --ff-only with the upstream, which only fast-forwards. Only the fetch
-    //   reaches the network, so only it can be stopped for taking too long;
-    //   the merge, which rewrites files, is never stopped partway. Every
-    //   modified buffer in the repository is saved first. Uncommitted changes
-    //   stay as they are, as in GitHub Desktop: git takes in the commits only
-    //   when none touches a file with changes, or an untracked file in the
-    //   way, and otherwise stops before changing anything and names the
-    //   files. Branches that have diverged need a merge or a rebase, which
-    //   this doesn't do; git says so
+    // - Pull: a fetch, then merge --ff-only with the upstream. Only the fetch
+    //   can be stopped for taking too long; the merge, which rewrites files,
+    //   never is. Every modified buffer in the repository is saved first. As in
+    //   GitHub Desktop, uncommitted changes stay: if a commit touches a changed
+    //   file, or an untracked file is in the way, git changes nothing and names
+    //   the files. Diverged branches need a merge or a rebase, which this
+    //   doesn't do; git says so
     // - Push: to the branch's upstream
-    // - Publish: push --set-upstream, so the branch tracks its copy on the
-    //   remote from then on. For a branch with no upstream, or one whose
-    //   upstream is gone from the remote
+    // - Publish: push --set-upstream, for a branch with no upstream or one gone
+    //   from the remote, so it tracks its remote copy from then on
     //
-    // Git signs in its own way: a credential manager's window, an SSH agent.
-    // A fetch or a push gets GIT_NETWORK_TIMEOUT_MS, and is stopped after
+    // Git signs in its own way (a credential manager's window, an SSH agent). A
+    // fetch or a push is stopped after GIT_NETWORK_TIMEOUT_MS
     void sync(SyncAction action)
     {
         if (!isFound() || isBusy()) {

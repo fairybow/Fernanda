@@ -287,26 +287,15 @@ private:
 
     // The per-window action registry. Private so every entry arrives through
     // registerAction or adoptAction and nothing bypasses the window-add;
-    // subclasses read it through action(). A command palette would index this.
+    // subclasses read it through action(). A command palette would index it.
     //
-    // It is also the fan-out path for rebindable hotkeys, if they ever land.
-    // Each window mints its own copy of the actions only it can perform, so a
-    // rebind has to reach every open window — and the way it does that is a
-    // walk of this hash, not a lookup table consulted at mint time (a window
-    // minted before the rebind would keep its old sequence either way). The
-    // whole mechanism is roughly:
-    //
-    //   for each id -> sequences in the user's overrides:
-    //       if actionRegistry_ has that id: setShortcuts(sequences)
-    //
-    // called once per window at construction and again on every open window
-    // when the config changes. Note SEQUENCES, plural: a StandardKey
-    // registration expands to every platform binding (Redo is Ctrl+Y and
-    // Ctrl+Shift+Z), so an override carrying a single QKeySequence would
-    // silently drop the second. Defaults stay at the registerAction call site,
-    // where they're readable — the override layer goes on top, which is how
-    // both Qt Creator and KDE arrange it. Nothing is stubbed for this; the
-    // registry is the part that needed to exist, and it does
+    // Rebindable hotkeys, if they land, walk it too. Each window mints its own
+    // actions, so an override reaches them by walking every open window's
+    // registry, at construction and on each config change; a table read at mint
+    // time would miss windows minted before a rebind. An override carries a
+    // list of sequences, since a StandardKey expands to every platform binding
+    // (Redo is Ctrl+Y and Ctrl+Shift+Z). Defaults stay at the registerAction
+    // call site, as in Qt Creator and KDE
     QHash<QString, QAction*> actionRegistry_{};
 
     void setup_(const AppActions& appActions)
