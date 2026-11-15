@@ -64,6 +64,7 @@
 #include "ui/git/GitBranchButton.h"
 #include "ui/git/GitChangeDelegate.h"
 #include "ui/git/GitSyncButton.h"
+#include "ui/widgets/HoverSync.h"
 
 namespace Fernanda::Ui {
 
@@ -410,6 +411,9 @@ private:
         list_->setUniformItemSizes(true);
         list_->setItemDelegate(new GitChangeDelegate(list_));
         list_->setContextMenuPolicy(Qt::CustomContextMenu);
+
+        // The hovered row follows the pointer while the scroll bar is dragged
+        HoverSync::followScrollBars(list_);
 
         // A checkbox paints across its whole rect and takes no margins of its
         // own, so they're the layout's around it. Its left edge is where the
