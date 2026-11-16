@@ -739,18 +739,15 @@ private:
         model->deleteLater();
     }
 
-    // A model's last view closed: flush any unsaved bytes, then free the
-    // buffer, so models_ doesn't grow without bound as tabs come and go. The
-    // tab-close path lands here — closing a tab destroys the view, the base
-    // model's view count returns to zero, and lastViewClosed fires. Tab close
-    // itself does no IO; this is the one place a viewless buffer's final
-    // per-file flush belongs.
+    // A model's last view closed (as when its last tab closes): flush any
+    // unsaved bytes, then free the buffer, so models_ doesn't grow as tabs come
+    // and go. Tab close does no IO itself; this is a viewless buffer's final
+    // flush.
     //
-    // SAFETY rests on a destruction-ordering invariant: a view firing this
-    // always reaches a LIVE store. The store is App's child and never dies on a
-    // window close. At app quit, ~QApplication reaps top-level windows before
-    // ~QObject reaps App's children. So the store is alive whenever a view of
-    // its models dies, and no closingDown() guard is needed
+    // SAFE because a view firing this always reaches a live store: the store
+    // is App's child and outlives every window close, and at quit,
+    // ~QApplication reaps top-level windows before ~QObject reaps App's
+    // children. So no closingDown() guard is needed
     void evictModel_(AbstractFileModel* model)
     {
         auto key = model->key();

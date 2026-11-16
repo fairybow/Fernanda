@@ -146,16 +146,16 @@ public:
     }
 
     // The Common Vault changed, or there's none now (App::setCommonVault_).
-    // The sidebar's drawer is replaced or removed, and WorkspaceFile handed the
-    // new one. Every view, here and in the pop-outs, follows the new Common
-    // Vault's words in place of the old one's and takes its words again, since
-    // the Common Vault's dictionary applies here. And every tab is looked at
-    // again as if its file had moved: one in neither of this window's vaults
-    // now closes, and the rest are marked as guests or not.
+    // The sidebar's drawer is replaced or removed, and WorkspaceFile gets the
+    // new one. Every view, here and in the pop-outs, switches to the new
+    // Common Vault's words and checks again, since its dictionary applies
+    // here. Every tab is looked at again as if its file had moved: one in
+    // neither of this window's vaults closes, and the rest are marked as
+    // guests or not.
     //
-    // A view is disconnected from the old Common Vault by name, not every
-    // connection from it, and not when it was this window's own vault: then
-    // the connection is the view's to its own vault's words, which stays
+    // A view is disconnected from the old Common Vault's words only, by name,
+    // and not at all when that was this window's own vault, whose words it
+    // keeps
     void setCommonVault(Vault* commonVault)
     {
         if (commonVault == commonVault_) {

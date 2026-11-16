@@ -638,16 +638,15 @@ public:
 
     // Read one changed file's diff against the last commit, which is what
     // committing it would record. diffRead or diffFailed answers, with the
-    // entry's path. A file git doesn't track yet, and every file before the
-    // first commit, is compared with nothing (diff --no-index against
-    // /dev/null), so all of it shows as added. A renamed file is compared with
-    // where it was. Asking again for a file whose diff waits replaces the
-    // waiting one, which would read the same file; diffs of different files
-    // are each answered, since several diffs can be open at once.
+    // entry's path. An untracked file, or any file before the first commit,
+    // is compared with nothing (diff --no-index against /dev/null), so it
+    // shows as all added; a renamed file is compared with where it was. A new
+    // ask for a file whose diff is waiting replaces it; different files are
+    // each answered, as several diffs can be open.
     //
-    // External diff programs and text conversions are off. A repository's own
-    // config can name either, and git would run it here; and the view wants
-    // the file's own lines
+    // External diff programs and text conversions are off: a repository's
+    // config could name either for git to run here, and the view wants the
+    // file's own lines
     void readDiff(const GitStatus::Entry& entry)
     {
         if (!isFound()) {
