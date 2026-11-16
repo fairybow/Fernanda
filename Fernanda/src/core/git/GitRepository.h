@@ -194,18 +194,15 @@ public:
     }
 
     // Find the repository the vault's folder is in. Git is asked from the
-    // folder, so the answer follows Git's own rules: it walks up to find a
-    // repository, follows a worktree's or submodule's .git file, and refuses
-    // a folder it doesn't trust. foundChanged says when the answer differs
-    // from the last one.
+    // folder, so its own rules apply: it walks up, follows a worktree's or
+    // submodule's .git file, and refuses a folder it doesn't trust.
+    // foundChanged says when the answer changes.
     //
-    // Git is asked how far up the repository's folder is (rev-parse
-    // --show-cdup), not where it is (--show-toplevel), and the root is made
-    // by walking up from the vault's folder. Git reports a folder with every
-    // symlink above it resolved, as macOS's temporary folders are, and a key
-    // made from that spelling wouldn't contain the keys the store's buffers
-    // are opened by, so refresh would save none of them. Walked up from the
-    // vault's folder, the root is spelled as everything else in the vault is
+    // Git is asked how far up the root is (rev-parse --show-cdup), not where
+    // (--show-toplevel), and the root is walked up to from the vault's folder.
+    // Git resolves every symlink above the folder (as in macOS's temporary
+    // folders), and a root spelled that way wouldn't contain the store's
+    // buffer keys, so refresh would save none of them
     void detect()
     {
         if (!hasGit_() || isQueued_(Kind_::Detect)) {

@@ -427,18 +427,15 @@ private:
         commonVault_ = new Vault(root, bufferStore_, this);
     }
 
-    // Restore last session's vaults: reopen every vault marked open whose
-    // folder still exists, oldest-used first so the most-recent one activates
-    // last and lands frontmost. open is the whole signal — a vault is marked
-    // when opened and unmarked when closed (unless it's the last, or a global
-    // quit kept it), so this reopens exactly what was up at the last exit. When
-    // nothing qualifies — a fresh install, or a marked set whose folders all
-    // vanished — show the picker rather than guessing a vault to open. exists()
-    // is the per-candidate guard: any present folder is a valid vault, so only
-    // a moved/deleted one is skipped. Each reopen reuses the one open/make
-    // convergence point; the registry is path-keyed, so none early-returns as
-    // already-open. Returns the window left in front: the last vault's, or the
-    // picker
+    // Reopen every vault marked open whose folder still exists, oldest-used
+    // first, so the most recent lands in front. open alone decides: it's set on
+    // opening and cleared on closing, except for the last window or a quit, so
+    // this reopens what was up at the last exit. Any existing folder is a valid
+    // vault; a moved or deleted one is skipped. Each goes through
+    // onOpenOrMakeVaultRequested_, and none is open yet, so none returns early.
+    // When none qualifies (a fresh install, or every folder gone), the picker
+    // shows instead of a guess. Returns the window in front: the last vault's,
+    // or the picker
     QWidget* restoreSessionOrShowManageVaults_()
     {
         Coco::Path front{};
@@ -1122,18 +1119,14 @@ private:
         }
     }
 
-    // A window asked to quit the whole app — Ctrl+Q or File → Quit, from any
-    // window. Route through each open window's closeEvent, the one path that
-    // flushes, saves workspace, and can still REFUSE on a failed write; never
-    // qApp->quit(), which skips all three. Set quitting_ first so the
-    // per-window destroyed handlers preserve the open set for next-launch
-    // restore, exactly as onAboutToQuit_ does; on a refusal we aren't quitting
-    // after all, so clear it again. close() returns false when a window refuses
-    // — stop there and leave the app running rather than quit past unsaved
-    // work. The last window's destroyed fires quit() via
-    // onVaultWindowDestroyed_ / onManageVaultsDestroyed_, so we don't call
-    // quit() here; we only make sure a picker that's the sole remaining window
-    // also closes
+    // Ctrl+Q or File → Quit, from any window. Each vault window is closed
+    // through its closeEvent, the one path that flushes, saves the workspace,
+    // and can REFUSE on a failed write; never qApp->quit(), which skips all
+    // three. quitting_ is set first so each window's destroyed handler keeps
+    // the open set for the next launch, as onAboutToQuit_ does. When a window
+    // refuses, quitting_ is cleared and the app stays up. The last window's
+    // destroyed quits (onVaultWindowDestroyed_, onManageVaultsDestroyed_), so
+    // this only closes the picker too, if it is open
     void onQuitRequested_()
     {
         quitting_ = true;

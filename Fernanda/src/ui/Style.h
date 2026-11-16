@@ -230,16 +230,13 @@ public:
     // Fusion asks for hover events on buttons, combo boxes, sliders, and scroll
     // bars, but not on tab bars or item views, whose hover washes need them.
     //
-    // A menu is drawn with rounded corners and a soft shadow (drawMenuPanel_),
-    // so its window has to be see-through around them, and the system's own
-    // square shadow is turned off. Both are set here, before the menu's window
-    // is first made. On Windows a window is see-through only if it's also
-    // frameless (Qt::WA_TranslucentBackground), and a popup doesn't count as
-    // frameless unless it says so, so the flag is set first.
-    //
-    // A combo box's drop-down list gets the same (isComboPopup_): Qt fills
-    // its window with the menu panel, which an opaque, square window would
-    // show inside a second edge
+    // A menu has rounded corners and a soft shadow (drawMenuPanel_), so its
+    // window must be see-through, with the system's square shadow off, both set
+    // before the window is first made. On Windows only a frameless window can
+    // be see-through (Qt::WA_TranslucentBackground), and a popup must say it's
+    // frameless, so the flag goes first. A combo box's list gets the same
+    // (isComboPopup_), since Qt fills it with the menu panel, which an opaque
+    // square window would show inside a second edge
     void polish(QWidget* widget) override
     {
         QProxyStyle::polish(widget);

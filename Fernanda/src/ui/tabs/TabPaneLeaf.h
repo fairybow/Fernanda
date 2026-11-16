@@ -231,21 +231,16 @@ public:
         return page;
     }
 
-    // Remove and delete the page at index. Deleting a TextFileView just
-    // unregisters its document from the prime (via QObject::destroyed); the
-    // buffer is the Vault's and survives. This is the single close path — the
-    // close button (when unpinned) and the context menu's Close both land here.
+    // Remove and delete the page at index: the single close path, from the
+    // close button (when unpinned) and the context menu's Close. A pure view
+    // operation: there's no dirty prompt, the prime drops a destroyed view's
+    // document by itself (QObject::destroyed), and the buffer, the store's,
+    // outlives the view.
     //
-    // Closing a tab is a pure view operation: no dirty-state prompt (no
-    // user-facing dirty file), and the prime auto-unregisters a destroyed view
-    // doc, so there's no manual cleanup. The buffer is the Vault's and outlives
-    // the view.
-    //
-    // Deliberately no flush at tab close. The buffer persists and is written by
-    // autosave and window close; its final per-file flush comes when its last
-    // view closes (Vault eviction), not here (a shared file may still be open
-    // in another tab or window, so per-tab flushing would be both redundant and
-    // premature)
+    // No flush here. Autosave and window close write the buffer, and the store
+    // flushes it when its last view closes. The file may still be open in
+    // another tab or window, so a flush per tab would be redundant and
+    // premature
     void closePage(int index)
     {
         if (auto* page = takePage(index)) {
