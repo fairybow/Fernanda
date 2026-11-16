@@ -30,21 +30,18 @@ class PopoutWindow : public BaseWindow
     Q_OBJECT
 
 public:
-    // A top-level sibling of its VaultWindow, not a Qt child of it: an owned
-    // window can never stack behind its owner. The VaultWindow keeps pop-outs
-    // in a list and tears them down itself, since Qt won't.
+    // A top-level sibling of its VaultWindow, not a Qt child, since an owned
+    // window can never stack behind its owner. The VaultWindow lists its
+    // pop-outs and tears them down itself, as Qt won't.
     //
-    // Takes AppActions only to pass up: a pop-out has no menu, so it displays
-    // none of them, but adopting gives it their shortcuts — Ctrl+Q works from a
-    // focused pop-out, and it reaches App directly rather than being relayed
-    // through the owning VaultWindow. The Updater is App's too, for the status
-    // bar's update notice, whose click the VaultWindow wires.
+    // AppActions are adopted for their shortcuts, not shown (a pop-out has no
+    // menu), so Ctrl+Q reaches App directly from a pop-out, not relayed through
+    // the VaultWindow. The Updater, App's too, feeds the status bar's update
+    // notice, whose click the VaultWindow wires.
     //
-    // Deliberately no closeEvent: a pop-out has no state to flush. Buffers live
-    // in the Vault, so the one flush in VaultWindow::closeEvent covers the
-    // files open here too. Closing a pop-out on its own saves nothing and loses
-    // nothing — the buffer stays in the Vault, whether or not it's open
-    // elsewhere
+    // No closeEvent: a pop-out holds no state. Buffers live in the store, so
+    // closing one loses nothing, and VaultWindow::closeEvent's flush covers
+    // files open here
     PopoutWindow(const AppActions& appActions, Updater* updater)
         : BaseWindow(appActions, updater)
     {

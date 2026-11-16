@@ -143,20 +143,15 @@ public:
         QList<VaultEntry> entries{};
         entries.reserve(recents.size());
 
-        // open is derived here alongside missing, but from the in-memory
-        // openVaults_ registry rather than the disk: a recents path is "open"
-        // when a window currently holds it. ManageVaults gates on it — a row's
-        // remove-from-list is disabled while that vault is open — so the
-        // open-vault knowledge lives in one place. Fresh each call, so
-        // it reflects opens AND closes; the surfaces rebuild on vaultsChanged,
-        // which fires on both.
+        // open comes from openVaults_, not the disk: a recents path is open
+        // while a window holds it. ManageVaults disables a row's remove while
+        // its vault is open. Built fresh on each call, and the surfaces rebuild
+        // on vaultsChanged, which fires on opens and closes.
         //
-        // NB: open is NOT a proxy for "a live Vault exists on this root". For a
-        // project vault the two coincide — its Vault is constructed and
-        // disposed with its window — but the Common Vault is App-owned and
-        // outlives every window onto it, so a closed Common Vault row still has
-        // a live Vault behind it. That is exactly why isCommon is a separate
-        // field and not something a surface infers from open
+        // open doesn't mean a live Vault exists on the root. For a project
+        // vault the two coincide, but the App-owned Common Vault outlives its
+        // windows, so a closed Common Vault row still has a live Vault. That's
+        // why isCommon is its own field, not inferred from open
         for (const auto& root : recents) {
             auto key = PathKey::of(root);
 

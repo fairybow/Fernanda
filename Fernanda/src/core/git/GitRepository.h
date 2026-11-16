@@ -323,22 +323,17 @@ public:
         return operation_ != Operation_::None;
     }
 
-    // Commit these files' changes, and nothing else, with summary as the
-    // message's first line and description, if any, as its body after a blank
-    // line. committed or commitFailed answers, and the status is read again
-    // either way.
+    // Commit only these files, with summary as the message's first line and
+    // description, if any, as its body. committed or commitFailed answers, and
+    // the status is read again either way.
     //
-    // Every modified buffer in the repository is saved first; if one can't
-    // be, nothing is committed. A file git doesn't track yet is added first,
-    // since a commit takes only files git knows. Then git commits only the
-    // given paths' contents as they are on disk (commit --only), so what's
-    // been staged for other files, by Fernanda or in a terminal, stays staged
-    // and stays out of the commit. A renamed file's old path goes in too, so
-    // its removal is committed with it. Git refuses this kind of commit
-    // during a merge, and says so.
-    //
-    // The paths go to git on its standard input, so there's no limit on how
-    // many
+    // Every modified buffer in the repository is saved first; if one can't be,
+    // nothing is committed. Untracked files are added first, since a commit
+    // takes only files git knows. Then commit --only takes the given paths as
+    // they are on disk, so whatever is staged for other files stays staged and
+    // out of the commit. A renamed file's old path goes in too, so its removal
+    // is committed with it. Git refuses this during a merge, and says so. The
+    // paths go on git's standard input, so there's no limit on how many
     void commit(
         const QList<GitStatus::Entry>& entries,
         const QString& summary,

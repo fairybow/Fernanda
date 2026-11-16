@@ -598,21 +598,20 @@ private:
         return out;
     }
 
-    // Re-key one buffer after the disk rename. oldBase/newBase are the renamed
-    // entry's own keys for a file, or the folder's for a folder rename — in
-    // which case the buffer's tail below oldBase is moved under newBase. Moves
-    // the map key, the write-fingerprint, and the watch, then updates identity
-    // (which fans the retitle out to views).
+    // Re-key one buffer after the disk rename. oldBase and newBase are the
+    // renamed entry's keys, the file's own or its folder's; the buffer's key
+    // below oldBase moves under newBase. The map key, write fingerprint, and
+    // watch move, then the identity, which retitles the views.
     //
-    // The disk op refuses a target that exists, so a buffer already under the
-    // new key is one whose file was deleted outside Fernanda before the
-    // watcher's report was reconciled. It's discarded as that reconcile would
-    // discard it, so the map never holds two buffers for one key and the
-    // moved buffer doesn't take over the other's fingerprint.
+    // The disk op refuses an existing target, so a buffer already at the new
+    // key is one whose file was deleted outside Fernanda before the watcher's
+    // report was reconciled. It's discarded as that reconcile would, so no key
+    // holds two buffers and the moved one doesn't take the other's
+    // fingerprint.
     //
-    // Each entry is removed before it is put back: a change of letter case
-    // alone gives an equal key where case is ignored, and inserting first
-    // would leave the old spelling in the map
+    // Each entry is removed before it's put back: after a case-only change,
+    // where case is ignored, the keys are equal, and inserting first would keep
+    // the old spelling
     void rekeyModel_(
         AbstractFileModel* model,
         const PathKey& oldBase,
