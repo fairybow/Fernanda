@@ -70,70 +70,28 @@ namespace Fernanda::Ui {
 
 using namespace Qt::StringLiterals;
 
-// The sidebar's Git page: a row with the current branch, whose menu switches
-// and makes branches (GitBranchButton), and the sync button (GitSyncButton);
-// then the repository's changed files, one row each (GitChangeDelegate); and
-// below them the commit box. The list covers the whole repository, which may
-// hold more than the vault. A renamed file is listed at its new path.
+// The sidebar's Git page: a row with the branch button (GitBranchButton) and
+// the sync button (GitSyncButton), the repository's changed files, one row each
+// (GitChangeDelegate), and the commit box. The list covers the whole
+// repository, which may hold more than the vault; a rename is listed at its new
+// path. When git won't trust the repository, GitHub Desktop's notice and Trust
+// repository button take the page's place (GitRepository::trust). See
+// docs/Features.md, "Git", for what each part does.
 //
-// When git refuses to trust the repository (GitRepository::untrustedFolder),
-// a notice takes the page's place, worded as GitHub Desktop's, with its Trust
-// repository button (GitRepository::trust).
+// It follows statusChanged, and asks for a new status each time it shows,
+// since files may have changed while it was hidden. A selection only marks the
+// file last chosen (a diff opens on double-click or Enter), and survives a new
+// status while the file is still listed. A file unchecked by hand stays
+// unchecked while it's listed and is forgotten once it isn't, so it comes back
+// checked if it changes again.
 //
-// It shows the repository's last status and follows statusChanged, and asks
-// for a new status each time it shows, since files may have changed while it
-// was hidden. No file is selected until one is clicked, or reached with the
-// keys: a diff opens only on a double-click or Enter, so a selection marks only
-// the file last chosen. The selected file stays selected across a new status
-// while it's still changed, and while the page is switched away from. A press
-// below the rows, or on the header beside the check-all box and its count,
-// clears it, as a press off the file tree's rows does. With no changes, a line
-// says so in the list's place.
-//
-// Each file has a checkbox, checked unless it's been unchecked by hand. A
-// file unchecked stays unchecked across new statuses while it's listed; once
-// it isn't (committed, or discarded), it's forgotten, so if it changes again
-// it comes back checked. The box above the list gives the count, and checks
-// every file, or unchecks every file when all are checked.
-//
-// The commit box takes a summary, which a commit needs, and a description,
-// which it doesn't. Its button commits the checked files to the current
-// branch (GitRepository::commit), as does Ctrl+Enter anywhere in the box. The
-// button is disabled while there's no summary or no checked file, and while
-// the repository is busy with any operation (GitRepository::busyChanged). A
-// commit that fails shows git's words in a message; one that succeeds clears
-// the box.
-//
-// A file's diff opens as the file tree opens a file: a double-click, or Enter,
-// opens it over the active tab unless that one is pinned, and the right-click
-// menu opens it in a new tab, to the right, or in a new window. The same menu
-// opens the file itself, when the window says it can (setOpenFilter). The page
-// only asks (diffRequested, fileRequested); the window opens.
-//
-// The menu also discards a file's changes (GitRepository::discard), after
-// asking, as the file tree asks before a delete: Cancel is the default and
-// the escape button. The question says what happens to the file: a changed
-// file goes to the trash and the last commit's version takes its place; a
-// file the last commit doesn't have goes to the trash; a renamed file goes to
-// the trash and its old name comes back; a deleted file comes back.
-// Not offered for a conflicted file, which is a merge's to settle, for a
-// submodule, whose changes are in a repository of its own, nor while the
-// repository is busy. A discard that fails shows why in a message, and
-// one that leaves files as they were, since their changes couldn't go to the
-// trash, names them.
-//
-// The menu's items act on the file it was opened on, even if a new status
-// rebuilds the list while it's open.
-//
-// The header's right-click menu (the check-all box and its count) discards
-// every change (Discard all changes…), as GitHub Desktop's does, whether a
-// file is checked or not. It asks first, with Desktop's question: the files by
-// path when there are no more than DISCARD_LIST_MAX_, otherwise their count,
-// and how many of them are outside the vault, if any. Conflicted files and
-// submodules are left out, and the question says how many of each. The item is
-// disabled while the repository is busy, or while nothing listed can be
-// discarded. Like one file's, it acts on the files listed when the menu opened,
-// as the status has them when the discard runs (GitRepository::discard)
+// The page only asks: for a diff or a file to open (diffRequested,
+// fileRequested), and for a commit or discard to run (GitRepository). The
+// commit button is disabled while there's no summary, no checked file, or the
+// repository is busy. Discard isn't offered for a conflicted file (a merge's to
+// settle) or a submodule (its changes are in its own repository). Every
+// right-click menu acts on the files it was opened on, even if a new status
+// rebuilds the list while it's open
 class GitPage : public QWidget
 {
     Q_OBJECT

@@ -87,67 +87,30 @@ private:
 } // namespace Internal
 
 // The text editor widget TextFileView holds: a QPlainTextEdit with an optional
-// line-number gutter, a left/right text margin, and a tab width counted in
-// spaces. A subclass because the gutter needs QPlainTextEdit's protected block
-// geometry (firstVisibleBlock, blockBoundingGeometry, contentOffset) and
-// setViewportMargins — the shape of Qt's Code Editor example.
+// line-number gutter, a left/right margin, and a tab width in spaces. A
+// subclass because the gutter needs QPlainTextEdit's protected block geometry
+// and setViewportMargins, as in Qt's Code Editor example. Each setter returns
+// early when nothing changed, so TextFileView::applyConfig can hand over the
+// whole config on any change.
 //
-// Each setting is a setter that returns early when nothing changed, so
-// TextFileView::applyConfig can hand over the whole config on any change.
+// Line numbers count hard lines (QTextBlocks), as the status bar does. Unlike
+// the example: block tops are summed as qreal, never rounded, which would drift
+// the numbers off their lines; each number sits on its block's first baseline;
+// digits are tabular, so they line up in a proportional face; the width is
+// recomputed on FontChange; and the gutter never narrows below
+// LINE_NUMBER_MIN_DIGITS, since each widening rewraps the document.
 //
-// Numbers are hard lines (QTextBlocks), one per paragraph, drawn beside the
-// paragraph's first visual row — the same unit as the status bar's line count
-// and "Ln".
+// The margin, a percentage of the width per side, is viewport margin between
+// the gutter and the text. Those strips are the editor's own surface, so the
+// editor fills itself with the viewport's background, and a click there
+// doesn't reach the text.
 //
-// Where this departs from the example:
-// - Block tops are accumulated as qreal, as QPlainTextEdit's own paint does,
-//   and rounded nowhere. Rounding each block's height drifts the numbers off
-//   their lines down the viewport when a line's height is fractional
-// - Each number is drawn on its block's first-line baseline rather than into
-//   a box as tall as the font, so it stays aligned if the gutter's font ever
-//   differs from the text's
-// - Digits are tabular ("tnum"), so the gutter's width is right for a
-//   proportional face and the numbers line up in columns
-// - The width is recomputed on FontChange explicitly, not left to a
-//   full-viewport updateRequest happening to follow one
-// - The gutter is never narrower than LINE_NUMBER_MIN_DIGITS: each time it
-//   widens, the viewport narrows and the whole document rewraps
-// - No band, no separator: muted numbers on the text area's own background
-//
-// The left/right margin is a percentage of the editor's width kept clear on
-// each side of the text. It is viewport margin, like the gutter: the gutter
-// stays at the editor's left edge and the margin sits between it and the text.
-// The strips are the editor's own surface, not the viewport's, so the editor
-// fills itself with the viewport's background; a click in one doesn't reach the
-// text.
-//
-// The tab width is a count of spaces in the editor's font, so it follows the
-// font.
-//
-// The current-line highlight is a band across the row the text cursor is on:
-// one visual row of a wrapped paragraph, not the whole paragraph. It is an
-// extra selection, as in Qt's example, in the light or dark page's color
-// (LINE_HIGHLIGHT_LIGHT, LINE_HIGHLIGHT_DARK). Shown whether or not the editor
-// has focus.
-//
-// Double-click whitespace: a double-click on a run of whitespace selects the
-// run (Qt's own double-click selects a word, and does nothing useful on
-// spaces). Only the clicked paragraph's text is read, and the character tested
-// is the one under the mouse, not the one after the nearest cursor position.
-//
-// Spelling: with a SpellChecker set, each misspelled word in view gets a wavy
-// underline (paintMisspellings_). Misspelling::isMisspelled decides which,
-// from the checker and the accepted words (the vault's own, set by the view's
-// host). Nothing is stored about the text: the words in view are found and
-// looked up at each paint, and the checker remembers its answers.
-//
-// Selection handles (views/text/SelectionHandles.h): two draggable teardrops
-// under the ends of a selection. The editor's part is to paint them after the
-// text and to offer them each mouse event before handling it itself.
-//
-// Typing helpers (views/text/TypingHelpers.h): auto-pairing of brackets and
-// quotes, and stepping past closing punctuation. The editor offers them each
-// key press before handling it itself, and tells them when the caret moves
+// The current-line highlight is an extra selection over the caret's visual
+// row. A double-click on whitespace selects the run under the mouse.
+// Misspelled words in view get a wavy underline (paintMisspellings_), looked up
+// at each paint, with nothing stored. SelectionHandles are painted after the
+// text and offered each mouse event first; TypingHelpers get each key press
+// first, and hear when the caret moves
 class TextEditor : public QPlainTextEdit
 {
     Q_OBJECT
