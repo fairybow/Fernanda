@@ -578,21 +578,17 @@ private:
         }
     }
 
-    // A vault's folder deleted or moved outside Fernanda. The user contract is
-    // "don't do that", so nothing is rescued: an open vault's window closes —
-    // its buffers' files are gone, so its flush reports nothing, and its
-    // workspace save is skipped (a missing root is never recreated) — and a
-    // Common Vault whose folder went is unset, since where it went can't be
-    // known. The Common Vault's own window, if open, closes like any other:
-    // it's in openVaults_ under its root. One message first, naming what
-    // happened — before anything closes, because closing the last window
-    // starts the quit.
+    // A vault's folder was deleted or moved outside Fernanda. The user contract
+    // is "don't do that", so nothing is rescued. An open vault's window closes,
+    // the Common Vault's own included: its files are gone, so nothing flushes,
+    // and its workspace isn't saved, since a missing root is never recreated.
+    // A Common Vault whose folder went is unset, as where it went can't be
+    // known. One message comes first, as closing the last window quits.
     //
-    // Run when Fernanda becomes active again: deleting a vault's folder means
-    // going to a file manager, and coming back is the moment to look. The
-    // watchers can't be relied on here — on Windows Fernanda's own watches
-    // often stop Explorer taking the folder at all, and where it does go,
-    // whether the folder's own removal is reported varies by platform
+    // Runs when Fernanda is activated again, back from the file manager. The
+    // watchers can't be relied on: on Windows, Fernanda's own watches often
+    // stop Explorer taking the folder at all, and whether a folder's own
+    // removal is reported varies by platform
     void checkVaultFolders_()
     {
         if (checkingVaultFolders_) {

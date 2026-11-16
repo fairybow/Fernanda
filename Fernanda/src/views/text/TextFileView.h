@@ -576,23 +576,19 @@ private:
         editor_->setFocus();
     }
 
-    // The editor's context menu. Over a misspelled word, it opens with what
-    // the dictionary suggests, then a way to add the word to the vault's
-    // dictionary or ignore it for now; those two go out as requests, since a
-    // view doesn't know its vault. Then, always, Undo/Redo, the clipboard
-    // and Delete, and Select All.
+    // The editor's context menu. Over a misspelled word, it starts with the
+    // dictionary's suggestions, then Add to dictionary and Ignore, sent as
+    // requests since a view doesn't know its vault. Then always Undo/Redo, the
+    // clipboard items, Delete (the selection only), and Select All.
     //
-    // Undo/Redo are routed to the model's shared stack rather than the
-    // editor's disabled document. The rest are the editor's own: an edit they
-    // make reaches the buffer as typing does. Each shortcut is a display-only
-    // hint (Ui::MenuText::withKey), so nothing here registers a binding that
-    // competes with the window's actions or the editor's own keys. An item that
-    // can't apply is disabled, and a disabled item can't be chosen, so reading
-    // exec()'s return needs no availability re-check. Delete removes the
-    // selection only.
+    // Undo/Redo go to the model's shared stack, not the editor's disabled
+    // document; the rest are the editor's own, reaching the buffer as typing
+    // does. Shortcuts are display-only hints (Ui::MenuText::withKey), so none
+    // competes with the window's actions or the editor's keys. Items that
+    // can't apply are disabled, so exec()'s result needs no re-check.
     //
-    // A QAbstractScrollArea gives the request's position in its viewport's
-    // coordinates, so the menu is placed from the viewport
+    // The request's position is in viewport coordinates, so the menu is placed
+    // from the viewport
     void onEditorContextMenuRequested_(const QPoint& pos)
     {
         QMenu menu(editor_);

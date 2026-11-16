@@ -81,21 +81,17 @@ public:
     using ConfirmLossyOpen =
         std::function<bool(const PathKey& key, const QByteArray& data)>;
 
-    // Return the existing buffer for this file, or create one. This is the
-    // dedup point that makes "same file open twice" and "common file open in
-    // two windows" both resolve to a single model.
+    // Return the buffer for this file, creating it if needed: the dedup point
+    // that gives a file open twice, or in two windows, one model.
     //
     // Returns nullptr for a file Fernanda won't open: an empty key, an
-    // unsupported type, a file it can't read — gone since it was listed, or
-    // locked — or a text file that isn't valid UTF-8 whose open the caller
-    // declined. This is the AUTHORITATIVE refusal: the tree and the
-    // FileSwitcher hide unsupported files, but those are advisory, and this is
-    // the one gate every open path — tree, switcher, drop, restore, and later
-    // CLI — funnels through. Callers treat null as "nothing to open".
+    // unsupported type, an unreadable file (gone since listed, or locked), or
+    // non-UTF-8 text whose open the caller declined. This is the AUTHORITATIVE
+    // refusal: the tree's and FileSwitcher's hiding is advisory, and every
+    // open path comes through here.
     //
-    // confirmLossyOpen is asked only on a fresh read that fails to decode — a
-    // dedup hit returns above it, so an open buffer never prompts twice (a
-    // common file opened from a second window included)
+    // confirmLossyOpen is asked only on a fresh read that fails to decode. An
+    // open buffer returns before that, so it never prompts twice
     [[nodiscard]] AbstractFileModel*
     openModel(const PathKey& key, const ConfirmLossyOpen& confirmLossyOpen)
     {
@@ -284,18 +280,16 @@ public:
     }
 
     // After the disk op moved oldEntry to newEntry. Every tree moves its row
-    // (VaultTreeModel::applyRelocation), so each window keeps the entry and
-    // what's under it expanded and selected; left to find out from its own
-    // watcher, a tree would re-list the folder and see a new entry, collapsed.
-    // A tree with no row there, old or new, does nothing. Then every buffer at
-    // or under the entry takes its new key, and its views retitle. Trees
-    // first, so views already show the new place when the retitles fan out.
+    // (VaultTreeModel::applyRelocation), keeping the entry and what's under it
+    // expanded and selected; a tree left to its watcher would re-list and show
+    // a new, collapsed entry. Then every buffer at or under the entry is
+    // re-keyed and its views retitle, after the trees, so views already show
+    // the new place.
     //
-    // A tree whose vault folder was the entry, or inside it, has no row for
-    // it: the whole vault went with the entry. After a change of letter case
-    // alone, where case is ignored, its folder is still there and its watches
-    // come back here. Either way App moves its Vault to the new place when it
-    // hears entryRelocated, announced last, and the tree watches again from
+    // A tree whose vault folder is at or under the entry has no row to move:
+    // the vault went with it. After a case-only change, where case is ignored,
+    // its folder is still there, so its watches are restored. App moves that
+    // Vault on entryRelocated, announced last, and the tree watches again from
     // there (Vault::moveRoot)
     void applyRelocation(const PathKey& oldEntry, const PathKey& newEntry)
     {

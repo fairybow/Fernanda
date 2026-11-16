@@ -196,20 +196,17 @@ public:
         return PathKey::of(absolute);
     }
 
-    // Create an empty file at a key named in full, making any missing folders
-    // above it. This is Go to File's create: the user typed the path, so the
-    // folders in it are theirs to make, where createFile's folder must already
-    // be there. The vault's own folder is never recreated.
+    // Create an empty file at a full key, making any missing folders above it:
+    // Go to File's create, where the user typed the folders (createFile's
+    // folder must exist). The vault's own folder is never recreated.
     //
-    // Returns false, having made nothing, for a key that isn't inside the
-    // vault, has a hidden name anywhere below the root, isn't a text file (an
-    // empty PDF or image is no file at all), or already exists. Also false when
-    // the disk refuses, as when a part of the path is a file; folders made
-    // before the refusal stay, and the tree finds them by its watcher.
+    // Returns false, making nothing, for a key outside the vault, with a hidden
+    // name below the root, not a text file, or already there. Also false if
+    // the disk refuses (a part of the path is a file); folders made before
+    // that stay, and the watcher finds them.
     //
-    // The tree is told about the highest entry made, so a new folder appears
-    // with the file inside it. The tree can't place the file itself while the
-    // folder holding it has no row
+    // The tree is told the highest entry made, so a new folder appears with
+    // the file in it; the tree can't place a file whose folder has no row
     bool createFileAt(const PathKey& key)
     {
         if (!key.isUnder(rootKey_)) {
