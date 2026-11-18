@@ -130,11 +130,12 @@ git push origin v0.0.0-beta.0
 
 ## What's New?
 
-- ...
+- Would like to add: backups and history (forward and backward for a tab)
 
 **Fixed**
 
-- 
+- Scrollbar hover fix
+- Tab divider fix
 
 ---
 
