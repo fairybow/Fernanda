@@ -29,55 +29,39 @@ namespace Fernanda {
 using namespace Qt::StringLiterals;
 
 // Help with punctuation while typing in the text editor: auto-pairing of
-// brackets and quotes, and stepping past closing punctuation. Each can be
-// turned on or off alone.
+// brackets and quotes, and stepping past closing punctuation, each switched on
+// or off alone.
 //
 // Auto-pairing:
-//
-// - Typing an opener inserts its closer after the caret, when what follows
-//   the caret is a space, the end of the line, or a closer (as CodeMirror,
-//   and so Obsidian, decides). Before other text it inserts the opener alone,
-//   since that is usually the start of wrapping text already there
-// - The quotes that open and close with one character (", ', `) never pair
-//   after a letter or digit, where they're an apostrophe or a closing quote
-//   ("don't", "5'")
-// - Typing an opener with text selected wraps the selection, which stays
-//   selected
-// - Typing a closer that auto-pairing inserted, when it's just after the
-//   caret, steps over it. A closer the user typed, or one already in the
-//   text, is never stepped over. The inserted closers are remembered by
-//   cursors, which keep their places as the text changes, and forgotten when
-//   the caret leaves their line or the closer is gone
+// - An opener inserts its closer after the caret only before a space, the
+//   line's end, or a closer, as Obsidian does. Before other text, which it's
+//   likely to wrap, it types alone. ", ', and ` never pair after a letter or
+//   digit ("don't", "5'")
+// - An opener with text selected wraps the selection, which stays selected
+// - Typing a closer that auto-pairing inserted, just after the caret, steps
+//   over it; no other closer is stepped over. Inserted closers are tracked by
+//   cursors, which follow edits, and dropped when the caret leaves their line
+//   or the closer is gone
 // - Backspace between an empty pair deletes both
 //
-// Stepping past closing punctuation (Hearth's "barging"), for finishing a
-// bracket or quote without reaching for the closer:
+// Stepping past (Hearth's "barging"):
+// - A second space just before any closer moves past it: "(word |)" becomes
+//   "(word) |"
+// - Enter with only closers before the line's end moves past them first
+// - Straight after a step, , . ? ! ; or : goes before the space ("(word), "),
+//   as does more of it ("?!"), and Enter drops the space. Any other key, or a
+//   caret move, ends this. ' and * aren't included, since they often start the
+//   next word. That space is the one already typed, so a space typed after it
+//   adds nothing
 //
-// - A second space typed just before a closer moves past it: "(word |)"
-//   becomes "(word) |". The closer can be any pair's, typed or inserted
-// - Enter, with nothing but closers between the caret and the end of the
-//   line, moves past them before starting the next line, so a paragraph that
-//   ends inside a bracket or quote ends after it. Elsewhere, Enter is left
-//   alone
-// - Straight after a step, with the caret still where it left it, typing
-//   , . ? ! ; or : goes before the space: "(word) " and a comma become
-//   "(word), ". Enter there drops the space. Any other key, or moving the
-//   caret, ends the chance. ' and * aren't among them, since they so often
-//   start the next word
-// - The space after that punctuation is the one already typed, moved, so a
-//   space typed straight after it is taken as that one and adds nothing:
-//   "(word), " and a space stay "(word), ". Enter drops it, and more of the
-//   punctuation goes before it ("?!"), as straight after a step
-//
-// Each change is one edit block in the view's document, so it reaches the
-// shared buffer as one edit and undoes as one step.
+// Each change is one edit block, so it reaches the shared buffer as one edit
+// and undoes as one step.
 //
 // Not a widget or an event filter: the editor owns it by value and offers it
-// each key press first (TextEditor::keyPressEvent), as it does the mouse to
-// SelectionHandles. Only a key press that would type a character, or a plain
-// Backspace or Enter, is considered: one Qt itself wouldn't type (a Ctrl
-// shortcut) is left alone. Ctrl+Alt is how Windows reports AltGr, which types
-// brackets on many layouts, so it is allowed
+// each key press first (TextEditor::keyPressEvent). Only a press that would
+// type a character, or a plain Backspace or Enter, counts. Ctrl shortcuts
+// don't, but Ctrl+Alt does: Windows reports AltGr that way, and it types
+// brackets on many layouts
 class TypingHelpers
 {
 public:

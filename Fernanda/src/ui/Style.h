@@ -52,53 +52,29 @@ namespace Fernanda::Ui {
 
 using namespace Qt::StringLiterals;
 
-// Fernanda's look: Fusion, with Fernanda's own refinements on top. App installs
-// one for the whole application before any window exists.
+// Fernanda's look: Fusion, made flatter, rounder, and quieter. App installs one
+// for the whole application before any window exists. See
+// docs/Architecture.md, "The style", for why Fusion and how colors are chosen.
 //
-// Fusion rather than each platform's own style, for two reasons. Fernanda looks
-// the same on every OS. And Fusion draws every standard control from the
-// palette alone, which is what follows the OS's light or dark mode (on Windows
-// 10 too, where the native style has no dark mode). The platform styles draw
-// parts of themselves in colors of their own.
+// Every color comes from the palette; a shade it has no role for (a hover, a
+// divider) is a palette color at a low alpha (wash_). What's overridden:
 //
-// The proxy is where Fernanda changes how Fusion draws: flatter, rounder, and
-// quieter. Every color still comes from the palette. Where Fernanda wants a
-// shade the palette has no role for (a hover, a divider), it's a palette color
-// at a low alpha (wash_), so it lands right over any background and in light
-// or dark alike. What's overridden:
-//
-// - Tool buttons (the tab close and pin, +, the gear, the vault switcher, the
-//   find bar's buttons) draw nothing at rest, and a rounded wash on hover and
-//   press
-// - Tabs are flat. The current tab is the page's own color with rounded top
-//   corners, so it reads as part of the page below it; the others are text on
-//   the bar, with a wash on hover and a short divider between them (none on
-//   either side of a hovered tab, with STYLE_TAB_HOVER_HIDES_DIVIDERS)
-// - Splitter handles are one-pixel dividers. A one-pixel handle is QSplitter's
-//   "tiny" mode, which keeps a wider area around it to grab
-// - Every one-pixel line (splitter handles, the marks between tabs, menu
-//   separators) is a hairline (drawHairline): the same number of device
-//   pixels thick wherever it lands
-// - Scroll bars are thin, with no arrows: a rounded handle on the scrolled
-//   content's own background
-// - Item-view rows (the file trees, Go to File, the settings nav) get a rounded
-//   wash for hover and selection rather than the accent, and keep their text
-//   and icon colors. In a tree it reaches back over the row's chevron. A
-//   list's rows are taller, and its selected row is marked in the accent at
-//   its left end. No dotted focus rectangle
-// - A framed item view is a rounded panel with its rows inset from the border
-// - Push buttons, combo boxes, and line edits are rounded and flat, with a
-//   hairline border. A default button takes the accent. A focused field's
-//   border does too, and a field's text has room around it
-// - Sliders are a thin rounded track, filled with the accent up to a round
-//   handle
-// - Menus are rounded panels in the page's color, with a hairline border and
-//   a soft shadow, and their items and the menu bar's are highlighted with
-//   the rounded wash. Their separators are dividers, inset as far as the
-//   wash. A combo box's drop-down list is drawn the same way
-// - In a light palette, the window's color is moved toward the page's
-//   (polish), so the sidebar, tab bar, and dialogs are lighter than the
-//   platform's grey
+// - Tool buttons draw nothing at rest, and a rounded wash on hover and press
+// - Tabs are flat: the current one is the page's color with rounded top
+//   corners; the others are text, with a hover wash and short dividers
+//   (hidden beside a hovered tab, with STYLE_TAB_HOVER_HIDES_DIVIDERS)
+// - Splitter handles are hairline dividers (QSplitter's "tiny" mode, which
+//   keeps a wider grab area)
+// - Scroll bars are thin, with no arrows
+// - Item-view rows get a rounded wash for hover and selection, not the accent,
+//   reaching over a tree row's chevron; a list's rows are taller, with the
+//   selected one marked in the accent at its left end. No focus rectangle
+// - A framed item view is a rounded panel with its rows inset
+// - Push buttons, combo boxes, and fields are rounded and flat, with a
+//   hairline border; a default button and a focused field take the accent
+// - Sliders are a thin track, filled with the accent up to a round handle
+// - Menus, and a combo box's list, are rounded panels with a soft shadow,
+//   washed items, and inset separators
 // - The status bar's size grip isn't drawn (it still works)
 //
 // Everything else is Fusion's
