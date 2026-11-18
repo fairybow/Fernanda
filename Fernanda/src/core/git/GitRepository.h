@@ -53,45 +53,33 @@ namespace Fernanda {
 
 using namespace Qt::StringLiterals;
 
-// The Git repository a vault's folder is in, as one vault window sees it.
-// Finds the repository, reads its status, its diffs, and its branches,
-// commits, discards a file's changes, switches and makes branches, fetches,
-// pulls, and pushes, and trusts a repository git refuses, by running the git
-// installed on the computer, and announces each answer. A status covers the
-// whole repository, which may hold more than the vault: other vaults, or
-// files that aren't Fernanda's at all.
+// The Git repository a vault's folder is in, as one vault window sees it. It
+// runs the computer's own git to find the repository, read its status, diffs,
+// and branches, commit, discard, switch and make branches, fetch, pull, push,
+// and trust a repository git refuses, and announces each answer. A status
+// covers the whole repository, which may hold more than the vault.
 //
-// Owned by its VaultWindow, which decides when to ask. Nothing here runs git
-// unasked: each command is one the window asked for, a step of an operation
-// it asked for, the status read that ends an operation, or the detection
-// that follows trusting. Two windows over one repository have one of these
-// each; the repository itself is the shared state, and each reads it when
-// it needs to.
+// Owned by its VaultWindow, which decides when to ask. Nothing runs unasked
+// beyond what an asked operation brings: its steps, the status read that ends
+// it, and the detection after trusting. Two windows over one repository have
+// one each, sharing only the repository itself.
 //
-// Commands run one at a time, in the order asked. Git takes a lock on the
-// repository's index for most commands, so two at once could fail each
-// other. Asking for a detection, a status, a branch list, or the remotes
-// while the same is already waiting adds nothing: the waiting one will read
-// the newer state. Asking for a file's diff while one of the same file waits
-// replaces it.
+// Commands run one at a time, in order, since git locks the index for most
+// and two at once could fail each other. A detection, status, branch list, or
+// remotes read asked for while the same one waits adds nothing, as the waiting
+// one reads the newer state; a diff of a file whose diff waits replaces it.
 //
 // Every command runs with:
-// - core.fsmonitor off. A repository's own config can name a program for Git
-//   to run as its file monitor, and status runs it. Fernanda asks for a
-//   status as soon as a vault opens, and a vault can come from anyone, so
-//   that program must never run unasked. Other programs a repository's config
-//   can name still run, as they do for any Git client: a clean filter, when
-//   a status or a diff reads a changed file, and hooks, when a commit or a
-//   switch runs them
-// - core.quotePath off, so paths in Git's output are plain UTF-8
-// - --literal-pathspecs, so a path given to git names only itself: a file
-//   named "[draft].md" isn't a pattern that also matches "d.md"
-// - GIT_TERMINAL_PROMPT=0, nothing on standard input beyond the paths a
-//   command is given there, and, on macOS and Linux, no terminal: git runs
-//   in a session of its own (setsid). A command that wants to ask something
-//   fails instead of waiting forever for an answer no one can type. Without
-//   the last, ssh asks for a key's passphrase on the terminal Fernanda was
-//   started from, where no one is looking
+// - core.fsmonitor off. A repository's config can name a file monitor for
+//   status to run, a vault can come from anyone, and the status is read as
+//   soon as a vault opens, so that program must never run unasked. Other
+//   programs a config names (clean filters, hooks) run as in any Git client
+// - core.quotePath off, so paths come back as plain UTF-8
+// - --literal-pathspecs, so "[draft].md" names only itself, not a pattern
+// - GIT_TERMINAL_PROMPT=0, nothing on standard input but the paths a command
+//   is given, and on macOS and Linux no terminal (setsid), so a command that
+//   would ask something fails instead of waiting forever. Without setsid, ssh
+//   asks for a passphrase on the terminal Fernanda started from
 class GitRepository : public QObject
 {
     Q_OBJECT
