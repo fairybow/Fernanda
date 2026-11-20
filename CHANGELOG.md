@@ -134,8 +134,8 @@ git push origin v0.0.0-beta.0
 
 **Fixed**
 
-- Scrollbar hover fix
-- Tab divider fix
+- Dragging a scroll bar could leave a row lit after the pointer had moved off it, in the file trees, the Git page's changes list, Go to File, Manage Vaults, and Settings' list of pages. While a scroll bar is dragged, the list only notices the pointer when it scrolls, so moving off the rows without scrolling, or letting go outside the list, left the last row highlighted. Lists now follow the pointer for the whole drag
+- Hovering a tab hid the divider on its right but kept the one on its left, so the hover looked lopsided. A hovered tab now keeps both dividers
 
 ---
 
