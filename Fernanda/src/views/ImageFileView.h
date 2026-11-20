@@ -73,9 +73,10 @@ namespace Fernanda {
 // scroll lands on the same part of the image.
 //
 // An animated image runs a QMovie per view, pushing each frame into the same
-// item, so nothing else knows about animation. It pauses while hidden; a finite
-// loop stops on its last frame. QMovie applies no EXIF orientation, which
-// animated formats rarely carry.
+// item, so nothing else knows about animation. The item holds the model's
+// first frame until the movie shows its own. It pauses while hidden, keeping
+// the frame it's on; a finite loop stops on its last frame. QMovie applies no
+// EXIF orientation, which animated formats rarely carry.
 //
 // A failed decode shows the base's placeholder. An external change re-reads the
 // model, keeping the zoom
