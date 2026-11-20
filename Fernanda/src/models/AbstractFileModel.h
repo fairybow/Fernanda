@@ -89,23 +89,16 @@ public:
 
     // --- Undo / redo -------------------------------------------------------
 
-    // Undo state is model-owned, not view-owned: the single stack lives on the
-    // buffer (for text, TextFileModel's PrimeDocument) and is shared across
-    // every view of the file, so undo in one view reverses the same edit
-    // everywhere rather than drifting per view. Two views of one file share
-    // one undo, not one each.
+    // Undo lives on the model: one stack per buffer (for text, the
+    // PrimeDocument), shared by every view, so undo in one view reverses the
+    // edit in all. A view asks through AbstractFileView::undo, naming itself
+    // as requester. The requester doesn't change the stack; it's only
+    // reported, so the edit is credited to the view it was made in
+    // (TextFileModel::userEdited). nullptr names no one.
     //
-    // A view asks for an undo (AbstractFileView::undo, which the window's Undo
-    // and Redo dispatch to) and names itself as requester: whatever identifies
-    // it to its model. The stack doesn't depend on who asks; the requester is
-    // only reported, so the edit is credited once, to the view it was made in
-    // (text reports it in TextFileModel::userEdited). nullptr names no one.
-    //
-    // The defaults are inert, so the non-editable types (image/PDF) inherit a
-    // no-op undo and permanently-unavailable state with zero code. An editable
-    // type overrides the four and emits the two availability signals below —
-    // text does. undo()/redo() no-op safely when the stack is empty, so callers
-    // need not pre-check availability
+    // The defaults are inert, so image and PDF models get an undo that's never
+    // available. An editable type overrides all four and emits the two
+    // availability signals. undo and redo do nothing on an empty stack
     [[nodiscard]] virtual bool isUndoAvailable() const { return false; }
     [[nodiscard]] virtual bool isRedoAvailable() const { return false; }
     virtual void undo(const QObject* /*requester*/) {}

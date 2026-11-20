@@ -35,6 +35,7 @@
 #include "ui/OpenMode.h"
 #include "ui/dialogs/RenameDialog.h"
 #include "ui/sidebar/VaultTreeView.h"
+#include "ui/widgets/HoverSync.h"
 
 namespace Fernanda::Ui {
 
@@ -59,8 +60,8 @@ public:
     ~VaultFileTree() override { TRACER; }
 
     // Hover the row under the cursor, or none, after the tree has moved under
-    // a still cursor (see VaultTreeView::syncHover)
-    void syncHover() { tree_->syncHover(); }
+    // a still cursor
+    void syncHover() { HoverSync::syncView(tree_); }
 
     // Persist which folders are expanded, as an opaque blob for WorkspaceFile
     // to place in workspace.json. VaultFileTree owns the SHAPE of its own

@@ -60,19 +60,17 @@ public:
     [[nodiscard]] Mode mode() const noexcept { return mode_; }
     [[nodiscard]] qreal factor() const noexcept { return factor_; }
 
-    // Step one notch from fromScale — the scale the view is DISPLAYING — and
-    // land in Fixed. The result snaps to the step grid: in goes to the next
-    // grid value above fromScale, out to the next below, so from an off-grid
-    // fit scale of 0.437 in lands on 0.5 and out on 0.4, and from an on-grid
-    // factor it's exactly ±1 step. A step that can't move the requested way —
-    // in at the max, or out when fromScale already sits at or below the min
-    // (an image fitted under 10%) — is refused, so "zoom out" can never
-    // enlarge. Returns whether anything changed.
+    // Step one notch from fromScale, the scale the view is DISPLAYING, into
+    // Fixed, snapping to the step grid: in goes to the next grid value above,
+    // out to the next below (from a fit of 0.437, in is 0.5 and out 0.4; from
+    // an on-grid factor, exactly one step). A step that can't go the asked way
+    // (in at the max, or out at or below the min, as with an image fitted
+    // under 10%) is refused, so zooming out never enlarges. Returns whether
+    // anything changed.
     //
-    // The image view passes its computed fit scale while in Fit, so leaving
-    // Fit continues from what's on screen. PdfFileView passes factor() even
-    // in Fit, because QPdfView won't report its fit scale — the documented,
-    // accepted jump
+    // The image view passes its fit scale while in Fit, so leaving Fit starts
+    // from what's on screen. PdfFileView passes factor() even in Fit, since
+    // QPdfView won't report its fit scale: an accepted jump
     bool step(Direction direction, qreal fromScale)
     {
         // Work in whole steps so the grid is exact; the epsilon keeps a

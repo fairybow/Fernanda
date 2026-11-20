@@ -50,45 +50,22 @@ namespace Fernanda::Ui {
 
 using namespace Qt::StringLiterals;
 
-// The shared base for both window types. Owns the TabPaneTree and window-wide
-// chrome; subclasses arrange the tree into their central widget — PopoutWindow
-// sets it directly, VaultWindow puts it beside the Sidebar.
+// The base for both window types. Owns the TabPaneTree (PopoutWindow's central
+// widget, beside the Sidebar in VaultWindow), the per-window action registry,
+// and the status bar.
 //
-// Also home to the per-window action registry. The registry itself is PRIVATE,
-// so a subclass cannot file an action behind its back; there are exactly three
-// ways in and one way out:
+// The registry is private: actions go in only through registerAction (minted
+// here, with a shortcut or a StandardKey) and adoptAction (made elsewhere), and
+// come out through action(id), which asserts on a miss. Each is added to the
+// window, so its shortcut works whatever the menus show; a PopoutWindow has no
+// menus and keeps the actions for their shortcuts alone. A window mints what
+// only it can do (document.undo and document.redo go to its own active view)
+// and adopts what App does (AppActions). See docs/Architecture.md, "Actions".
 //
-//   registerAction(id, text, shortcut)      — mint, window-add, file
-//   registerAction(id, text, StandardKey)   — same, platform bindings
-//   adoptAction(id, action)                 — window-add and file an action
-//                                             this window did not create
-//   action(id)                              — read, asserting on a miss
-//
-// Every registered action is added to the window, so its shortcut fires
-// whenever the window is active, independent of any menu's visibility. Menus
-// (VaultWindow only) are display surfaces that addAction the pointers; a
-// PopoutWindow has no menu and relies on the same actions purely for their
-// shortcuts.
-//
-// Two sources fill the registry. The window MINTS what only it can perform:
-// document.undo / document.redo dispatch through this window's own active view
-// (below), so each window needs its own. It ADOPTS what App performs — every
-// pointer in AppActions — since those must behave identically from any window
-// and App connects them once at mint.
-//
-// Ids name the thing acted on, never the menu the action currently sits in — a
-// menu can move, and these strings are user-visible in a future command palette
-// and persisted in the hotkey config. "document." is the buffer, not the tab or
-// the editor widget: undo routes through the model's shared prime, so it
-// reverses in every view of that file, in every window.
-//
-// And home to the status bar, so both window types have one. Its items report
-// on this window's active page (TabPaneTree::activePageChanged) when that page
-// is a text view, and hide when it isn't — over a PDF, an image, a New Tab
-// page, or an empty pane the bar stays up, empty. It doesn't come and go with
-// the page type, which would change the height of everything above it on
-// each tab switch. The update notice (UpdateNotice) sits at the left of the
-// items, and keeps the bar up while it shows
+// The status bar's items report on the active page while it's a text view, and
+// hide otherwise. The bar stays up, empty, so the height of everything above
+// it doesn't change on a tab switch. The update notice (UpdateNotice) sits left
+// of the items and keeps the bar up while it shows
 class BaseWindow : public QMainWindow
 {
     Q_OBJECT
@@ -287,26 +264,15 @@ private:
 
     // The per-window action registry. Private so every entry arrives through
     // registerAction or adoptAction and nothing bypasses the window-add;
-    // subclasses read it through action(). A command palette would index this.
+    // subclasses read it through action(). A command palette would index it.
     //
-    // It is also the fan-out path for rebindable hotkeys, if they ever land.
-    // Each window mints its own copy of the actions only it can perform, so a
-    // rebind has to reach every open window — and the way it does that is a
-    // walk of this hash, not a lookup table consulted at mint time (a window
-    // minted before the rebind would keep its old sequence either way). The
-    // whole mechanism is roughly:
-    //
-    //   for each id -> sequences in the user's overrides:
-    //       if actionRegistry_ has that id: setShortcuts(sequences)
-    //
-    // called once per window at construction and again on every open window
-    // when the config changes. Note SEQUENCES, plural: a StandardKey
-    // registration expands to every platform binding (Redo is Ctrl+Y and
-    // Ctrl+Shift+Z), so an override carrying a single QKeySequence would
-    // silently drop the second. Defaults stay at the registerAction call site,
-    // where they're readable — the override layer goes on top, which is how
-    // both Qt Creator and KDE arrange it. Nothing is stubbed for this; the
-    // registry is the part that needed to exist, and it does
+    // Rebindable hotkeys, if they land, walk it too. Each window mints its own
+    // actions, so an override reaches them by walking every open window's
+    // registry, at construction and on each config change; a table read at mint
+    // time would miss windows minted before a rebind. An override carries a
+    // list of sequences, since a StandardKey expands to every platform binding
+    // (Redo is Ctrl+Y and Ctrl+Shift+Z). Defaults stay at the registerAction
+    // call site, as in Qt Creator and KDE
     QHash<QString, QAction*> actionRegistry_{};
 
     void setup_(const AppActions& appActions)

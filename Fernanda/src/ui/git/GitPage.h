@@ -21,6 +21,7 @@
 #include <QAbstractItemView>
 #include <QAction>
 #include <QCheckBox>
+#include <QEvent>
 #include <QFont>
 #include <QFontMetrics>
 #include <QFrame>
@@ -33,6 +34,8 @@
 #include <QListWidgetItem>
 #include <QMenu>
 #include <QMessageBox>
+#include <QModelIndex>
+#include <QMouseEvent>
 #include <QPlainTextEdit>
 #include <QPoint>
 #include <QPushButton>
@@ -61,70 +64,34 @@
 #include "ui/git/GitBranchButton.h"
 #include "ui/git/GitChangeDelegate.h"
 #include "ui/git/GitSyncButton.h"
+#include "ui/widgets/HoverSync.h"
 
 namespace Fernanda::Ui {
 
 using namespace Qt::StringLiterals;
 
-// The sidebar's Git page: a row with the current branch, whose menu switches
-// and makes branches (GitBranchButton), and the sync button (GitSyncButton);
-// then the repository's changed files, one row each (GitChangeDelegate); and
-// below them the commit box. The list covers the whole repository, which may
-// hold more than the vault. A renamed file is listed at its new path.
+// The sidebar's Git page: a row with the branch button (GitBranchButton) and
+// the sync button (GitSyncButton), the repository's changed files, one row each
+// (GitChangeDelegate), and the commit box. The list covers the whole
+// repository, which may hold more than the vault; a rename is listed at its new
+// path. When git won't trust the repository, GitHub Desktop's notice and Trust
+// repository button take the page's place (GitRepository::trust). See
+// docs/Features.md, "Git", for what each part does.
 //
-// When git refuses to trust the repository (GitRepository::untrustedFolder),
-// a notice takes the page's place, worded as GitHub Desktop's, with its Trust
-// repository button (GitRepository::trust).
+// It follows statusChanged, and asks for a new status each time it shows,
+// since files may have changed while it was hidden. A selection only marks the
+// file last chosen (a diff opens on double-click or Enter), and survives a new
+// status while the file is still listed. A file unchecked by hand stays
+// unchecked while it's listed and is forgotten once it isn't, so it comes back
+// checked if it changes again.
 //
-// It shows the repository's last status and follows statusChanged, and asks
-// for a new status each time it shows, since files may have changed while it
-// was hidden. The selected file stays selected across a new status while it's
-// still changed. With no changes, a line says so in the list's place.
-//
-// Each file has a checkbox, checked unless it's been unchecked by hand. A
-// file unchecked stays unchecked across new statuses while it's listed; once
-// it isn't (committed, or discarded), it's forgotten, so if it changes again
-// it comes back checked. The box above the list gives the count, and checks
-// every file, or unchecks every file when all are checked.
-//
-// The commit box takes a summary, which a commit needs, and a description,
-// which it doesn't. Its button commits the checked files to the current
-// branch (GitRepository::commit), as does Ctrl+Enter anywhere in the box. The
-// button is disabled while there's no summary or no checked file, and while
-// the repository is busy with any operation (GitRepository::busyChanged). A
-// commit that fails shows git's words in a message; one that succeeds clears
-// the box.
-//
-// A file's diff opens as the file tree opens a file: a double-click, or Enter,
-// opens it over the active tab unless that one is pinned, and the right-click
-// menu opens it in a new tab, to the right, or in a new window. The same menu
-// opens the file itself, when the window says it can (setOpenFilter). The page
-// only asks (diffRequested, fileRequested); the window opens.
-//
-// The menu also discards a file's changes (GitRepository::discard), after
-// asking, as the file tree asks before a delete: Cancel is the default and
-// the escape button. The question says what happens to the file: a changed
-// file goes to the trash and the last commit's version takes its place; a
-// file the last commit doesn't have goes to the trash; a renamed file goes to
-// the trash and its old name comes back; a deleted file comes back.
-// Not offered for a conflicted file, which is a merge's to settle, for a
-// submodule, whose changes are in a repository of its own, nor while the
-// repository is busy. A discard that fails shows why in a message, and
-// one that leaves files as they were, since their changes couldn't go to the
-// trash, names them.
-//
-// The menu's items act on the file it was opened on, even if a new status
-// rebuilds the list while it's open.
-//
-// The header's right-click menu (the check-all box and its count) discards
-// every change (Discard all changes…), as GitHub Desktop's does, whether a
-// file is checked or not. It asks first, with Desktop's question: the files by
-// path when there are no more than DISCARD_LIST_MAX_, otherwise their count,
-// and how many of them are outside the vault, if any. Conflicted files and
-// submodules are left out, and the question says how many of each. The item is
-// disabled while the repository is busy, or while nothing listed can be
-// discarded. Like one file's, it acts on the files listed when the menu opened,
-// as the status has them when the discard runs (GitRepository::discard)
+// The page only asks: for a diff or a file to open (diffRequested,
+// fileRequested), and for a commit or discard to run (GitRepository). The
+// commit button is disabled while there's no summary, no checked file, or the
+// repository is busy. Discard isn't offered for a conflicted file (a merge's to
+// settle) or a submodule (its changes are in its own repository). Every
+// right-click menu acts on the files it was opened on, even if a new status
+// rebuilds the list while it's open
 class GitPage : public QWidget
 {
     Q_OBJECT
@@ -160,6 +127,33 @@ protected:
         repository_->refresh();
     }
 
+    // A press below the list's rows, with either button, clears the selection
+    // and does nothing else. A press on the header clears it and goes on, so
+    // a right-click still opens the header's menu. The check-all box takes a
+    // left press on itself and its count, which never reaches the header
+    bool eventFilter(QObject* watched, QEvent* event) override
+    {
+        if (event->type() != QEvent::MouseButtonPress) {
+            return QWidget::eventFilter(watched, event);
+        }
+
+        if (watched == header_) {
+            clearSelection_();
+            return QWidget::eventFilter(watched, event);
+        }
+
+        if (watched == list_->viewport()) {
+            auto mouse_event = static_cast<QMouseEvent*>(event);
+
+            if (!list_->indexAt(mouse_event->position().toPoint()).isValid()) {
+                clearSelection_();
+                return true;
+            }
+        }
+
+        return QWidget::eventFilter(watched, event);
+    }
+
 private:
     GitRepository* repository_;
     std::function<bool(const PathKey&)> canOpen_{};
@@ -176,7 +170,8 @@ private:
     QWidget* changes_ = nullptr;
     QLabel* message_ = nullptr;
 
-    // Shows the count of changed files too
+    // Holds the check-all box, which shows the count of changed files too
+    QWidget* header_ = nullptr;
     QCheckBox* allBox_ = nullptr;
     QListWidget* list_ = nullptr;
 
@@ -375,12 +370,15 @@ private:
         list_->setItemDelegate(new GitChangeDelegate(list_));
         list_->setContextMenuPolicy(Qt::CustomContextMenu);
 
+        // The hovered row follows the pointer while the scroll bar is dragged
+        HoverSync::followScrollBars(list_);
+
         // A checkbox paints across its whole rect and takes no margins of its
         // own, so they're the layout's around it. Its left edge is where the
         // style puts a row's checkbox: the list's text margin from the row's
         // edge (PM_FocusFrameHMargin, plus one)
-        auto* header = new QWidget(changes_);
-        auto* header_layout = new QHBoxLayout(header);
+        header_ = new QWidget(changes_);
+        auto* header_layout = new QHBoxLayout(header_);
         auto row_margin =
             style()->pixelMetric(QStyle::PM_FocusFrameHMargin, nullptr, list_) +
             1;
@@ -393,29 +391,32 @@ private:
         // Partly checked shows that some files are and some aren't. A click
         // is settled by onAllBoxClicked_, not left to the box's own cycle,
         // which would go to partly checked after unchecked
-        allBox_ = new QCheckBox(header);
+        allBox_ = new QCheckBox(header_);
         allBox_->setTristate(true);
         header_layout->addWidget(allBox_);
 
         auto* layout = new QVBoxLayout(changes_);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(0);
-        layout->addWidget(header);
+        layout->addWidget(header_);
         layout->addWidget(list_, 1);
 
         connect(allBox_, &QCheckBox::clicked, this, &GitPage::onAllBoxClicked_);
 
         // A right-click on the box itself reaches the header too: the box has
         // no menu of its own, so it passes the event to its parent
-        header->setContextMenuPolicy(Qt::CustomContextMenu);
+        header_->setContextMenuPolicy(Qt::CustomContextMenu);
 
         connect(
-            header,
+            header_,
             &QWidget::customContextMenuRequested,
             this,
-            [this, header](const QPoint& position) {
-                showHeaderContextMenu_(header->mapToGlobal(position));
+            [this](const QPoint& position) {
+                showHeaderContextMenu_(header_->mapToGlobal(position));
             });
+
+        header_->installEventFilter(this);
+        list_->viewport()->installEventFilter(this);
 
         connect(
             list_,
@@ -498,13 +499,20 @@ private:
     // The list made again from the status, with its signals held: the
     // selected file kept selected if it's still listed, and each file
     // checked unless it was unchecked by hand. A file no longer listed is
-    // forgotten from the unchecked
+    // forgotten from the unchecked.
+    //
+    // The selection is what's kept, not the current row: a view given the
+    // focus with no current row makes its first row current without
+    // selecting it, and that row isn't one the user chose
     void rebuild_()
     {
         Coco::Path selected{};
 
-        if (auto row = list_->currentRow(); row >= 0 && row < entries_.size()) {
-            selected = entries_[row].path;
+        if (const auto items = list_->selectedItems(); !items.isEmpty()) {
+            if (auto row = list_->row(items.first());
+                row >= 0 && row < entries_.size()) {
+                selected = entries_[row].path;
+            }
         }
 
         entries_ = repository_->status().entries;
@@ -538,7 +546,11 @@ private:
                 }
             }
 
-            list_->setCurrentRow(selected_row);
+            if (selected_row >= 0) {
+                list_->setCurrentRow(selected_row);
+            } else {
+                clearSelection_();
+            }
         }
 
         unchecked_.intersect(listed);
@@ -555,6 +567,18 @@ private:
         }
 
         updateCommitBox_();
+    }
+
+    // No file selected and none current. Set through the view, not the
+    // selection model: the view then counts its current row as set, so the
+    // focus coming to it doesn't make the first row current. The arrow keys
+    // still start from the first or last row, and Enter opens nothing. Every
+    // rebuild calls this when nothing is selected, since clearing the list
+    // resets the view and its count with it
+    void clearSelection_()
+    {
+        list_->clearSelection();
+        list_->setCurrentIndex(QModelIndex{});
     }
 
     // A file checked or unchecked by hand: its box, or Space

@@ -53,45 +53,33 @@ namespace Fernanda {
 
 using namespace Qt::StringLiterals;
 
-// The Git repository a vault's folder is in, as one vault window sees it.
-// Finds the repository, reads its status, its diffs, and its branches,
-// commits, discards a file's changes, switches and makes branches, fetches,
-// pulls, and pushes, and trusts a repository git refuses, by running the git
-// installed on the computer, and announces each answer. A status covers the
-// whole repository, which may hold more than the vault: other vaults, or
-// files that aren't Fernanda's at all.
+// The Git repository a vault's folder is in, as one vault window sees it. It
+// runs the computer's own git to find the repository, read its status, diffs,
+// and branches, commit, discard, switch and make branches, fetch, pull, push,
+// and trust a repository git refuses, and announces each answer. A status
+// covers the whole repository, which may hold more than the vault.
 //
-// Owned by its VaultWindow, which decides when to ask. Nothing here runs git
-// unasked: each command is one the window asked for, a step of an operation
-// it asked for, the status read that ends an operation, or the detection
-// that follows trusting. Two windows over one repository have one of these
-// each; the repository itself is the shared state, and each reads it when
-// it needs to.
+// Owned by its VaultWindow, which decides when to ask. Nothing runs unasked
+// beyond what an asked operation brings: its steps, the status read that ends
+// it, and the detection after trusting. Two windows over one repository have
+// one each, sharing only the repository itself.
 //
-// Commands run one at a time, in the order asked. Git takes a lock on the
-// repository's index for most commands, so two at once could fail each
-// other. Asking for a detection, a status, a branch list, or the remotes
-// while the same is already waiting adds nothing: the waiting one will read
-// the newer state. Asking for a file's diff while one of the same file waits
-// replaces it.
+// Commands run one at a time, in order, since git locks the index for most
+// and two at once could fail each other. A detection, status, branch list, or
+// remotes read asked for while the same one waits adds nothing, as the waiting
+// one reads the newer state; a diff of a file whose diff waits replaces it.
 //
 // Every command runs with:
-// - core.fsmonitor off. A repository's own config can name a program for Git
-//   to run as its file monitor, and status runs it. Fernanda asks for a
-//   status as soon as a vault opens, and a vault can come from anyone, so
-//   that program must never run unasked. Other programs a repository's config
-//   can name still run, as they do for any Git client: a clean filter, when
-//   a status or a diff reads a changed file, and hooks, when a commit or a
-//   switch runs them
-// - core.quotePath off, so paths in Git's output are plain UTF-8
-// - --literal-pathspecs, so a path given to git names only itself: a file
-//   named "[draft].md" isn't a pattern that also matches "d.md"
-// - GIT_TERMINAL_PROMPT=0, nothing on standard input beyond the paths a
-//   command is given there, and, on macOS and Linux, no terminal: git runs
-//   in a session of its own (setsid). A command that wants to ask something
-//   fails instead of waiting forever for an answer no one can type. Without
-//   the last, ssh asks for a key's passphrase on the terminal Fernanda was
-//   started from, where no one is looking
+// - core.fsmonitor off. A repository's config can name a file monitor for
+//   status to run, a vault can come from anyone, and the status is read as
+//   soon as a vault opens, so that program must never run unasked. Other
+//   programs a config names (clean filters, hooks) run as in any Git client
+// - core.quotePath off, so paths come back as plain UTF-8
+// - --literal-pathspecs, so "[draft].md" names only itself, not a pattern
+// - GIT_TERMINAL_PROMPT=0, nothing on standard input but the paths a command
+//   is given, and on macOS and Linux no terminal (setsid), so a command that
+//   would ask something fails instead of waiting forever. Without setsid, ssh
+//   asks for a passphrase on the terminal Fernanda started from
 class GitRepository : public QObject
 {
     Q_OBJECT
@@ -194,18 +182,15 @@ public:
     }
 
     // Find the repository the vault's folder is in. Git is asked from the
-    // folder, so the answer follows Git's own rules: it walks up to find a
-    // repository, follows a worktree's or submodule's .git file, and refuses
-    // a folder it doesn't trust. foundChanged says when the answer differs
-    // from the last one.
+    // folder, so its own rules apply: it walks up, follows a worktree's or
+    // submodule's .git file, and refuses a folder it doesn't trust.
+    // foundChanged says when the answer changes.
     //
-    // Git is asked how far up the repository's folder is (rev-parse
-    // --show-cdup), not where it is (--show-toplevel), and the root is made
-    // by walking up from the vault's folder. Git reports a folder with every
-    // symlink above it resolved, as macOS's temporary folders are, and a key
-    // made from that spelling wouldn't contain the keys the store's buffers
-    // are opened by, so refresh would save none of them. Walked up from the
-    // vault's folder, the root is spelled as everything else in the vault is
+    // Git is asked how far up the root is (rev-parse --show-cdup), not where
+    // (--show-toplevel), and the root is walked up to from the vault's folder.
+    // Git resolves every symlink above the folder (as in macOS's temporary
+    // folders), and a root spelled that way wouldn't contain the store's
+    // buffer keys, so refresh would save none of them
     void detect()
     {
         if (!hasGit_() || isQueued_(Kind_::Detect)) {
@@ -323,22 +308,17 @@ public:
         return operation_ != Operation_::None;
     }
 
-    // Commit these files' changes, and nothing else, with summary as the
-    // message's first line and description, if any, as its body after a blank
-    // line. committed or commitFailed answers, and the status is read again
-    // either way.
+    // Commit only these files, with summary as the message's first line and
+    // description, if any, as its body. committed or commitFailed answers, and
+    // the status is read again either way.
     //
-    // Every modified buffer in the repository is saved first; if one can't
-    // be, nothing is committed. A file git doesn't track yet is added first,
-    // since a commit takes only files git knows. Then git commits only the
-    // given paths' contents as they are on disk (commit --only), so what's
-    // been staged for other files, by Fernanda or in a terminal, stays staged
-    // and stays out of the commit. A renamed file's old path goes in too, so
-    // its removal is committed with it. Git refuses this kind of commit
-    // during a merge, and says so.
-    //
-    // The paths go to git on its standard input, so there's no limit on how
-    // many
+    // Every modified buffer in the repository is saved first; if one can't be,
+    // nothing is committed. Untracked files are added first, since a commit
+    // takes only files git knows. Then commit --only takes the given paths as
+    // they are on disk, so whatever is staged for other files stays staged and
+    // out of the commit. A renamed file's old path goes in too, so its removal
+    // is committed with it. Git refuses this during a merge, and says so. The
+    // paths go on git's standard input, so there's no limit on how many
     void commit(
         const QList<GitStatus::Entry>& entries,
         const QString& summary,
@@ -408,47 +388,37 @@ public:
         enqueue_(std::move(command));
     }
 
-    // Throw these files' changes away, returning each to the last commit,
-    // the index included, as GitHub Desktop does. discarded or discardFailed
-    // answers, and the status is read again either way. Every modified buffer
-    // in the repository is saved first; if one can't be, nothing is
-    // discarded.
+    // Throw these files' changes away, back to the last commit, index included,
+    // as GitHub Desktop does. discarded or discardFailed answers, and the
+    // status is read again either way. Every modified buffer in the repository
+    // is saved first; if one can't be, nothing is discarded.
     //
-    // The entries name the files asked for, by path, and nothing more: the
-    // question asked about them may have been up for a while, and the files
-    // changed since, from a terminal, say. So the status is read again first,
-    // and each file's changes are thrown away as that status has them
-    // (discardAskedFiles_). A file no longer changed has nothing to discard,
-    // and a file conflicted by then isn't discarded: that's a merge's to
-    // settle. Nor is a submodule: its changes are in a repository of its own,
-    // and Git can only throw those away for good, not to the trash (GitHub
-    // Desktop resets one with submodule update --force). Deciding from the old
-    // entries could ask git to restore a path it no longer has, and git would
-    // then restore none of the files, all of them already in the trash.
+    // The entries only name files, and may be stale: the files may have changed
+    // since the question went up, from a terminal, say. So the status is read
+    // again, and each file is discarded as that status has it
+    // (discardAskedFiles_). Stale entries could ask git to restore a path it no
+    // longer has, and git would then restore none of the files, all of them
+    // already in the trash. A file no longer changed is skipped, as is a
+    // conflicted one (a merge's to settle) and a submodule, whose changes live
+    // in its own repository and can only be thrown away for good (Desktop runs
+    // submodule update --force).
     //
-    // What's thrown away goes to the system trash first, from where it is,
-    // so the trash records the vault as where it came from and putting it
-    // back puts it there. Git itself keeps no copy of changes never
-    // committed, so a file whose changes can't go to the trash is left as it
-    // was, and discarded names it. When none can go, nothing is discarded,
-    // and discardFailed says so (discardPathsOf_ says what goes for each
-    // kind of change):
-    // - A file in the last commit goes to the trash, and git then restores
-    //   it in place (restore --source=HEAD --staged --worktree)
-    // - A file not in the last commit (untracked, newly added, or a rename's
-    //   new path) goes to the trash, and leaves the index (rm --cached)
+    // Each file goes to the system trash first, from where it is, so putting it
+    // back returns it to the vault: Git keeps no copy of uncommitted changes. A
+    // file that can't go is left as it was, and discarded names it; when none
+    // can, discardFailed says so. Then (discardPathsOf_):
+    // - A file in the last commit is restored in place (restore --source=HEAD
+    //   --staged --worktree)
+    // - Any other (untracked, newly added, or a rename's new path) leaves the
+    //   index (rm --cached)
+    // Each command runs at most once, given every file's path.
     //
-    // Git runs at most those two commands, each given every file's path,
-    // however many files there are.
-    //
-    // The store is held from just before the first file goes to the trash
-    // until the discard ends (holdAtOrUnder, releaseDiscardHold_). A file
-    // git restores is missing until then, and unheld, the store would take
-    // it for deleted and close every view on it. Held, the release finds it
-    // back with the last commit's text and takes that in as one undoable
-    // change, so Ctrl+Z in an open tab brings the changes back. A file not in
-    // the last commit is still gone at the release, and its views close, as
-    // for any file deleted outside Fernanda
+    // The store is held from just before the first file goes to the trash until
+    // the discard ends (holdAtOrUnder, releaseDiscardHold_), or it would take a
+    // file git restores for deleted and close its views. The release takes the
+    // restored text in as one undoable change, so Ctrl+Z in an open tab brings
+    // the changes back. A file not in the last commit stays gone, and its views
+    // close
     void discard(const QList<GitStatus::Entry>& entries)
     {
         if (!isFound() || isBusy()) {
@@ -526,29 +496,24 @@ public:
             true);
     }
 
-    // Talk to the branch's remote (syncRemote): fetch, pull, push, or
-    // publish. synced or syncFailed answers, and the status is read again
-    // either way, so the counts follow. Only ever run when asked: nothing
-    // here fetches on its own.
+    // Talk to the branch's remote (syncRemote): fetch, pull, push, or publish.
+    // synced or syncFailed answers, and the status is read again either way, so
+    // the counts follow. Runs only when asked: nothing here fetches on its own.
     //
     // - Fetch: fetch --prune, so a branch deleted on the remote goes here too
-    // - Pull: what git pull does, in two steps: a fetch, then merge
-    //   --ff-only with the upstream, which only fast-forwards. Only the fetch
-    //   reaches the network, so only it can be stopped for taking too long;
-    //   the merge, which rewrites files, is never stopped partway. Every
-    //   modified buffer in the repository is saved first. Uncommitted changes
-    //   stay as they are, as in GitHub Desktop: git takes in the commits only
-    //   when none touches a file with changes, or an untracked file in the
-    //   way, and otherwise stops before changing anything and names the
-    //   files. Branches that have diverged need a merge or a rebase, which
-    //   this doesn't do; git says so
+    // - Pull: a fetch, then merge --ff-only with the upstream. Only the fetch
+    //   can be stopped for taking too long; the merge, which rewrites files,
+    //   never is. Every modified buffer in the repository is saved first. As in
+    //   GitHub Desktop, uncommitted changes stay: if a commit touches a changed
+    //   file, or an untracked file is in the way, git changes nothing and names
+    //   the files. Diverged branches need a merge or a rebase, which this
+    //   doesn't do; git says so
     // - Push: to the branch's upstream
-    // - Publish: push --set-upstream, so the branch tracks its copy on the
-    //   remote from then on. For a branch with no upstream, or one whose
-    //   upstream is gone from the remote
+    // - Publish: push --set-upstream, for a branch with no upstream or one gone
+    //   from the remote, so it tracks its remote copy from then on
     //
-    // Git signs in its own way: a credential manager's window, an SSH agent.
-    // A fetch or a push gets GIT_NETWORK_TIMEOUT_MS, and is stopped after
+    // Git signs in its own way (a credential manager's window, an SSH agent). A
+    // fetch or a push is stopped after GIT_NETWORK_TIMEOUT_MS
     void sync(SyncAction action)
     {
         if (!isFound() || isBusy()) {
@@ -661,16 +626,15 @@ public:
 
     // Read one changed file's diff against the last commit, which is what
     // committing it would record. diffRead or diffFailed answers, with the
-    // entry's path. A file git doesn't track yet, and every file before the
-    // first commit, is compared with nothing (diff --no-index against
-    // /dev/null), so all of it shows as added. A renamed file is compared with
-    // where it was. Asking again for a file whose diff waits replaces the
-    // waiting one, which would read the same file; diffs of different files
-    // are each answered, since several diffs can be open at once.
+    // entry's path. An untracked file, or any file before the first commit,
+    // is compared with nothing (diff --no-index against /dev/null), so it
+    // shows as all added; a renamed file is compared with where it was. A new
+    // ask for a file whose diff is waiting replaces it; different files are
+    // each answered, as several diffs can be open.
     //
-    // External diff programs and text conversions are off. A repository's own
-    // config can name either, and git would run it here; and the view wants
-    // the file's own lines
+    // External diff programs and text conversions are off: a repository's
+    // config could name either for git to run here, and the view wants the
+    // file's own lines
     void readDiff(const GitStatus::Entry& entry)
     {
         if (!isFound()) {

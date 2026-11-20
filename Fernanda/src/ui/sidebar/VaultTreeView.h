@@ -18,8 +18,6 @@
 #include <QAbstractItemView>
 #include <QApplication>
 #include <QColor>
-#include <QCoreApplication>
-#include <QCursor>
 #include <QDrag>
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
@@ -27,7 +25,6 @@
 #include <QDropEvent>
 #include <QEvent>
 #include <QFrame>
-#include <QHoverEvent>
 #include <QList>
 #include <QModelIndex>
 #include <QMouseEvent>
@@ -35,7 +32,6 @@
 #include <QPalette>
 #include <QPixmap>
 #include <QPoint>
-#include <QPointF>
 #include <QRect>
 #include <QString>
 #include <QTreeView>
@@ -52,6 +48,7 @@
 #include "ui/sidebar/VaultEntryDragMime.h"
 #include "ui/sidebar/VaultTreeItemDelegate.h"
 #include "ui/widgets/Glyph.h"
+#include "ui/widgets/HoverSync.h"
 
 namespace Fernanda::Ui {
 
@@ -96,26 +93,6 @@ public:
     }
 
     ~VaultTreeView() override { TRACER; }
-
-    // Hover the row under the cursor, or none when the cursor isn't over the
-    // rows. Qt updates hover only when the mouse moves, so after the view or
-    // its rows move under a still cursor, the hovered row is wherever the
-    // cursor was before. A HoverMove is what a real move sends, and
-    // QAbstractItemView answers it by hovering the row at its position
-    void syncHover()
-    {
-        auto global = QCursor::pos();
-
-        if (!viewport()->isVisible() ||
-            QApplication::widgetAt(global) != viewport()) {
-            clearHover_();
-            return;
-        }
-
-        auto local = QPointF(viewport()->mapFromGlobal(global));
-        QHoverEvent move(QEvent::HoverMove, local, QPointF(global), local);
-        QCoreApplication::sendEvent(viewport(), &move);
-    }
 
     // The row at a point, but only within the row's wash (Style::itemWashRect):
     // beside it, left of a nested row or in the margin at either side, is no
@@ -303,7 +280,7 @@ protected:
         // happens to be over. During a drag that band is a lie: the drop lands
         // in the destination FOLDER the overlay marks, not on the row being
         // pointed at, and two highlights disagreeing is worse than one
-        clearHover_();
+        HoverSync::clearView(this);
 
         // The base repaints only inside its can-decode branch, which our
         // private MIME never enters — so without this the hover paint goes
@@ -393,6 +370,9 @@ private:
 
         // Each file row's right-anchored extension badge
         setItemDelegate(new VaultTreeItemDelegate(treeModel_, this));
+
+        // The hovered row follows the pointer while a scroll bar is dragged
+        HoverSync::followScrollBars(this);
 
         // Drop target, but NOT a model-DnD drag source — see class note. We
         // initiate drags by hand in mouseMoveEvent
@@ -528,22 +508,6 @@ private:
         dragged_ = {};
         stopAutoScroll();
         setState(QAbstractItemView::NoState);
-    }
-
-    // Tell the view the cursor is over no row. QAbstractItemView::viewportEvent
-    // answers a HoverLeave by clearing its (private) hover index and repainting
-    // the rows that changed — the same path a real cursor exit takes, so no
-    // internals are being reached into. The positions are unused by that
-    // handler; -1,-1 says "nowhere" honestly
-    void clearHover_()
-    {
-        QHoverEvent leave(
-            QEvent::HoverLeave,
-            QPointF(-1, -1),
-            QPointF(-1, -1),
-            QPointF(-1, -1));
-
-        QCoreApplication::sendEvent(viewport(), &leave);
     }
 
     // --- Highlight overlay ---------------------------------------------------

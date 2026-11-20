@@ -51,85 +51,35 @@
 
 namespace Fernanda {
 
-// A read-only image view over an ImageFileModel. Shows the model's shared
-// pixmap in a QGraphicsView — one per view, so each keeps its own zoom and
-// scroll over the one set of pixels (the image analogue of each PdfFileView's
-// QPdfView over the model's one QPdfDocument).
+// A read-only image view over an ImageFileModel's shared pixmap, in a
+// QGraphicsView of its own, so each view keeps its own zoom and scroll. A
+// QGraphicsView scales at paint time and pans for free, where a QLabel would
+// need a new pixmap per zoom step.
 //
-// Why QGraphicsView and not a scroll-area'd QLabel: the view scales at paint
-// time through its transform, where a QLabel would need a freshly scaled pixmap
-// per zoom step; and it pans for free. No QGraphicsView subclass: the viewport
-// is filtered for wheel events instead, as in PdfFileView.
+// Zoom works as in PdfFileView (ZoomState, applyZoom_): Fit contains the image,
+// centered, never past 100%; Fixed is 0.1–3.0, 100% being one image pixel per
+// logical pixel. The fit scale is computed here (fitScale_), as fitInView pads
+// by 2 px and returns no scale, so unlike PDF, leaving Fit steps from what's on
+// screen. Ctrl+wheel holds the point under the pointer still; other zooms
+// anchor on the center, as the zoom pill sits over the view.
 //
-// Zoom — PdfFileView's model, on the same ZoomState and the same three
-// entry points (the view.zoom* actions via AbstractFileView's virtuals,
-// Ctrl+wheel, the ZoomControl pill), all funneling through applyZoom_:
+// Fit turns the scrollbars off (AsNeeded would shrink the viewport under the
+// fit) and refits on the VIEWPORT's Resize, which comes only once the space the
+// bars left is filled; Fixed shows them as needed and drag-pans.
 //
-//   Fit    — contain the whole image, centered, never upscaled past 100%. The
-//            opening default, re-applied as the viewport resizes
-//   Fixed  — the clamped factor (0.1–3.0, 0.1 steps); 100% is one image pixel
-//            per logical screen pixel, as in a browser
+// The background is black, so images aren't judged against the theme.
+// Smoothing is set on the item, whose transformationMode overrides the view's
+// render hint. Zoom and scroll persist as in PdfFileView, zoom first, so the
+// scroll lands on the same part of the image.
 //
-// Two things PDF can't do, because here the view owns the math:
+// An animated image runs a QMovie per view, pushing each frame into the same
+// item, so nothing else knows about animation. The item holds the model's
+// first frame until the movie shows its own. It pauses while hidden, keeping
+// the frame it's on; a finite loop stops on its last frame. QMovie applies no
+// EXIF orientation, which animated formats rarely carry.
 //
-//   - Leaving Fit continues from what's on screen. The fit scale is computed
-//     here (fitScale_), so a step from Fit passes it to ZoomState::step, which
-//     snaps to the grid — PDF's documented Fit→Fixed jump doesn't exist.
-//   - Ctrl+wheel is cursor-anchored: the point under the pointer stays put.
-//     QGraphicsView applies its transformation anchor inside setTransform, so
-//     wheel zoom sets AnchorUnderMouse and everything else AnchorViewCenter —
-//     the pill sits over the view, and anchoring a pill click on the pill
-//     would drift the image toward the corner.
-//
-// Why compute Fit rather than call fitInView: fitInView pads by a hard-coded
-// 2 px, leaving a visible frame of background, and wouldn't hand back the
-// scale that step-from-Fit needs.
-//
-// Scrollbars and panning follow the mode: Fit turns the bars OFF (never
-// AsNeeded — a bar appearing mid-fit would shrink the viewport under the fit)
-// and has nothing to drag; Fixed turns them AsNeeded and drag-pans
-// (ScrollHandDrag).
-//
-// Refit on the VIEWPORT's resize, not the view's. Fitting immediately after
-// turning the scrollbars off measures a viewport that hasn't yet grown into the
-// space they vacated, so the fit comes out a scrollbar too small and leaves a
-// black strip. The viewport's own Resize arrives only once its geometry is
-// final — including after the Fixed→Fit policy change above — so fitting there
-// always measures the real space.
-//
-// Black background: images are judged against a neutral dark field rather than
-// the theme, and transparency reads as black. Smoothing is on the ITEM
-// (Qt::SmoothTransformation): QGraphicsPixmapItem::paint sets the painter's
-// SmoothPixmapTransform hint from its own transformationMode, so the view-level
-// render hint alone is overridden to nearest-neighbor.
-//
-// Persistence — PdfFileView's shape exactly, through AbstractFileView's
-// writeViewState/readViewState into the tab entry's opaque state blob: zoom
-// (ZoomState's mode + factor) and the scroll pair. Zoom applies at once on
-// restore; the scroll is stashed and applied one tick past the first showEvent,
-// clamped to each bar's max, since a QGraphicsView's scroll range only exists
-// once its viewport is laid out. Restoring the zoom first is what makes the
-// saved scrollbar values map back onto the same part of the image. In Fit the
-// bars are off and read 0, so a Fit tab saves and restores a harmless 0,0 — no
-// special case. Scrollbar values are offsets in viewport pixels, so a different
-// window size on relaunch lands close rather than exact (as with PDF).
-//
-// Animation. When the model reports more than one frame, this view runs its OWN
-// QMovie — per view, so each tab keeps its own playback and a hidden one costs
-// nothing — over a QBuffer on the model's bytes (a COW share of data(), not a
-// copy). Each frame is pushed into the same pixmap item, so zoom, Fit, panning,
-// and persistence don't know animation exists. Until the movie shows its first
-// frame (and whenever it's paused) the item holds the model's static first
-// frame. The movie pauses on hideEvent — a tab switched away from, a collapsed
-// split, a minimized window — and resumes on showEvent; a GIF that loops a
-// finite number of times stops on its last frame, as in a browser. A QMovie
-// applies no EXIF orientation; animated formats rarely carry one, and the model
-// treats anything it can't count as static anyway.
-//
-// A failed decode (null pixmap) shows the base's load-failure placeholder (the
-// pill, parented to the QGraphicsView, hides with it); an external change
-// re-reads the model on reloaded() and swaps either way, keeping the current
-// zoom
+// A failed decode shows the base's placeholder. An external change re-reads the
+// model, keeping the zoom
 class ImageFileView : public AbstractFileView
 {
     Q_OBJECT

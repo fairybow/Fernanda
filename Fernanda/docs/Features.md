@@ -254,6 +254,7 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 - The list keeps Git's order, as GitHub Desktop's does: the changed files Git already tracks, then the new ones, each group by path
 - A file renamed or moved outside Git (in Fernanda's file tree, say) shows as two entries, the old name deleted and the new one added, as GitHub Desktop shows it. Committing both records the rename: Git and GitHub show it as one once it's committed
 - Double-click a file, or press Enter, to open its diff in a tab, over the current tab unless that one is pinned, as a file opens from the file tree. Right-click for Open in new tab, Open to the right, and Open in new window
+- No file is selected until you click one, since a selection opens nothing: only a double-click or Enter opens a diff. The selected file stays selected while you switch to Files and back. Click below the files, or on the header beside the count, to clear the selection
 - Right-click a file for **Open file** too, which opens the file itself in a new tab (for a file in the window's vaults that Fernanda can open). If it's already the current tab, it's just shown
 - A diff's tab is marked with a diff glyph, a file with plus and minus, so it isn't taken for the file's own tab. Removed lines are red and added lines green, each with its line numbers in the old file and the new one. Within a changed line, the words that changed are marked more strongly. A line rewritten almost entirely gets no word marks, since nearly every word would have them. Lines wrap to the width of the tab, and the text is in the vault's font
 - When a file ends without a line break, the diff says so under its last line
@@ -318,6 +319,7 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 - A folder standing where a deleted file was goes to the trash when the file is discarded. Desktop has Git put the file back, which deletes the folder and everything in it for good
 - Discard all changes is only on the list's header. Fernanda has no Branch menu, so there's no Ctrl+Shift+Backspace
 - The list takes one selection, so there's no discarding several selected files at once
+- No file is selected at first, and selecting one shows nothing, since a diff opens in a tab on a double-click. Desktop selects a file from the start and shows its diff beside the list
 
 ## Look
 

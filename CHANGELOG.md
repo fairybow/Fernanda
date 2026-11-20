@@ -130,11 +130,13 @@ git push origin v0.0.0-beta.0
 
 ## What's New?
 
-- ...
+- Would like to add: backups and history (forward and backward for a tab)
 
 **Fixed**
 
-- 
+- Dragging a scroll bar could leave a row lit after the pointer had moved off it, in the file trees, the Git page's changes list, Go to File, Manage Vaults, and Settings' list of pages. While a scroll bar is dragged, the list only notices the pointer when it scrolls, so moving off the rows without scrolling, or letting go outside the list, left the last row highlighted. Lists now follow the pointer for the whole drag
+- Hovering a tab hid the divider on its right but kept the one on its left, so the hover looked lopsided. A hovered tab now keeps both dividers
+- Switching to the Git page selected the first changed file. Now nothing is selected until you click a file, and clicking below the files, or on the header beside the count, clears the selection
 
 ---
 

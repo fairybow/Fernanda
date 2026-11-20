@@ -40,50 +40,24 @@
 
 namespace Fernanda {
 
-// A read-only PDF view over a PdfFileModel. Holds a QPdfView pointing at the
-// model's shared QPdfDocument — the PDF analogue of TextFileView holding its
-// own editor over the model's prime. Because the document is the model's (one
-// per file), two of these on one PDF, or the same common-vault PDF in two
-// windows, share one parse; each QPdfView keeps its own scroll AND zoom.
+// A read-only PDF view over a PdfFileModel: a QPdfView on the model's shared
+// QPdfDocument, so two views of one PDF, in one window or two, share one parse
+// while each keeps its own scroll and zoom. The document's load status drives
+// the base's failure placeholder, so a corrupt, locked, or password-protected
+// PDF shows a message instead of a blank page.
 //
-// The document's load status drives the base's failure placeholder: a corrupt,
-// locked, or password-protected PDF shows a message instead of a blank page.
+// Zoom is a ZoomState, as in ImageFileView, driven by the view.zoom* actions,
+// Ctrl+wheel, and the ZoomControl pill, all through applyZoom_. Fit is
+// QPdfView::FitToWidth, the opening default; Fixed is QPdfView::Custom at
+// 0.1–3.0. Reset returns to Fit, how the PDF opened. QPdfView doesn't update
+// zoomFactor() while fitting, so the first step out of Fit continues from the
+// last tracked factor (1.0 until stepped), not the fitted scale: an accepted
+// jump, since computing the fit scale per page would be disproportionate. Nor
+// is zoom cursor-anchored: QPdfView recenters, and has no anchor to set.
 //
-// Zoom. Two modes, held in a ZoomState (shared with ImageFileView):
-//
-//   Fit    — QPdfView::FitToWidth, the opening default; reads like a document
-//   Fixed  — QPdfView::Custom at a clamped factor (0.1–3.0, in 0.1 steps)
-//
-// Three entry points, all funneling through applyZoom_ (so the readout stays
-// truthful whichever drove the change): the window's view.zoom* actions via
-// AbstractFileView's zoom virtuals; Ctrl+wheel; and a floating ZoomControl pill
-// (-, a Fit/percent readout that toggles Fit on click, +). A step always
-// switches to Fixed; reset returns to Fit at the 1.0 baseline (Fernanda opens
-// PDFs fitted, so "reset" means "how it opened", not 100% actual size).
-//
-// The Fit→Fixed baseline jump is a QPdfView constraint, not a bug: zoomFactor()
-// is NOT updated while a Fit mode is active (it holds the last custom value),
-// so the first step out of Fit can't read the current fitted scale to continue
-// from it — it resumes from the last factor we tracked (1.0 until stepped), so
-// this view always steps from zoom_.factor(), where the image view steps from
-// its computed fit scale. Computing the fit scale per page to seed it would be
-// disproportionate; the jump is accepted.
-//
-// Persistence: writeViewState/readViewState nest zoom (mode + factor) and the
-// scroll position — both axes — into the tab entry's opaque state blob. Zoom
-// applies immediately on restore (just properties); the scroll needs the view
-// laid out (its scrollbar range is only valid post-layout), so it's stashed and
-// applied one tick past the first showEvent — the same deferral TextFileView
-// uses for its scroll. Restoring the exact scrollbar values, rather than a
-// page-boundary jump, lands the reader precisely where they left off: the zoom
-// that produced those values is restored first, so the values still map.
-//
-// Not built: cursor-anchored zoom (the point under the pointer isn't held
-// stable — QPdfView recenters on a zoom change). The image view has it, via
-// QGraphicsView's transformation anchor; QPdfView offers no equivalent.
-//
-// Construction: the ctor builds its widgets and hands the QPdfView to the
-// base's setWidget().
+// Zoom and scroll persist in the tab's state. Zoom applies at once; the scroll
+// needs layout, so it applies one tick past the first show, as in
+// TextFileView. Restoring zoom first keeps the scroll values on the same place
 class PdfFileView : public AbstractFileView
 {
     Q_OBJECT

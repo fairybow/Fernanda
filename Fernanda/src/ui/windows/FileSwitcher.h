@@ -49,6 +49,7 @@
 #include "core/vault/Vault.h"
 #include "ui/OpenMode.h"
 #include "ui/UiConstants.h"
+#include "ui/widgets/HoverSync.h"
 #include "ui/widgets/RowBadges.h"
 #include "ui/widgets/UserTextEntry.h"
 
@@ -109,50 +110,34 @@ public:
 
 } // namespace Internal
 
-// Go to File: an Obsidian-style quick switcher — a filter field over a flat
-// list of every file the window's two vaults show. The listing is
-// Vault::visibleFiles, so it agrees with the sidebar trees by construction (no
-// dot-entries, nothing unsupported), and every row carries its file's key:
-// nothing outside the two vaults can be picked. A file is listed once. One
-// inside the window's own vault is the window's, so where the vaults nest, a
-// file both list is shown as the window's own and not again as a Common Vault
-// file.
+// Go to File: an Obsidian-style quick switcher, a filter field over a flat list
+// of every file the window's two vaults show. The list is Vault::visibleFiles,
+// so it matches the sidebar trees, and every row carries its file's key, so
+// nothing outside the vaults can be picked. A file both vaults list, where
+// they nest, is listed once, as the window's own. The list is a snapshot; a
+// file deleted since is refused by BufferStore::openModel.
 //
-// The list is a snapshot taken at construction. A file deleted before the pick
-// is refused by BufferStore::openModel, which is the authoritative gate either
-// way.
+// An empty query lists the window's recent files (RecentFiles), newest first,
+// then the rest. If the newest is the active tab's file, the second row starts
+// selected, so Enter goes back to the file before.
 //
-// An empty query lists the window's recent files first (RecentFiles), newest
-// first, then every other file in the presorted order below. When the newest
-// is the file already in the active tab, the second row starts selected, so
-// Enter goes back to the file before it. Obsidian's quick switcher also opens
-// on the recent files.
+// Matching is case-insensitive, and every space-separated term must appear in
+// the row's path. Rows whose FILE NAME holds every term rank first; then
+// project files before Common Vault files, then by path. No fuzzy scoring,
+// unlike Obsidian (docs/Future.md, "Go to File").
 //
-// Matching: case-insensitive; the query splits on spaces and every term must
-// appear somewhere in the row's path. Rows whose FILE NAME holds every
-// term rank above path-only matches; within a tier, project files come before
-// Common Vault files, then alphabetical by path. Recent files get no extra
-// weight. No fuzzy scoring, unlike Obsidian (docs/Future.md, "Go to File").
+// The typed text, trimmed, also names a file in the window's own vault, from
+// its root: "/" separates folders, each part must pass UserTextEntry, and a
+// name without a text extension gets ".txt". Enter with no match, or
+// Shift+Enter always, picks it; if the file exists, the pick is its row. A
+// line under the field says what would be created, or why it can't be. The
+// switcher never touches the disk: Pick::isNew tells the caller to create it
+// (Vault::createFileAt).
 //
-// Creating: the typed text, trimmed, also names a file in the window's own
-// vault, counted from its root. "/" separates folders, each part must pass
-// UserTextEntry, and a name without a text extension gets ".txt". Enter with
-// no match picks it, and Shift+Enter picks it whatever matches; Obsidian's
-// quick switcher does the same. If the file is already there, the pick is that
-// file's row, so it opens rather than being made again. A line under the field
-// says what Enter or Shift+Enter would create, or why the text can't be a
-// name. The switcher never touches the disk: a new file's pick says so
-// (Pick::isNew), and the caller creates it (Vault::createFileAt).
-//
-// A recent file's row says RECENT at its right end, wherever it appears, and a
-// Common Vault file's says COMMON (Internal::FileSwitcherDelegate_). A recent
-// Common Vault file has both, RECENT against the edge.
-//
-// Keys: focus never leaves the field. Up/Down/PageUp/PageDown are forwarded to
-// the list; Enter opens the current row as ReplaceActive, Ctrl+Enter as NewTab
-// (Cmd+Enter on macOS — Qt maps Cmd to ControlModifier), and Ctrl holds the
-// same way for a create; Esc cancels (the line edit ignores it, so QDialog
-// rejects). A click opens the same way, honoring a held Ctrl
+// Rows are marked RECENT and COMMON at the right
+// (Internal::FileSwitcherDelegate_). Focus stays in the field, which forwards
+// Up/Down/PageUp/PageDown to the list. Enter or a click opens as ReplaceActive,
+// with Ctrl (Cmd on macOS) as NewTab, a create included; Esc cancels
 class FileSwitcher : public QDialog
 {
     Q_OBJECT
@@ -358,6 +343,9 @@ private:
         list_->setFocusPolicy(Qt::NoFocus); // typing always lands in the field
         list_->setUniformItemSizes(true);   // cheap layout for long listings
         list_->setItemDelegate(new Internal::FileSwitcherDelegate_(list_));
+
+        // The hovered row follows the pointer while the scroll bar is dragged
+        HoverSync::followScrollBars(list_);
 
         connect(
             list_,

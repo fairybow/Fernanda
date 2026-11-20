@@ -196,20 +196,17 @@ public:
         return PathKey::of(absolute);
     }
 
-    // Create an empty file at a key named in full, making any missing folders
-    // above it. This is Go to File's create: the user typed the path, so the
-    // folders in it are theirs to make, where createFile's folder must already
-    // be there. The vault's own folder is never recreated.
+    // Create an empty file at a full key, making any missing folders above it:
+    // Go to File's create, where the user typed the folders (createFile's
+    // folder must exist). The vault's own folder is never recreated.
     //
-    // Returns false, having made nothing, for a key that isn't inside the
-    // vault, has a hidden name anywhere below the root, isn't a text file (an
-    // empty PDF or image is no file at all), or already exists. Also false when
-    // the disk refuses, as when a part of the path is a file; folders made
-    // before the refusal stay, and the tree finds them by its watcher.
+    // Returns false, making nothing, for a key outside the vault, with a hidden
+    // name below the root, not a text file, or already there. Also false if
+    // the disk refuses (a part of the path is a file); folders made before
+    // that stay, and the watcher finds them.
     //
-    // The tree is told about the highest entry made, so a new folder appears
-    // with the file inside it. The tree can't place the file itself while the
-    // folder holding it has no row
+    // The tree is told the highest entry made, so a new folder appears with
+    // the file in it; the tree can't place a file whose folder has no row
     bool createFileAt(const PathKey& key)
     {
         if (!key.isUnder(rootKey_)) {
@@ -288,23 +285,16 @@ public:
         return relocate_(entry, PathKey::of(entry.path().parent() / newLeaf));
     }
 
-    // Move a file or folder into a different directory. A move is a rename with
-    // a new parent, so it shares relocate_'s core: the leaf name is preserved,
-    // so the new path is destDir/name. entry is an existing entry in this
-    // vault; destDir is where it lands (a tree folder, or the vault root for a
-    // drop on empty space). Any open buffer at or under the entry is re-keyed
-    // just as a folder rename does. Returns the new key (empty on failure — a
-    // name collision, a locked entry, or an invalid target). Declines cleanly,
-    // never corrupts.
+    // Move an entry of this vault into destDir (a tree folder, or the root for
+    // a drop on empty space), keeping its name. It's a rename with a new parent
+    // (relocate_), so open buffers at or under it are re-keyed. Returns the new
+    // key, or an empty one on refusal (a name collision, a locked entry, an
+    // invalid target); never corrupts.
     //
-    // The guards below are defensive, behind the tree's advisory ones: the tree
-    // suppresses these drops (no indicator, ignored), but the disk op stays
-    // authoritative, so a race or a future non-tree caller can't drive a
-    // corrupting move through. Vault scope is relocate_'s to check, for rename
-    // and move alike. The no-op case (dropping an entry into its own current
-    // parent) is the tree's to filter — it's a pure path comparison needing no
-    // Vault, and letting it reach here would only turn a harmless nothing into
-    // a spurious failure warning
+    // The guards below back up the tree's, which ignore these drops, so a race
+    // or a non-tree caller can't force a bad move. relocate_ checks vault
+    // scope. A drop into the entry's own parent is the tree's to filter; here
+    // it would turn a harmless nothing into a spurious warning
     PathKey move(const PathKey& entry, const PathKey& destDir)
     {
         if (!destDir.path().isDir()) {

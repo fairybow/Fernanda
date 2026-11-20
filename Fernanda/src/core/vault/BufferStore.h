@@ -81,21 +81,17 @@ public:
     using ConfirmLossyOpen =
         std::function<bool(const PathKey& key, const QByteArray& data)>;
 
-    // Return the existing buffer for this file, or create one. This is the
-    // dedup point that makes "same file open twice" and "common file open in
-    // two windows" both resolve to a single model.
+    // Return the buffer for this file, creating it if needed: the dedup point
+    // that gives a file open twice, or in two windows, one model.
     //
     // Returns nullptr for a file Fernanda won't open: an empty key, an
-    // unsupported type, a file it can't read — gone since it was listed, or
-    // locked — or a text file that isn't valid UTF-8 whose open the caller
-    // declined. This is the AUTHORITATIVE refusal: the tree and the
-    // FileSwitcher hide unsupported files, but those are advisory, and this is
-    // the one gate every open path — tree, switcher, drop, restore, and later
-    // CLI — funnels through. Callers treat null as "nothing to open".
+    // unsupported type, an unreadable file (gone since listed, or locked), or
+    // non-UTF-8 text whose open the caller declined. This is the AUTHORITATIVE
+    // refusal: the tree's and FileSwitcher's hiding is advisory, and every
+    // open path comes through here.
     //
-    // confirmLossyOpen is asked only on a fresh read that fails to decode — a
-    // dedup hit returns above it, so an open buffer never prompts twice (a
-    // common file opened from a second window included)
+    // confirmLossyOpen is asked only on a fresh read that fails to decode. An
+    // open buffer returns before that, so it never prompts twice
     [[nodiscard]] AbstractFileModel*
     openModel(const PathKey& key, const ConfirmLossyOpen& confirmLossyOpen)
     {
@@ -284,18 +280,16 @@ public:
     }
 
     // After the disk op moved oldEntry to newEntry. Every tree moves its row
-    // (VaultTreeModel::applyRelocation), so each window keeps the entry and
-    // what's under it expanded and selected; left to find out from its own
-    // watcher, a tree would re-list the folder and see a new entry, collapsed.
-    // A tree with no row there, old or new, does nothing. Then every buffer at
-    // or under the entry takes its new key, and its views retitle. Trees
-    // first, so views already show the new place when the retitles fan out.
+    // (VaultTreeModel::applyRelocation), keeping the entry and what's under it
+    // expanded and selected; a tree left to its watcher would re-list and show
+    // a new, collapsed entry. Then every buffer at or under the entry is
+    // re-keyed and its views retitle, after the trees, so views already show
+    // the new place.
     //
-    // A tree whose vault folder was the entry, or inside it, has no row for
-    // it: the whole vault went with the entry. After a change of letter case
-    // alone, where case is ignored, its folder is still there and its watches
-    // come back here. Either way App moves its Vault to the new place when it
-    // hears entryRelocated, announced last, and the tree watches again from
+    // A tree whose vault folder is at or under the entry has no row to move:
+    // the vault went with it. After a case-only change, where case is ignored,
+    // its folder is still there, so its watches are restored. App moves that
+    // Vault on entryRelocated, announced last, and the tree watches again from
     // there (Vault::moveRoot)
     void applyRelocation(const PathKey& oldEntry, const PathKey& newEntry)
     {
@@ -345,30 +339,24 @@ public:
         return true;
     }
 
-    // While something outside Fernanda rewrites files at or under the entry
-    // (a Git switch, pull, or discard), the store leaves their buffers alone
-    // until it's done.
+    // While something outside Fernanda rewrites files at or under entry (a Git
+    // switch, pull, or discard), the store leaves their buffers alone.
     //
-    // Autosave doesn't write them: typing goes on in the buffer, unwritten,
-    // so it can't land over what the other program writes. Without this, an
-    // autosave between that program's write and the watcher's reconcile would
-    // write the old text back over it, and the watcher would take that write
-    // for its own. Writes asked for outright (a flush, a window closing, a
-    // tab's last view closing) still happen: the text must never be dropped.
-    // A file gone meanwhile is never written back (writeModel_), so one of
-    // these can't bring back a file the other program removed.
+    // Autosave skips them, so typing stays in the buffer and can't land over
+    // the other program's write. Otherwise an autosave between that write and
+    // the watcher's reconcile would put the old text back, and the watcher
+    // would take it for its own. Writes asked for outright (a flush, a window
+    // or a tab's last view closing) still happen, so text is never dropped, and
+    // a file gone meanwhile is never written back (writeModel_).
     //
-    // And what the watcher reports about them waits for the release
-    // (reconcileOne_). A file the other program removes and then puts back (a
-    // discard trashes a file, and Git restores it) would otherwise be taken
-    // for deleted if the watcher's pass fell between the two, and its buffer
-    // and every view on it closed.
+    // The watcher's reports wait for the release too (reconcileOne_). A file
+    // removed and put back (a discard trashes it, Git restores it) would
+    // otherwise be taken for deleted if a pass fell between the two, closing
+    // its buffer and every view on it.
     //
-    // Holds may overlap, from two windows over one repository; each hold is
-    // released once.
-    //
-    // What each held buffer's file holds now is noted, so the release can
-    // tell which files changed during the hold
+    // Holds may overlap, from two windows over one repository; each is released
+    // once. What each held file holds now is noted, so the release can tell
+    // which changed
     void holdAtOrUnder(const PathKey& entry)
     {
         Hold_ hold{};
@@ -610,21 +598,20 @@ private:
         return out;
     }
 
-    // Re-key one buffer after the disk rename. oldBase/newBase are the renamed
-    // entry's own keys for a file, or the folder's for a folder rename — in
-    // which case the buffer's tail below oldBase is moved under newBase. Moves
-    // the map key, the write-fingerprint, and the watch, then updates identity
-    // (which fans the retitle out to views).
+    // Re-key one buffer after the disk rename. oldBase and newBase are the
+    // renamed entry's keys, the file's own or its folder's; the buffer's key
+    // below oldBase moves under newBase. The map key, write fingerprint, and
+    // watch move, then the identity, which retitles the views.
     //
-    // The disk op refuses a target that exists, so a buffer already under the
-    // new key is one whose file was deleted outside Fernanda before the
-    // watcher's report was reconciled. It's discarded as that reconcile would
-    // discard it, so the map never holds two buffers for one key and the
-    // moved buffer doesn't take over the other's fingerprint.
+    // The disk op refuses an existing target, so a buffer already at the new
+    // key is one whose file was deleted outside Fernanda before the watcher's
+    // report was reconciled. It's discarded as that reconcile would, so no key
+    // holds two buffers and the moved one doesn't take the other's
+    // fingerprint.
     //
-    // Each entry is removed before it is put back: a change of letter case
-    // alone gives an equal key where case is ignored, and inserting first
-    // would leave the old spelling in the map
+    // Each entry is removed before it's put back: after a case-only change,
+    // where case is ignored, the keys are equal, and inserting first would keep
+    // the old spelling
     void rekeyModel_(
         AbstractFileModel* model,
         const PathKey& oldBase,
@@ -660,25 +647,18 @@ private:
         FileGone
     };
 
-    // The single write site. Every path to disk — the debounce, the ceiling,
-    // the exit flushes, the eviction flush — funnels through here, so the
-    // watcher's self-write suppression records its fingerprint in one place,
-    // and a failed write shouts in one place. Leaves the model dirty on
-    // failure: a buffer is never abandoned, so the next save trigger retries
-    // it.
+    // The single write site: the debounce, the ceiling, and every flush come
+    // through here, so the watcher's self-write fingerprint is recorded, and a
+    // failure reported, in one place. On failure the model stays dirty, and
+    // the next save retries.
     //
-    // It only ever OVERWRITES. A live buffer's file is always on disk, so a
-    // missing file means it was deleted or moved outside Fernanda, its folder
-    // included, and the watcher hasn't said so — deleting or renaming a PARENT
-    // folder may produce no fileChanged for the file under it. Writing anyway
-    // would recreate the file, and with CreateDirs its whole folder chain,
-    // somewhere the user just emptied. Instead the path goes to
-    // reconcileChanges_ as if the watcher had reported it: its deletion branch
-    // discards the buffer and closes the views, matching Obsidian, which sees
-    // an outside folder move as a delete per file. Not discarded here: callers
-    // are iterating models_. And the debounce lets a brief disappearance (a git
-    // checkout deleting and recreating a folder) come back before anything is
-    // discarded
+    // It only OVERWRITES. A live buffer's file is always on disk, so a missing
+    // one was deleted or moved outside Fernanda, perhaps with a parent folder,
+    // which may raise no fileChanged for it. Writing would recreate it, and
+    // with CreateDirs its folders. Instead its path is queued for
+    // reconcileChanges_, which discards the buffer and closes its views, as
+    // Obsidian does. Not here, since callers iterate models_; and the debounce
+    // lets a brief disappearance (a git checkout) come back first
     WriteResult_ writeModel_(AbstractFileModel* model)
     {
         auto key = model->key();
@@ -759,18 +739,15 @@ private:
         model->deleteLater();
     }
 
-    // A model's last view closed: flush any unsaved bytes, then free the
-    // buffer, so models_ doesn't grow without bound as tabs come and go. The
-    // tab-close path lands here — closing a tab destroys the view, the base
-    // model's view count returns to zero, and lastViewClosed fires. Tab close
-    // itself does no IO; this is the one place a viewless buffer's final
-    // per-file flush belongs.
+    // A model's last view closed (as when its last tab closes): flush any
+    // unsaved bytes, then free the buffer, so models_ doesn't grow as tabs come
+    // and go. Tab close does no IO itself; this is a viewless buffer's final
+    // flush.
     //
-    // SAFETY rests on a destruction-ordering invariant: a view firing this
-    // always reaches a LIVE store. The store is App's child and never dies on a
-    // window close. At app quit, ~QApplication reaps top-level windows before
-    // ~QObject reaps App's children. So the store is alive whenever a view of
-    // its models dies, and no closingDown() guard is needed
+    // SAFE because a view firing this always reaches a live store: the store
+    // is App's child and outlives every window close, and at quit,
+    // ~QApplication reaps top-level windows before ~QObject reaps App's
+    // children. So no closingDown() guard is needed
     void evictModel_(AbstractFileModel* model)
     {
         auto key = model->key();

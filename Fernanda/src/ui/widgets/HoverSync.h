@@ -15,35 +15,41 @@
 
 #pragma once
 
+#include <QAbstractItemView>
+#include <QApplication>
 #include <QCoreApplication>
 #include <QCursor>
 #include <QEvent>
 #include <QGuiApplication>
+#include <QHoverEvent>
 #include <QMouseEvent>
 #include <QObject>
 #include <QPoint>
 #include <QPointF>
 #include <QRect>
+#include <QScrollBar>
 #include <QWidget>
 #include <QWindow>
 
 #include <Coco/Time.h>
 
 // Keeps hover washes in step with the pointer when widgets move under a
-// pointer that stays put.
+// pointer that stays put, and an item view's hovered row in step while one of
+// its scroll bars is dragged. See docs/Architecture.md, "The style".
 //
-// Qt works out which widget is under the mouse (Qt::WA_UnderMouse, which a
-// hover wash is drawn from) only when the mouse moves, or a widget is shown or
-// hidden. A widget that moves or resizes while the pointer stays put keeps the
-// mark it had: a toggle moving it away, or a neighbor narrowing and handing it
-// room. It keeps its wash, or lacks one, until the next move. A widget
-// disabled at the time gets no mark at all as the pointer passes.
+// Qt sets Qt::WA_UnderMouse, which a wash is drawn from, only when the mouse
+// moves or a widget is shown or hidden. A widget that moves or resizes under a
+// still pointer keeps its old mark until the next move, and one disabled as
+// the pointer passes gets none. sync brings that move forward, handing the
+// window a mouse move at the pointer so Qt sends the Enter and Leave a real
+// move would. Setting the flag by hand would leave Qt's own record behind, and
+// the widget would never get the Leave that clears it.
 //
-// sync brings that next move forward: it hands the window a mouse move at the
-// pointer, so Qt sends the Enter and Leave events a real move would. Setting
-// the flag by hand would leave Qt's own record of the widget under the mouse
-// behind, and the widget that Qt never saw entered would never be sent the
-// Leave that clears it
+// An item view hovers a row only when its viewport gets a hover event, and
+// syncView and clearView send the one a real move would. While a scroll bar
+// is dragged it has the mouse, so the viewport gets none; followScrollBars
+// sends them, so no row is left hovered when the pointer moves off without a
+// scroll, or is let go outside the view
 namespace Fernanda::Ui::HoverSync {
 
 // A mouse move at the pointer, for widget's window, if the pointer is over
@@ -73,6 +79,38 @@ inline void sync(QWidget* widget)
         Qt::NoButton,
         QGuiApplication::keyboardModifiers());
     QCoreApplication::sendEvent(handle, &move);
+}
+
+// The view hovers no row. QAbstractItemView answers a HoverLeave by clearing
+// its hovered row and repainting the rows that changed, the same path a real
+// exit takes. The positions are unused there; -1, -1 says nowhere
+inline void clearView(QAbstractItemView* view)
+{
+    QHoverEvent leave(
+        QEvent::HoverLeave,
+        QPointF(-1, -1),
+        QPointF(-1, -1),
+        QPointF(-1, -1));
+
+    QCoreApplication::sendEvent(view->viewport(), &leave);
+}
+
+// The view hovers the row under the pointer, or none when the pointer isn't
+// over its viewport. A HoverMove is what a real move sends, and the view
+// answers it by hovering the row at its position (indexAt), or none
+inline void syncView(QAbstractItemView* view)
+{
+    auto* viewport = view->viewport();
+    auto global = QCursor::pos();
+
+    if (!viewport->isVisible() || QApplication::widgetAt(global) != viewport) {
+        clearView(view);
+        return;
+    }
+
+    auto local = QPointF(viewport->mapFromGlobal(global));
+    QHoverEvent move(QEvent::HoverMove, local, QPointF(global), local);
+    QCoreApplication::sendEvent(viewport, &move);
 }
 
 namespace Internal {
@@ -113,6 +151,38 @@ private:
     QWidget* widget_;
 };
 
+// Syncs its view's rows on every mouse move one of the view's scroll bars is
+// sent while a button is held: a drag, during which the scroll bar has the
+// mouse. Seen before the scroll bar acts on the move, so a move that also
+// scrolls has the view hover the row brought under the pointer afterward
+// (QAbstractItemView does on every scroll). On release, Qt's own Enter or
+// Leave follows the last move
+class ScrollBarFollower_ : public QObject
+{
+public:
+    explicit ScrollBarFollower_(QAbstractItemView* parentView)
+        : QObject(parentView)
+        , view_(parentView)
+    {
+        view_->verticalScrollBar()->installEventFilter(this);
+        view_->horizontalScrollBar()->installEventFilter(this);
+    }
+
+protected:
+    bool eventFilter(QObject* watched, QEvent* event) override
+    {
+        if (event->type() == QEvent::MouseMove &&
+            static_cast<QMouseEvent*>(event)->buttons() != Qt::NoButton) {
+            syncView(view_);
+        }
+
+        return QObject::eventFilter(watched, event);
+    }
+
+private:
+    QAbstractItemView* view_;
+};
+
 } // namespace Internal
 
 // Syncs widget's window from now on whenever widget moves, resizes, or is
@@ -120,5 +190,13 @@ private:
 // still pointer. Moving because its parent moved isn't seen: call sync for
 // that
 inline void follow(QWidget* widget) { new Internal::Follower_(widget); }
+
+// Keeps view's hovered row under the pointer while either of its scroll bars
+// is dragged, from now on. Watches the scroll bars the view has now, so a view
+// given new ones later (setVerticalScrollBar) calls this again
+inline void followScrollBars(QAbstractItemView* view)
+{
+    new Internal::ScrollBarFollower_(view);
+}
 
 } // namespace Fernanda::Ui::HoverSync

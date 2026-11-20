@@ -231,21 +231,16 @@ public:
         return page;
     }
 
-    // Remove and delete the page at index. Deleting a TextFileView just
-    // unregisters its document from the prime (via QObject::destroyed); the
-    // buffer is the Vault's and survives. This is the single close path — the
-    // close button (when unpinned) and the context menu's Close both land here.
+    // Remove and delete the page at index: the single close path, from the
+    // close button (when unpinned) and the context menu's Close. A pure view
+    // operation: there's no dirty prompt, the prime drops a destroyed view's
+    // document by itself (QObject::destroyed), and the buffer, the store's,
+    // outlives the view.
     //
-    // Closing a tab is a pure view operation: no dirty-state prompt (no
-    // user-facing dirty file), and the prime auto-unregisters a destroyed view
-    // doc, so there's no manual cleanup. The buffer is the Vault's and outlives
-    // the view.
-    //
-    // Deliberately no flush at tab close. The buffer persists and is written by
-    // autosave and window close; its final per-file flush comes when its last
-    // view closes (Vault eviction), not here (a shared file may still be open
-    // in another tab or window, so per-tab flushing would be both redundant and
-    // premature)
+    // No flush here. Autosave and window close write the buffer, and the store
+    // flushes it when its last view closes. The file may still be open in
+    // another tab or window, so a flush per tab would be redundant and
+    // premature
     void closePage(int index)
     {
         if (auto* page = takePage(index)) {
@@ -362,16 +357,14 @@ private:
         top->addLayout(addButtonColumn_(), 0);
         top->addStretch(1);
 
-        // Hold the row one tab tall regardless of the bar's visibility.
-        // updateEmptyState_ hides the bar while there are no tabs; a hidden
-        // widget contributes nothing to the layout, so without this the row
-        // would collapse to the + button's height and lift the button out of
-        // the vertical centering it has against the tabs. A zero-width Fixed
-        // spacer reserves the bar's height (TAB_HEIGHT, plus the gap the style
-        // leaves above every tab) and nothing else — no horizontal effect, so
-        // the button still pins to the right edge. It's a layout item, not a
-        // widget (same reasoning as the stretch above). TAB_HEIGHT < 0 means
-        // Qt-default tab sizing, where we don't know the height, so skip it
+        // Hold the row one tab tall even while updateEmptyState_ hides the bar
+        // (a hidden widget takes no layout space), or the row would shrink to
+        // the + button's height and the button would lose its vertical
+        // centering against the tabs. A zero-width Fixed spacer reserves only
+        // the height (TAB_HEIGHT, plus the gap the style leaves above every
+        // tab), so the button still pins to the right edge. TAB_HEIGHT < 0
+        // means Qt's default tab sizing, whose height isn't known, so it's
+        // skipped
         if (TAB_HEIGHT >= 0) {
             top->addItem(new QSpacerItem(
                 0,
@@ -542,18 +535,15 @@ private:
         bar_->setTabButton(index, closeSide_, button);
     }
 
-    // Draw the page's tab mark, if it has one (PageIcon). Called wherever a tab
-    // gains a page (addPage for a new or dropped one, replacePage for the
-    // new-tab -> editor swap), for every tab when the colors change
-    // (changeEvent), and for one page when its mark changes (refreshPageIcon).
-    // A page with no mark clears the tab's icon, so a marked page replaced by
-    // an unmarked one leaves nothing behind. The leaf never asks what the mark
-    // means.
+    // Draw the page's tab mark (PageIcon), or clear the tab's icon if it has
+    // none, so a replaced marked page leaves nothing behind. Called wherever a
+    // tab gains a page (addPage, replacePage), for every tab when the colors
+    // change (changeEvent), and for one page when its mark changes
+    // (refreshPageIcon). The leaf never asks what a mark means.
     //
-    // The color is the leaf's, which the bar shares (neither sets a palette of
-    // its own). It's read from the leaf, not the bar, because a palette change
-    // reaches a parent before its children: changeEvent runs this while the
-    // bar still holds the old palette
+    // The color is read from the leaf, not the bar, though they share it: a
+    // palette change reaches a parent before its children, so changeEvent
+    // runs this while the bar still holds the old palette
     void applyPageIcon_(int index, QWidget* page)
     {
         if (index < 0 || index >= bar_->count()) {

@@ -143,20 +143,15 @@ public:
         QList<VaultEntry> entries{};
         entries.reserve(recents.size());
 
-        // open is derived here alongside missing, but from the in-memory
-        // openVaults_ registry rather than the disk: a recents path is "open"
-        // when a window currently holds it. ManageVaults gates on it — a row's
-        // remove-from-list is disabled while that vault is open — so the
-        // open-vault knowledge lives in one place. Fresh each call, so
-        // it reflects opens AND closes; the surfaces rebuild on vaultsChanged,
-        // which fires on both.
+        // open comes from openVaults_, not the disk: a recents path is open
+        // while a window holds it. ManageVaults disables a row's remove while
+        // its vault is open. Built fresh on each call, and the surfaces rebuild
+        // on vaultsChanged, which fires on opens and closes.
         //
-        // NB: open is NOT a proxy for "a live Vault exists on this root". For a
-        // project vault the two coincide — its Vault is constructed and
-        // disposed with its window — but the Common Vault is App-owned and
-        // outlives every window onto it, so a closed Common Vault row still has
-        // a live Vault behind it. That is exactly why isCommon is a separate
-        // field and not something a surface infers from open
+        // open doesn't mean a live Vault exists on the root. For a project
+        // vault the two coincide, but the App-owned Common Vault outlives its
+        // windows, so a closed Common Vault row still has a live Vault. That's
+        // why isCommon is its own field, not inferred from open
         for (const auto& root : recents) {
             auto key = PathKey::of(root);
 
@@ -432,18 +427,15 @@ private:
         commonVault_ = new Vault(root, bufferStore_, this);
     }
 
-    // Restore last session's vaults: reopen every vault marked open whose
-    // folder still exists, oldest-used first so the most-recent one activates
-    // last and lands frontmost. open is the whole signal — a vault is marked
-    // when opened and unmarked when closed (unless it's the last, or a global
-    // quit kept it), so this reopens exactly what was up at the last exit. When
-    // nothing qualifies — a fresh install, or a marked set whose folders all
-    // vanished — show the picker rather than guessing a vault to open. exists()
-    // is the per-candidate guard: any present folder is a valid vault, so only
-    // a moved/deleted one is skipped. Each reopen reuses the one open/make
-    // convergence point; the registry is path-keyed, so none early-returns as
-    // already-open. Returns the window left in front: the last vault's, or the
-    // picker
+    // Reopen every vault marked open whose folder still exists, oldest-used
+    // first, so the most recent lands in front. open alone decides: it's set on
+    // opening and cleared on closing, except for the last window or a quit, so
+    // this reopens what was up at the last exit. Any existing folder is a valid
+    // vault; a moved or deleted one is skipped. Each goes through
+    // onOpenOrMakeVaultRequested_, and none is open yet, so none returns early.
+    // When none qualifies (a fresh install, or every folder gone), the picker
+    // shows instead of a guess. Returns the window in front: the last vault's,
+    // or the picker
     QWidget* restoreSessionOrShowManageVaults_()
     {
         Coco::Path front{};
@@ -578,21 +570,17 @@ private:
         }
     }
 
-    // A vault's folder deleted or moved outside Fernanda. The user contract is
-    // "don't do that", so nothing is rescued: an open vault's window closes —
-    // its buffers' files are gone, so its flush reports nothing, and its
-    // workspace save is skipped (a missing root is never recreated) — and a
-    // Common Vault whose folder went is unset, since where it went can't be
-    // known. The Common Vault's own window, if open, closes like any other:
-    // it's in openVaults_ under its root. One message first, naming what
-    // happened — before anything closes, because closing the last window
-    // starts the quit.
+    // A vault's folder was deleted or moved outside Fernanda. The user contract
+    // is "don't do that", so nothing is rescued. An open vault's window closes,
+    // the Common Vault's own included: its files are gone, so nothing flushes,
+    // and its workspace isn't saved, since a missing root is never recreated.
+    // A Common Vault whose folder went is unset, as where it went can't be
+    // known. One message comes first, as closing the last window quits.
     //
-    // Run when Fernanda becomes active again: deleting a vault's folder means
-    // going to a file manager, and coming back is the moment to look. The
-    // watchers can't be relied on here — on Windows Fernanda's own watches
-    // often stop Explorer taking the folder at all, and where it does go,
-    // whether the folder's own removal is reported varies by platform
+    // Runs when Fernanda is activated again, back from the file manager. The
+    // watchers can't be relied on: on Windows, Fernanda's own watches often
+    // stop Explorer taking the folder at all, and whether a folder's own
+    // removal is reported varies by platform
     void checkVaultFolders_()
     {
         if (checkingVaultFolders_) {
@@ -660,32 +648,27 @@ private:
             common_missing);
     }
 
-    // A rename or move took entry to newEntry: a Vault's, or Manage Vaults'
-    // (renameVaultFolder_). Vaults nest, so entry may be, or hold, vaults'
-    // folders, the Common Vault's among them.
+    // A rename or move took entry to newEntry, from a Vault or from Manage
+    // Vaults (renameVaultFolder_). Vaults nest, so entry may be or hold vault
+    // folders, the Common Vault's included. Each vault follows its folder, and
+    // its window stays open; a case-only change, where case is ignored, is
+    // followed the same way.
     //
-    // Each vault follows its folder: the folder is the same, with everything
-    // in it, so its Vault carries on at the new place (Vault::moveRoot), and
-    // its window stays open. A change of letter case alone, where case is
-    // ignored, is the same folder spelled anew, and is followed the same way.
-    //
-    //   - Every known vault's record at or under entry takes its folder's new
-    //     path, open or not, keeping its place in the recents and its open
-    //     flag.
-    //   - Every live Vault there moves: the Common Vault, and each vault with
-    //     a window. Its tree and every window's copy of its root follow
-    //     through rootMoved.
+    //   - Every known vault's record at or under entry takes the new path, open
+    //     or not, keeping its recents place and open flag.
+    //   - Every live Vault there (the Common Vault, and each with a window)
+    //     moves (Vault::moveRoot); its tree and the windows' copies of its root
+    //     follow through rootMoved.
     //   - openVaults_ is keyed again, since a QHash keeps the key an entry was
     //     inserted with.
-    //   - The Common Vault's path in AppConfig follows it, so the next launch
-    //     finds it there.
+    //   - AppConfig's Common Vault path follows, for the next launch.
     //
-    // Done as soon as the store announces the move, before anything else
-    // reacts: each window looks at its relocated tabs a tick later
-    // (VaultWindow::makeView_), and by then their files must be in the moved
-    // vaults, or their tabs would close. And nothing runs an event loop in
-    // between, so no window can be activated with its record and its root out
-    // of step: activation records a vault's use by its root's path
+    // Runs as soon as the store announces the move, before anything else
+    // reacts: each window checks its relocated tabs a tick later
+    // (VaultWindow::makeView_), and their files must be in the moved vaults by
+    // then or the tabs close. No event loop runs in between, so no window can
+    // be activated (which records a vault's use by its root's path) while its
+    // record and root disagree
     void followVaults_(const PathKey& entry, const PathKey& newEntry)
     {
         auto changed = false;
@@ -1136,18 +1119,14 @@ private:
         }
     }
 
-    // A window asked to quit the whole app — Ctrl+Q or File → Quit, from any
-    // window. Route through each open window's closeEvent, the one path that
-    // flushes, saves workspace, and can still REFUSE on a failed write; never
-    // qApp->quit(), which skips all three. Set quitting_ first so the
-    // per-window destroyed handlers preserve the open set for next-launch
-    // restore, exactly as onAboutToQuit_ does; on a refusal we aren't quitting
-    // after all, so clear it again. close() returns false when a window refuses
-    // — stop there and leave the app running rather than quit past unsaved
-    // work. The last window's destroyed fires quit() via
-    // onVaultWindowDestroyed_ / onManageVaultsDestroyed_, so we don't call
-    // quit() here; we only make sure a picker that's the sole remaining window
-    // also closes
+    // Ctrl+Q or File → Quit, from any window. Each vault window is closed
+    // through its closeEvent, the one path that flushes, saves the workspace,
+    // and can REFUSE on a failed write; never qApp->quit(), which skips all
+    // three. quitting_ is set first so each window's destroyed handler keeps
+    // the open set for the next launch, as onAboutToQuit_ does. When a window
+    // refuses, quitting_ is cleared and the app stays up. The last window's
+    // destroyed quits (onVaultWindowDestroyed_, onManageVaultsDestroyed_), so
+    // this only closes the picker too, if it is open
     void onQuitRequested_()
     {
         quitting_ = true;

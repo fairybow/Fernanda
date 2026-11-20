@@ -22,48 +22,30 @@ namespace Fernanda::ActionIds {
 using namespace Qt::StringLiterals;
 
 // The stable ids every action is filed under in a window's registry. Named
-// constants rather than loose literals because a mistyped id is otherwise a
-// silent runtime gap — BaseWindow::action asserts on a miss, but only in a
-// debug build; here the compiler catches it either way.
+// constants, so a mistyped id fails to compile rather than leaving a gap that
+// BaseWindow::action's assert catches only in a debug build.
 //
-// THE NAMING RULE: the prefix names the thing acted on, never the menu the
-// action currently sits in. A menu can move — a View-menu item becoming a
-// Window-menu item shouldn't invalidate a persisted hotkey or a palette entry —
-// and these strings are exactly what gets persisted in the hotkey config and
-// shown in a future command palette. So:
+// A prefix names the thing acted on, never the menu: menus move, and ids will
+// be saved in hotkey settings and shown in a command palette. See
+// docs/Architecture.md, "Actions".
 //
-//   document.   the buffer. Undo routes through the model's shared prime, so
-//               it reverses in every view of that file, in every window —
-//               it is not "the active tab's undo" and must not be named as
-//               though it were
-//   file.       a file on disk in the vault
-//   folder.     a directory in the vault
+//   document.   the buffer: undo reverses in every view of the file, in every
+//               window, not just the active tab
+//   file.       a file in the vault
+//   folder.     a folder in the vault
 //   window.     one window's own chrome
-//   view.       one view's presentation, per-view and not the buffer: zoom is
-//               view-local (two views of one PDF zoom independently), so it
-//               is named for the view, not document. A search is the same:
-//               each view has its own. Like document., a menu can move it
-//               without invalidating a persisted hotkey
-//   vault.      the vault as a whole, beyond any one file or folder in it — its
-//               settings. Per-window like file., since each window edits its
-//               own vault
-//   repository. the Git repository the window's vault is in, which may hold
-//               more than the vault. Per-window, since each window has its own
-//               view of it
-//   text.       the text that has keyboard focus: the editor, or a text
-//               field such as the find bar's. The clipboard and selection
-//               commands act there, where the keys for them already work, so
-//               from the menu they reach the find field as readily as the
-//               editor. Nothing else has text to act on
-//   app.        App owns the behaviour and windows only display it — the
-//               AppActions set. This prefix doubles as the marker for what
-//               travels down from App rather than being minted per window
+//   view.       one view's presentation, not the buffer: two views of a file
+//               zoom and search apart
+//   vault.      the whole vault (its settings), per window
+//   repository. the Git repository the vault is in, per window
+//   text.       the text with keyboard focus, the editor or a field such as
+//               the find bar's, where the clipboard and selection keys work
+//   app.        what App owns and windows only show (AppActions); also marks
+//               what comes down from App rather than being minted per window
 //
-// QString rather than the constexpr auto used in CoreConstants: these are
-// QHash<QString, QAction*> keys, hit at every menu build and every future
-// palette lookup, and a char/QLatin1 constant would convert on each one.
-// QString has no dependency on QCoreApplication, so namespace-scope static
-// initialization is safe
+// QString, not CoreConstants' constexpr auto: these key a
+// QHash<QString, QAction*>, and another type would convert on each lookup.
+// QString needs no QCoreApplication, so static initialization is safe
 
 inline const QString DOCUMENT_UNDO = u"document.undo"_s;
 inline const QString DOCUMENT_REDO = u"document.redo"_s;

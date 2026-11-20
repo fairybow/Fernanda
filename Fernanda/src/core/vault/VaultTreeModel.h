@@ -40,38 +40,28 @@
 
 namespace Fernanda {
 
-// The vault's file tree. One per Vault, owned by it, and shared by every tree
-// view of that vault — for the Common Vault, every window's common drawer.
-// Expansion and selection live in each view, not here.
+// The vault's file tree: one per Vault, owned by it, shared by every view of
+// that vault (for the Common Vault, every window's drawer). Expansion and
+// selection live in the views. See docs/Architecture.md, "The vault tree
+// model".
 //
-// QtCore only (no icons), so the Vault stays GUI-free. Listing is lazy and
-// synchronous: a folder is read from disk the first time a view (or indexOf)
-// asks for its children — one QDir pass on the UI thread, less than the
-// FileSwitcher's full-vault walk already costs.
+// QtCore only, so the Vault stays GUI-free. Listing is lazy and synchronous: a
+// folder is read the first time a view (or indexOf) asks for its children. It
+// lists what the vault shows, by the predicates Vault::visibleFiles and
+// BufferStore::openModel use: nothing hidden, nothing unsupported. So nothing
+// under .git/ is ever watched.
 //
-// The listing admits exactly what the vault shows: no hidden entries
-// (FileTypes::isHiddenName) and no unsupported files (FileTypes::isSupported)
-// — the same predicates Vault::visibleFiles and BufferStore::openModel use. A
-// hidden folder is never listed, so it is never watched: nothing under .git/
-// ever holds a directory handle.
+// Every listed folder is watched; the listed set is the watched set. On
+// Windows a watch is an open handle, which blocks moving, renaming, or
+// trashing a folder above it, and owning the watcher here lets the Vault
+// release them. Outside changes are coalesced and re-listed as a diff against
+// disk, which is idempotent, so an echo of a known change does nothing.
 //
-// Every listed folder is watched — the watched set IS the listed set, with no
-// separate bookkeeping. On Windows each watch is an open directory handle, and
-// a handle inside a folder blocks moving, renaming, or trashing it; owning the
-// watcher here is what lets the Vault release them. External changes are
-// coalesced and re-listed as a diff against disk, which is idempotent: an echo
-// of a change the model already reflects finds nothing to do, so nothing needs
-// suppressing.
-//
-// Each node stores only its own name; paths are built by walking parents, so
-// renaming or moving a folder is one node change and its descendants follow.
-// Order: folders first, then names in natural, case-insensitive order.
-//
-// The Vault's own disk operations update the model directly (the Vault-facing
-// section below) rather than waiting on a watcher round trip, and release the
-// watches inside an entry before touching it on disk.
-//
-// See docs/Architecture.md, "The vault tree model".
+// A node stores only its name, and paths are built from parents, so moving a
+// folder is one node change. Folders come first, then names in natural,
+// case-insensitive order. The Vault's own disk operations update the model
+// directly (the Vault-facing section below), releasing the watches inside an
+// entry before touching it
 class VaultTreeModel : public QAbstractItemModel
 {
     Q_OBJECT

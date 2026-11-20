@@ -21,43 +21,31 @@
 
 namespace Fernanda::Ui {
 
-// A tab mark for a page: the small glyph its tab draws ahead of the title. It
-// lives ON the page widget for the same reasons the pin does (PagePin): the
-// page pointer is the identity that already rides through every move — it is
-// the leaf's tabData payload, the drag payload, and the object a replace or a
-// restore hands back — so the mark survives a reorder, a move to another leaf
-// or a pop-out, and a workspace restore, with no addPage / takePage parameter
-// and no DragState_ field.
+// A page's tab mark: the small glyph its tab draws before the title. Like the
+// pin (PagePin), it lives on the page widget, the identity that already rides
+// through every move (tabData, the drag payload, what a replace or restore
+// hands back), so it survives a reorder, a move to another leaf or a pop-out,
+// and a restore, with no extra parameter. A dynamic property, not a typed
+// member, since AbstractFileView and NewTabPage share only QWidget; the key
+// lives here. TabPaneLeaf reads it as it reads windowTitle and isPagePinned,
+// knowing nothing of page types.
 //
-// A dynamic property, rather than a typed member, keeps this decoupled from the
-// two unrelated page types: AbstractFileView and NewTabPage share only QWidget.
-// A TabPaneLeaf reads pageIconPath to draw the tab exactly as it reads
-// windowTitle for the tab text and isPagePinned for the button glyph, so it
-// stays page-type-ignorant. The one stringly-typed key is centralized here.
+// The page carries which glyph (an SVG resource path), never a rendered icon:
+// the leaf renders it in its own colors, again when they change
+// (TabPaneLeaf::changeEvent), so it follows light and dark.
 //
-// The page carries which glyph (an SVG resource path), never a rendered icon.
-// The leaf renders it in its own colors and renders it again when those change
-// (TabPaneLeaf::changeEvent), so a mark follows a light or dark switch like
-// every other glyph. An icon rendered once and carried here would keep the
-// colors of the moment it was made.
+// What a mark means is the window's business. VaultWindow marks a view whose
+// file is another vault's (a Common Vault file in a project window), and never
+// in the Common Vault's own window. It sets the mark at construction, and again
+// when a file moved or renamed from another vault lands in the window's other
+// vault, or the Common Vault changes. The leaf applies it wherever a tab gains
+// a page; a change under a tab is drawn when the window asks
+// (TabPaneTree::refreshPageIcon), as there's no change signal to bind. A tab
+// can't be dragged into another window's family (familyId), so that never
+// changes a mark.
 //
-// What a mark MEANS is the window's business, not the leaf's. VaultWindow sets
-// one on a view whose file belongs to a vault other than the window's own — a
-// Common Vault file open in a project window — and never in the Common Vault's
-// own window, where the two vaults are one object. The leaf just draws whatever
-// it finds, so a later use (per-file-type glyphs, say) needs nothing here.
-//
-// Set at view construction, and again when a file renamed or moved from another
-// vault (vaults nest) lands in the other of the window's two vaults, or the
-// Common Vault changes. The leaf applies the mark wherever a tab gains a page;
-// a change made under a tab is drawn when the window asks
-// (TabPaneTree::refreshPageIcon), since unlike the title there is no change
-// signal for the leaf to bind. A tab dragged into another window's family is
-// refused by familyId, so a mark never needs to change for that.
-//
-// The consolidation noted in PagePin would cover this too: a shared TabPage :
-// QWidget base carrying pin, title, and mark as typed members would unite what
-// currently hangs off QWidget in three places
+// The shared TabPage base PagePin notes, carrying pin, title, and mark as
+// typed members, would cover this too
 
 inline constexpr auto PAGE_ICON_PATH_PROPERTY = "fernanda_pageIconPath";
 
