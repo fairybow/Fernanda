@@ -28,33 +28,27 @@
 
 #include "core/CoreConstants.h"
 
-// One file's changes, read from what `git diff` prints in its unified format.
-// Free functions with no process, so the reading is testable on its own;
-// GitRepository runs git and asks.
+// One file's changes, read from `git diff`'s unified format. Free functions
+// with no process, so the reading is testable alone; GitRepository runs git.
 //
-// Only the hunks are read. The lines before the first one (diff --git, index,
-// the --- and +++ names, mode changes) say what GitRepository already knows,
-// apart from whether the file is binary, which git says there instead of
-// giving hunks. A hunk's @@ line says how many lines it holds from each file,
-// and the hunk is read to those counts: a context line starts with a space,
-// a removed one with a minus, an added one with a plus, and git's "\ No
-// newline at end of file" follows the line it's about. A line left empty is
-// a blank context line, as git writes one under diff.suppressBlankEmpty.
-// Counting, rather than stopping at the first line that doesn't fit, keeps
-// that setting from cutting a hunk short.
+// Only the hunks are read. What comes before them says what GitRepository
+// already knows, apart from whether the file is binary, which git says there
+// instead of giving hunks. Each hunk is read to the line counts its @@ line
+// gives: a space starts a context line, a minus a removed one, a plus an added
+// one, and "\ No newline at end of file" follows the line it's about. An empty
+// line is a blank context line (diff.suppressBlankEmpty); counting, rather than
+// stopping at the first line that doesn't fit, keeps that setting from cutting
+// a hunk short.
 //
-// A line's text is UTF-8, without its line break. A carriage return before
-// the break, from a file with Windows line endings, is dropped from every
-// line, since the diff view shows lines, not their endings.
+// A line's text is UTF-8, without its break; a carriage return before the
+// break is dropped, since the view shows lines, not endings.
 //
-// Within a changed line, the words that changed are marked too (wordChanges),
-// the way GitHub Desktop pairs lines: in a run of removed and added lines with
-// as many of each, the first removed line goes with the first added one, and
-// so on. A run with more of one than the other marks nothing, since there's no
-// telling which line became which. Unlike GitHub Desktop, which marks one span
-// from the first changed character to the last, a line can have any number of
-// spans: in prose a paragraph is one line, and two small edits far apart
-// would otherwise mark nearly all of it
+// The changed words within a line are marked too (wordChanges), pairing lines
+// as GitHub Desktop does: in a run with as many removed lines as added, the
+// first removed goes with the first added, and so on; an uneven run marks
+// nothing. Unlike Desktop's single span from the first change to the last, a
+// line can have any number of spans, since a paragraph is one line and two
+// edits far apart would otherwise mark nearly all of it
 namespace Fernanda::GitDiff {
 
 // Part of a line's text, by QString index

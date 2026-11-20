@@ -38,38 +38,26 @@
 
 namespace Fernanda::Ui {
 
-// A pill-shaped on/off switch with a round thumb, the control every yes/no
-// setting uses — Obsidian's settings use its toggle for every boolean, never a
-// checkbox. A checkable QAbstractButton, so it is a real button to Qt:
-// checked(), setChecked(), toggled(bool), Space to flip it, a place in the tab
-// order, and accessibility, all inherited. It only paints.
+// A pill-shaped on/off switch, the control for every yes/no setting, as in
+// Obsidian's settings. A checkable QAbstractButton, so checked(), toggled,
+// Space, tab order, and accessibility are inherited; it only paints.
 //
-// The look follows Material 3's switch:
+// The look follows Material 3: on, the track is the accent with a large thumb
+// in the accent's text color at the right; off, the track is the window's
+// color, outlined, with a smaller thumb in the outline's color at the left. A
+// light thumb would vanish on an off track in a light theme, hence the
+// difference.
 //
-//   On  — the track filled with the accent color; a large thumb in the
-//         accent's text color (light) at the right end.
-//   Off — the track in the window's own color, outlined; a smaller thumb in
-//         the outline's color at the left end.
+// Every color is a palette role (UiConstants) in the current color group, so a
+// disabled switch dims and a theme change restyles it. The accent is
+// QPalette::Accent, which the Windows 11 style fills from the system's.
 //
-// The off state can't mirror the on one: a light thumb on a window-colored
-// track would all but vanish in a light theme, so the off thumb takes the
-// outline's tone and shrinks, and the outline gives the track its shape.
+// One progress value, 0 to 1, animates a flip, and every part (thumb position
+// and size, each color blended) is drawn from it. A change while hidden jumps
+// to its end, so a page never opens mid-slide.
 //
-// Every color is a palette role (UiConstants), resolved in the widget's
-// current color group like everything Qt paints, so a disabled switch dims and
-// a theme change restyles it with no bookkeeping here. The accent is
-// QPalette::Accent (Qt 6.6+), which the Windows 11 style fills from the
-// system accent.
-//
-// Flipping animates: one progress value runs 0 → 1 (off → on) and every part
-// — thumb position, thumb size, and the colors, each blended between its two
-// states — is drawn from it, so there is exactly one animated number. A
-// change while hidden (the initial setChecked, before the dialog shows) jumps
-// straight to its end, so a page never opens mid-slide.
-//
-// Tab focus only: a click doesn't take focus, as Obsidian's toggle doesn't,
-// so the focus ring appears only for someone moving by keyboard. The ring is
-// drawn here, in a margin kept around the pill for it
+// A click doesn't take focus, as in Obsidian, so the focus ring, drawn in a
+// margin around the pill, shows only for the keyboard
 class ToggleSwitch : public QAbstractButton
 {
     Q_OBJECT

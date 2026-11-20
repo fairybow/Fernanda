@@ -77,38 +77,27 @@ private:
 
 } // namespace Internal
 
-// One file's diff, shown in its tab (GitDiffPage): every hunk, each under its
-// @@ line, with added lines tinted GIT_DIFF_ADDED_BACKGROUND and removed lines
-// GIT_DIFF_REMOVED_BACKGROUND, the way GitHub Desktop shows a file's changes.
-// A gutter on the left gives each line its number in the old file and in the
-// new one; an added line has only the second, and a removed line only the
-// first.
+// One file's diff, shown in its tab (GitDiffPage) as GitHub Desktop shows it:
+// every hunk under its @@ line, added lines tinted GIT_DIFF_ADDED_BACKGROUND,
+// removed ones GIT_DIFF_REMOVED_BACKGROUND, and the changed words within a
+// line (GitDiff::Line::changes) tinted again. Git's note that a file ends
+// without a line break is its own line, in this view's words, under the line
+// it's about. A gutter gives each line its old and new numbers; an added line
+// has only the new, a removed one only the old.
 //
-// Read-only, and selectable for copying, with the text editor's context menu
-// cut down to what applies: Copy and Select All. Lines wrap to the view's
-// width, unlike GitHub Desktop's: in prose a paragraph is one line, and a diff
-// of it would otherwise run far off the right edge. The font is the vault's
-// text font (setFont, from the page), so prose reads as it does in the editor.
-// Showing a diff again keeps where the view is scrolled to, so the same file
-// read again after a save doesn't jump; a new view starts at the top.
+// Read-only and selectable; the context menu has Copy and Select All. Lines
+// wrap, unlike Desktop's, since in prose a paragraph is one line. The font is
+// the vault's text font (setFont, from the page). Showing a diff again keeps
+// the scroll, so a re-read after a save doesn't jump.
 //
-// The words that changed within a line (GitDiff::Line::changes) are tinted
-// again, with GIT_DIFF_ADDED_WORD_BACKGROUND or
-// GIT_DIFF_REMOVED_WORD_BACKGROUND. Git's note that a file ends without a line
-// break is shown as its own line, in this view's words, under the line it's
-// about, like the @@ lines.
+// The tints have an alpha, so they suit light and dark pages. A line's is its
+// block format's background, which QPlainTextEdit paints full width; a word's
+// is its character format's, over the line's, so the alphas add up. The @@
+// lines and notes take GIT_DIFF_HEADER_ROLE as their text color when the
+// document is built, so a palette change builds it again.
 //
-// The tints are colors with an alpha, so they tint the page rather than cover
-// it and serve a light page and a dark one alike. A line's is its block
-// format's background, which QPlainTextEdit paints across the whole width
-// itself; a word's is its character format's, painted over the line's, so
-// the two alphas add up. The @@ lines and the notes are in
-// GIT_DIFF_HEADER_ROLE, set as each line's text color when the document is
-// built, so a palette change builds it again.
-//
-// The gutter's shape follows TextEditor's: numbers drawn on each block's
-// first-line baseline, tabular digits, and block tops accumulated as qreal.
-// Each tinted line's tint runs through the gutter too
+// The gutter is drawn as TextEditor's is (first-line baselines, tabular
+// digits, qreal block tops), and each line's tint runs through it
 class GitDiffView : public QPlainTextEdit
 {
     Q_OBJECT

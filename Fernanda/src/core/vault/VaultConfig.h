@@ -29,41 +29,31 @@
 #include "core/files/JsonIo.h"
 #include "core/vault/VaultDotDir.h"
 
-// Per-vault configuration — the committed files in <vaultRoot>/.fernanda/, the
-// vault-local counterpart of AppConfig. Owned by Vault as a plain by-value
-// member; the settings dialog edits it through Vault::setConfig, never
-// directly, so every change is announced and saved.
+// Per-vault configuration: the committed files in <vaultRoot>/.fernanda/, the
+// vault's counterpart of AppConfig. Vault owns it by value, and the settings
+// dialog edits it only through Vault::setConfig, so every change is announced
+// and saved.
 //
-// The same shape as AppConfig: a plain value type, not a QObject, whose getters
-// fall back to defaults when a key is unset, so no caller has to know whether a
-// value came from disk. And like AppConfig it houses its own defaults —
-// AppConfig's are AppDirs paths resolved at runtime, these are the compile-time
-// constants below, apart from the spelling language, which follows the
-// system's locale (defaultSpellcheckLanguage). There is no separate defaults
-// header and no runtime default layer.
+// Like AppConfig, a plain value type whose getters fall back to defaults when
+// a key is unset, so no caller knows whether a value came from disk. Its
+// defaults are the constants below, apart from the spelling language, which
+// follows the system's locale (defaultSpellcheckLanguage).
 //
-// Only set keys are written, so "unset ⇒ absent ⇒ default" round-trips and a
-// fresh vault's files stay minimal (Obsidian writes its config files the same
-// way). A setter that leaves the resolved value unchanged stores nothing —
-// choosing the default on an unset key doesn't write it — and reports false,
-// so the Vault announces and saves only real changes.
+// Only set keys are written, so a fresh vault's files stay minimal, as
+// Obsidian's do. A setter that leaves the resolved value unchanged stores
+// nothing and returns false, so the Vault announces and saves only real
+// changes.
 //
-// Two files, one type. appearance.json holds the text font (Obsidian keeps
-// its fonts in its own appearance.json). settings.json — the file Obsidian
-// calls app.json — holds everything that isn't how text looks: what the
-// status bar shows, and how the editor behaves and what it shows besides the
-// text. load reads both and save writes both.
+// Two files: appearance.json holds the text font, as Obsidian's does;
+// settings.json (Obsidian's app.json) holds the rest. load and save handle
+// both.
 //
-// The status bar's settings are two groups, one per item
-// (ui/statusbar/WordCounter.h, ui/statusbar/CursorPosition.h): a switch for the
-// item itself, and one for each thing it can show. An item's parts keep their
-// values while the item is off, so turning it back on restores what it showed.
-// The focus timer's settings (core/writing/FocusTimer.h) are the same shape: a
-// switch, then its lengths. The sidebar's Git page has one switch
-// (core/git/GitRepository.h).
+// Each status bar item (WordCounter, CursorPosition) has a switch, and one for
+// each part it shows; parts keep their values while the item is off. The focus
+// timer has a switch and its lengths; the Git page, a switch.
 //
-// QtCore-only, like the Vault: it stores the font's parts, and the view that
-// applies them builds the QFont (TextFileView::applyConfig)
+// QtCore-only, like the Vault: it stores the font's parts, and
+// TextFileView::applyConfig builds the QFont
 namespace Fernanda {
 
 using namespace Qt::StringLiterals;

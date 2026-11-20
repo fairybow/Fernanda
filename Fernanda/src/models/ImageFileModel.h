@@ -31,43 +31,29 @@
 
 namespace Fernanda {
 
-// A read-only image buffer. Like PdfFileModel, it inherits every read-only
-// default from the base (isModified / isUserEditable false, undo inert,
-// reloadContent -> setData) and implements only data() / setData().
+// A read-only image buffer. Like PdfFileModel, it keeps every read-only
+// default from the base and implements only data() and setData(). It holds:
 //
-// Holds three things:
+//   data_       the file's bytes, kept so data() stays truthful for the
+//               store's external-change check (disk == data()) and an
+//               animated image's QMovie can read them, at only the compressed
+//               size. No base shared with PdfFileModel: they share one member
+//               and a getter
+//   pixmap_     the decoded first frame, shared by every view: QPixmap is
+//               implicitly shared, so N views hold one set of pixels. Null
+//               when the decode failed, which views show as their placeholder
+//   isAnimated_ whether the content has more than one frame, so an animated
+//               WebP animates and a static GIF doesn't pay for a QMovie. Each
+//               view plays its own movie (ImageFileView); the model never does
 //
-//   data_   — the file's bytes, RETAINED. data() stays truthful, so the
-//             store's external-change no-op check (disk == data()) still
-//             works; an animated image needs a live QIODevice over them for
-//             its QMovie; and it costs only the compressed size. No base
-//             shared with PdfFileModel: what the two have in common is one
-//             member and a one-line getter.
+// Decoding is by content (QImageReader sniffs the format). Auto-transform is
+// on, so EXIF orientation is applied, as browsers and so Obsidian do;
+// otherwise portrait phone photos open sideways. A multi-page TIFF shows its
+// first page. Past Qt's 256 MB decode limit the read fails, showing the
+// placeholder.
 //
-//   pixmap_ — the decoded first frame, the shared resource every view shows —
-//             the image analogue of PDF's one parse. QPixmap is implicitly
-//             shared, so N views on one image (or a common-vault image in two
-//             windows) hold one set of pixels; converting a QImage per view
-//             would copy them per view. A null pixmap means the decode failed,
-//             and views show their load-failure placeholder off isNull().
-//
-//   isAnimated_ — whether the content has more than one frame. Read from the
-//             content, not the extension, so an animated WebP animates too
-//             and a static GIF doesn't pay for a QMovie. The model never
-//             plays anything: each view runs its own
-//             QMovie over data() and pauses it while hidden (ImageFileView).
-//             pixmap_ is still the first frame, shown until the movie starts
-//             and whenever it isn't running.
-//
-// Decoding is by CONTENT: QImageReader sniffs the format, so the extension only
-// dispatched us here (FileTypes). Auto-transform is on so EXIF orientation is
-// applied — Qt leaves it off by default, and a browser (so Obsidian) applies
-// it; without it, portrait phone photos open sideways. A multi-page TIFF shows
-// its first page. Qt's default decode allocation limit (256 MB) stands: past
-// it, the read fails and the view shows the placeholder.
-//
-// QPixmap needs the GUI application, so this model is GUI-bound in the way
-// PdfFileModel (QtPdf) already is; it's built on the GUI thread by the store
+// QPixmap needs the GUI application, so this model is GUI-bound, as
+// PdfFileModel is through QtPdf; the store builds it on the GUI thread
 class ImageFileModel : public AbstractFileModel
 {
     Q_OBJECT
