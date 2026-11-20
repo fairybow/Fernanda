@@ -36,49 +36,28 @@
 
 namespace Fernanda::Ui {
 
-// The shared base for small square glyph buttons that sit on the style's own
-// chrome: a Lucide glyph, tinted from the palette, centered on the style's
-// auto-raise tool-button panel. Its current subclasses are the tab row's
-// per-tab close/unpin button (TabCloseButton) and new-tab + button
-// (NewTabButton). It carries everything mechanical such buttons have in common
-// and nothing that differs between them.
+// The base for small square glyph buttons on the style's chrome: a Lucide
+// glyph, tinted from the palette, centered on the style's flat tool-button
+// panel (ButtonWash), such as the tab row's close and + buttons and the
+// sidebar footer's. It holds what such buttons share and nothing that differs.
 //
-// The single axis of divergence is which glyph to paint right now, expressed as
-// two pure virtuals: glyphPath() and glyphRole(), its tint. paintEvent calls
-// both every repaint, so a subclass whose glyph is backed by live state (a
-// page's pin bit) needs no cached flag and no manual sync — pin/unpin anywhere
-// shows up on the next repaint. A subclass with a fixed glyph just returns
-// constants.
+// What differs is which glyph to paint now: glyphPath() and glyphRole(), its
+// tint. paintEvent asks for both on every repaint, so a glyph backed by live
+// state (a page's pin) needs no cached flag, and a fixed glyph returns
+// constants. One Glyph::Cache, keyed on path and tint, renders only when
+// either changes.
 //
-// A checkable button, while it's checked, fills its panel with
+// A checkable button, while checked, fills its panel with
 // GLYPH_BUTTON_CHECKED_PANEL_ROLE (the accent) and draws its glyph in
-// GLYPH_BUTTON_CHECKED_ICON_ROLE in place of glyphRole(), so "on" reads at a
-// glance, as a toggle switch that's on does. The hover and press wash still go
-// over the fill. A button that isn't checkable is never checked, so it never
-// has the fill.
+// GLYPH_BUTTON_CHECKED_ICON_ROLE, with the hover and press wash over the fill.
 //
-// The render goes through one Glyph::Cache. Path and tint are both in its key,
-// so a live swap (pin/unpin, a palette or color-group change) costs one render
-// and every other repaint — hover, press, release — costs none.
+// It only emits clicked(); the owner wires what a click means, as QTabBar
+// handles close in the bar, not the button. Its size is fixed from the
+// subclass's UiConstants knobs, not a style metric: PM_TabCloseIndicator runs
+// tiny on some styles.
 //
-// The panel is the style's flat tool-button panel (ButtonWash): nothing at
-// rest, a wash on hover, a deeper one on press. Every subclass paints the
-// identical panel from this identical code, so none can drift from another —
-// there is no "real" QToolButton for any of them to chase.
-//
-// Deliberately behavior-free: it emits clicked() (from QAbstractButton) and
-// nothing more. What a click means is wired per button by the owner (on the
-// tab row, TabPaneLeaf: new-tab vs close/unpin), exactly as QTabBar keeps close
-// handling in the bar rather than the button.
-//
-// Size is fixed at construction from the subclass's UiConstants knobs (extent =
-// the button's square footprint; iconExtent = the centered glyph, the
-// difference being padding), not from a style metric. The obvious one for the
-// tab row, PM_TabCloseIndicator, runs tiny on some styles.
-//
-// Not for buttons that can't sit on the style's chrome. ZoomButton_ floats
-// over document content, so it paints its own flat wash and a fixed light tint;
-// it shares only the SVG render and its cache (Glyph.h) with this family
+// Not for buttons off the style's chrome: ZoomButton_ floats over content,
+// paints its own wash and a fixed tint, and shares only Glyph.h
 class GlyphButton : public QAbstractButton
 {
     Q_OBJECT
