@@ -31,39 +31,28 @@
 
 namespace Fernanda::Ui {
 
-// A plain QTabBar with four behaviors:
+// A plain QTabBar with four behaviors: QTabBar's own horizontal reordering,
+// detecting a vertical drag-off, shrink-then-scroll sizing, and reporting
+// hover for the style's dividers.
 //
-//   - built-in horizontal reordering (free from QTabBar),
-//   - detection of a vertical drag-off that emits detachDragged() as intent,
-//   - shrink-then-scroll tab sizing,
-//   - hover reporting for the style's dividers.
+// Hover: a divider is drawn by the tab on its left (Style::drawTabShape_), so
+// it can depend on the tab to its right. isTabHovered lets the style ask, and
+// the bar repaints whole when the hovered tab changes, since QTabBar repaints
+// only the tabs entered and left.
 //
-// Hover: a divider between two tabs is drawn by the tab on its left
-// (Style::drawTabShape_), so whether it shows can depend on the tab to its
-// right. isTabHovered lets the style ask, and the bar repaints whole when the
-// hovered tab changes, since QTabBar itself repaints only the tab entered and
-// the tab left, not the neighbor whose divider changes with them
+// Sizing: tabs prefer MAX_TAB_WIDTH_ (tabSizeHint) and compress to
+// MIN_TAB_WIDTH_ (minimumTabSizeHint), then overflow to scroll buttons. The
+// load-bearing piece is minimumSizeHint() returning width 0: the layout
+// squeezes the bar rather than widening the window, so overflow becomes
+// scroll, and a + button laid right after the bar (TabPaneLeaf) hugs the tabs,
+// then pins to the edge.
 //
-// Sizing: every tab prefers MAX_TAB_WIDTH_ and compresses no smaller than
-// MIN_TAB_WIDTH_ as more tabs are added; once even the floor won't fit, the bar
-// overflows to scroll buttons. tabSizeHint reports the preferred width and
-// minimumTabSizeHint the floor — QTabBar's own layout interpolates between
-// them. The load-bearing piece is minimumSizeHint(): forcing its width to 0
-// lets the enclosing layout squeeze the whole bar to nothing rather than widen
-// the window, so overflow becomes scroll. That same squeeze is what lets a
-// right-hand + button hug the tabs and then pin to the edge (TabPaneLeaf lays
-// the button immediately after the bar).
+// No close buttons or pins of its own: setTabsClosable is OFF, since Qt's
+// managed close button is all-or-nothing and can't carry pin state. TabPaneLeaf
+// installs a close/unpin button per tab with setTabButton.
 //
-// TabBar itself stays plain: it does not create close buttons or pin
-// indicators. The owning TabPaneLeaf installs a per-tab close/unpin button on
-// the close side via setTabButton, so setTabsClosable is deliberately OFF here
-// — Qt's managed close button is all-or-nothing and can't carry pin state or be
-// swapped per tab, so the leaf owns the button instead. No flags, no alert
-// widgets.
-//
-// Detect-only for drag: the bar emits detachDragged, and TabPaneLeaf and
-// TabPaneTree turn that into a QDrag with its drop zones. The bar never learns
-// what a pane or a window is
+// Drag is detect-only: the bar emits detachDragged, and TabPaneLeaf and
+// TabPaneTree make the QDrag. The bar never learns what a pane or window is
 class TabBar : public QTabBar
 {
     Q_OBJECT

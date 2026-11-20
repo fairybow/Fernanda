@@ -35,29 +35,21 @@
 
 // Keeps hover washes in step with the pointer when widgets move under a
 // pointer that stays put, and an item view's hovered row in step while one of
-// its scroll bars is dragged.
+// its scroll bars is dragged. See docs/Architecture.md, "The style".
 //
-// Qt works out which widget is under the mouse (Qt::WA_UnderMouse, which a
-// hover wash is drawn from) only when the mouse moves, or a widget is shown or
-// hidden. A widget that moves or resizes while the pointer stays put keeps the
-// mark it had: a toggle moving it away, or a neighbor narrowing and handing it
-// room. It keeps its wash, or lacks one, until the next move. A widget
-// disabled at the time gets no mark at all as the pointer passes.
+// Qt sets Qt::WA_UnderMouse, which a wash is drawn from, only when the mouse
+// moves or a widget is shown or hidden. A widget that moves or resizes under a
+// still pointer keeps its old mark until the next move, and one disabled as
+// the pointer passes gets none. sync brings that move forward, handing the
+// window a mouse move at the pointer so Qt sends the Enter and Leave a real
+// move would. Setting the flag by hand would leave Qt's own record behind, and
+// the widget would never get the Leave that clears it.
 //
-// sync brings that next move forward: it hands the window a mouse move at the
-// pointer, so Qt sends the Enter and Leave events a real move would. Setting
-// the flag by hand would leave Qt's own record of the widget under the mouse
-// behind, and the widget that Qt never saw entered would never be sent the
-// Leave that clears it.
-//
-// An item view's rows have a hover of their own: the view hovers a row when its
-// viewport is sent a hover event, which Qt sends only as the pointer moves over
-// the viewport. syncView and clearView send the view the event a real move
-// would. followScrollBars keeps the rows in step while a scroll bar is dragged:
-// the scroll bar has the mouse then, so the viewport is sent nothing, and the
-// view hovers the row under the pointer only when the list scrolls (and only
-// if the pointer is over it). Moved off the rows without a scroll, or let go
-// outside the view, the pointer would leave a row hovered that it never left
+// An item view hovers a row only when its viewport gets a hover event, and
+// syncView and clearView send the one a real move would. While a scroll bar
+// is dragged it has the mouse, so the viewport gets none; followScrollBars
+// sends them, so no row is left hovered when the pointer moves off without a
+// scroll, or is let go outside the view
 namespace Fernanda::Ui::HoverSync {
 
 // A mouse move at the pointer, for widget's window, if the pointer is over

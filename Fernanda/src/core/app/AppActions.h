@@ -21,34 +21,25 @@
 
 namespace Fernanda {
 
-// The actions App owns and windows only display, keyed by the same ids the
-// windows file them under (ActionIds). App is the only object that can perform
-// any of these — quitting must route through the graceful close path, and the
-// picker is App's window — so App mints each one, connects it exactly once, and
-// hands this set to every window it creates. The window adopts the whole set
-// into its own registry (BaseWindow::adoptAppActions_), which window-adds each
-// so its shortcut is live whenever that window is active. Nothing here is owned
-// by a window, and no triggered signal is ever relayed upward.
+// The actions App owns and windows only show, keyed by their ActionIds. Only
+// App can perform them (a quit must go through the graceful close path, and
+// the picker is App's window), so App mints each, connects it once, and hands
+// the set to every window. Each window adopts all of it
+// (BaseWindow::adoptAppActions_), so every shortcut works in the active
+// window, and no triggered signal is relayed. See docs/Architecture.md,
+// "Actions".
 //
-// Id-keyed rather than a struct of named members so adoption is a loop and
-// nothing in the window layer names an individual action: a new App-owned
-// action is added in App::buildActions_ and every window picks it up. The cost
-// is that a forgotten entry is a silent absence rather than a null pointer —
-// the assert that catches it is BaseWindow::action at menu-build time, not
-// adoptAction. A typedef today; it becomes a real type the moment it needs to
-// carry anything besides the pointers.
+// Keyed by id, not a struct of named members, so adoption is a loop and no
+// window names an action: one added in App::buildActions_ reaches every
+// window. A forgotten entry is a silent absence, caught by BaseWindow::action's
+// assert at menu build, not by adoptAction. A typedef until it needs to carry
+// more than the pointers.
 //
-// A shared QAction associated with several top-level windows is unambiguous:
-// Qt::WindowShortcut matching tests whether an associated widget lives in the
-// ACTIVE window, so exactly one association can match at a time. Widget
-// destruction deregisters its own association, so a closed window leaves the
-// action intact for the rest.
-//
-// Both window types adopt the WHOLE set, including actions they show no
-// surface for. A PopoutWindow has no menu, so Manage Vaults is invisible there
-// and — having no shortcut today — unreachable; adopting it anyway costs one
-// held pointer and means the day it gains a shortcut it works everywhere with
-// no window type revisited
+// One QAction in several windows is unambiguous: Qt::WindowShortcut matches
+// only in the active window, and a destroyed widget drops its own association.
+// Every window adopts the whole set, even what it shows nowhere: Manage Vaults
+// is unreachable in a menu-less PopoutWindow until it has a shortcut, and then
+// works there with no change
 using AppActions = QHash<QString, QAction*>;
 
 } // namespace Fernanda

@@ -49,34 +49,26 @@ namespace Fernanda::Ui {
 
 // The vault window's left column, top to bottom:
 //
-//   1. SidebarPages     — a row of page buttons, while there's more than one
-//                         page, over the page that shows:
-//      Files            — the splitter below, always the first page
-//        VaultFileTree  — this vault's tree              [splitter pane]
-//        Drawer         — the Common Vault, collapsible  [splitter pane]
-//      GitPage          — the repository's changes, while the vault's Git
-//                         setting is on and the vault is in a repository
-//                         (or one git refuses to trust, which it offers to)
-//   2. VaultSwitcher    — other vaults + Manage Vaults   [fixed bar]
-//      FocusTimerButton — the window's focus timer, while it's switched on
-//      SettingsButton   — this vault's settings, at the bar's right
+//   SidebarPages     — page buttons, while there's more than one page, over:
+//     Files          — a splitter, always the first page, holding
+//       VaultFileTree  this vault's tree
+//       Drawer         the Common Vault, collapsible
+//     GitPage        — while the vault's Git setting is on and it's in a
+//                      repository (or one git won't trust, offering to)
+//   VaultSwitcher    — other vaults and Manage Vaults, in a fixed bar with
+//     FocusTimerButton, while the timer is on, and SettingsButton at the right
 //
-// Borrows both Vaults (project + common) from the window. It needs them to root
-// each tree and to send each tree's file operations to the Vault that tree
-// shows. The Common Vault may be null, when there is none, and then there's no
-// drawer, as in the Common Vault's own window. It can change while the window
-// is open (setCommonVault), and the drawer comes and goes with it. The trees
-// emit absolute paths and stay Vault-free; here those paths become keys.
+// Borrows both Vaults from the window, to root each tree and send its file
+// operations to the Vault it shows; the trees emit absolute paths, which
+// become keys here. With no Common Vault (null, as in its own window) there's
+// no drawer, and the drawer follows setCommonVault.
 //
-// The switcher's vault list comes from a provider App threads down; the Sidebar
-// hands it through and relays the switcher's choice back up to the window.
-//
-// The focus timer is the window's; the Sidebar only holds its button, which
-// it shows while the vault's settings switch the timer on. The Git repository
-// is the window's too, which decides when git runs; the Sidebar holds the Git
-// page, adds it and takes it away as the setting and the repository say, and
-// switches to it and back on the window's repository.togglePage action. What
-// the page asks for, the window does (gitPage)
+// The switcher's list comes from a provider App threads down, and its choice
+// goes back to the window. The focus timer and Git repository are the
+// window's: the Sidebar shows the timer's button while the setting is on, and
+// adds or removes the Git page as the setting and repository say, switching
+// to it on repository.togglePage. What the page asks for, the window does
+// (gitPage)
 class Sidebar : public QWidget
 {
     Q_OBJECT
