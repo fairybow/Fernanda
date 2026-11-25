@@ -38,6 +38,8 @@
 #include "ui/tabs/PagePin.h"
 #include "ui/tabs/TabBar.h"
 #include "ui/tabs/TabCloseButton.h"
+#include "ui/tabs/TabHeader.h"
+#include "ui/tabs/TabHistory.h"
 #include "ui/widgets/Glyph.h"
 
 namespace Fernanda::Ui {
@@ -52,8 +54,10 @@ namespace Fernanda::Ui {
 // There is no bar/stack ordering to keep aligned.
 //
 // Two-level stack: mainStack_ shows the underlay when there are no tabs, and
-// the page stack otherwise. The underlay is the no-tabs backdrop, distinct from
-// the new-tab page (itself a real page in a real tab).
+// the page area otherwise: the header (TabHeader) over the page stack. The
+// underlay is the no-tabs backdrop, distinct from the new-tab page (itself a
+// real page in a real tab). The header is part of the page area, not the tab
+// row, so it shows only with a page and its strip counts as page for a drop.
 //
 // Closing the last tab leaves the leaf empty; collapse-when-empty is
 // TabPaneTree's job, so an empty leaf is a valid transient state here
@@ -189,15 +193,20 @@ public:
         // reconnect is needed
         repointCloseButton_(index, newPage);
 
+        // The bar index didn't change, so currentChanged won't fire — show the
+        // replacement explicitly if this tab was the visible one. Before the
+        // old page leaves: the stack moves the keyboard focus from the page it
+        // stops showing into the one it starts showing. Removed first, the
+        // old page would leave the stack to pick another page itself, and
+        // focus would go along the focus chain, into another pane in a split,
+        // making that pane the active one
+        if (was_current) {
+            onCurrentChanged_(index);
+        }
+
         if (oldPage) {
             pageStack_->removeWidget(oldPage);
             oldPage->deleteLater();
-        }
-
-        // The bar index didn't change, so currentChanged won't fire — show the
-        // replacement explicitly if this tab was the visible one
-        if (was_current) {
-            onCurrentChanged_(index);
         }
     }
 
@@ -265,6 +274,16 @@ public:
     // Draw page's tab mark again, after its mark changed (setPageIconPath)
     void refreshPageIcon(QWidget* page) { applyPageIcon_(indexOf(page), page); }
 
+    // Show page in the header again, after something the header shows
+    // changed under it (its history: setPageHistory). Nothing when page isn't
+    // the one the header shows: a page becoming current is shown then
+    void refreshPageHeader(QWidget* page)
+    {
+        if (page && page == currentPage()) {
+            header_->showPage(page, titleOf(page));
+        }
+    }
+
 signals:
     // The + button was clicked. VaultWindow makes a NewTabPage and adds it —
     // the leaf stays ignorant of page types
@@ -273,6 +292,11 @@ signals:
     // A page was added or removed. TabPaneTree collapses an emptied leaf on
     // this
     void pageCountChanged();
+
+    // An arrow in the header was clicked. The tree makes this leaf active and
+    // asks its window to step the tab (TabPaneTree::tabStepRequested), as the +
+    // button's addPageRequested becomes newTabRequested
+    void stepRequested(TabHistory::Step step);
 
     // A tab was dragged clear of the bar. The tree turns this into a QDrag
     // (page-addressed, so the tree never touches the bar). Distinct from
@@ -323,7 +347,9 @@ private:
     TabBar* bar_ = new TabBar(this);
     NewTabButton* addButton_ = new NewTabButton(this);
     QStackedWidget* mainStack_ = new QStackedWidget(this);
-    QStackedWidget* pageStack_ = new QStackedWidget(this);
+    QWidget* pageArea_ = new QWidget(this);
+    TabHeader* header_ = new TabHeader(pageArea_);
+    QStackedWidget* pageStack_ = new QStackedWidget(pageArea_);
     QWidget* underlay_ = new QWidget(this);
 
     // Every mark today is the same glyph, so one slot serves every tab
@@ -342,7 +368,19 @@ private:
 
         underlay_->setAttribute(Qt::WA_StyledBackground); // QSS target later
         mainStack_->addWidget(underlay_);                 // index 0
-        mainStack_->addWidget(pageStack_);                // index 1
+        mainStack_->addWidget(pageArea_);                 // index 1
+
+        auto* page_area = new QVBoxLayout(pageArea_);
+        page_area->setContentsMargins(0, 0, 0, 0);
+        page_area->setSpacing(0);
+        page_area->addWidget(header_, 0);
+        page_area->addWidget(pageStack_, 1);
+
+        connect(
+            header_,
+            &TabHeader::stepRequested,
+            this,
+            &TabPaneLeaf::stepRequested);
 
         // Tabs, then the + button hugging their right edge, then a stretch that
         // eats the slack. The bar takes its sizeHint width (sum of preferred
@@ -459,7 +497,10 @@ private:
             page,
             &QWidget::windowTitleChanged,
             this,
-            [this, page](const QString& title) { setPageTitle(page, title); });
+            [this, page](const QString& title) {
+                setPageTitle(page, title);
+                refreshPageHeader(page);
+            });
     }
 
     // Underlay when empty, pages otherwise. Also hides the bar when empty — an
@@ -469,7 +510,7 @@ private:
     {
         auto has_tabs = bar_->count() > 0;
         bar_->setVisible(has_tabs);
-        mainStack_->setCurrentWidget(has_tabs ? pageStack_ : underlay_);
+        mainStack_->setCurrentWidget(has_tabs ? pageArea_ : underlay_);
     }
 
     // Right-click on a tab: Close, a separator, then Pin or Unpin depending on
@@ -644,6 +685,7 @@ private:
     {
         if (index < 0) {
             setFocusProxy(nullptr);
+            header_->showPage(nullptr, QString{});
             emit currentPageChanged(nullptr);
             return;
         }
@@ -655,6 +697,7 @@ private:
 
         pageStack_->setCurrentWidget(page);
         setFocusProxy(page);
+        header_->showPage(page, bar_->tabText(index));
         emit currentPageChanged(page);
     }
 };

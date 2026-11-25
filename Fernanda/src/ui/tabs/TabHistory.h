@@ -49,6 +49,13 @@ public:
     // so a tab used all day can't grow without limit
     static constexpr qsizetype MAX_ENTRIES = 50;
 
+    // Which way to go: to the newest back entry, or the next forward one
+    enum class Step
+    {
+        Back,
+        Forward
+    };
+
     struct Entry
     {
         enum class Kind
@@ -66,6 +73,16 @@ public:
         // A diff's change. Unused for a file
         GitStatus::Entry change{};
     };
+
+    // Whether there's an entry to go to that way. An entry may turn out not to
+    // build (its file gone), so true means a step can be tried, not that it
+    // will land
+    [[nodiscard]] bool canGoBack() const noexcept { return !back_.isEmpty(); }
+
+    [[nodiscard]] bool canGoForward() const noexcept
+    {
+        return !forward_.isEmpty();
+    }
 
     // A new page took the tab over from the one recorded: that page is the
     // step back, and the forward list is cleared, as a browser's is

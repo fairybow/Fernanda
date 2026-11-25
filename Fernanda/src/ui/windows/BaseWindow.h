@@ -254,7 +254,11 @@ protected:
     }
 
     // A mouse's back and forward buttons, pressed anywhere in this window,
-    // trigger tab.back and tab.forward, as Obsidian's do for the active tab.
+    // trigger tab.back and tab.forward. Over a pane, that pane is made active
+    // first, so the step is in the tab under the pointer, which needn't be the
+    // one being typed in. Obsidian steps the active tab wherever the pointer
+    // is. Elsewhere (the sidebar), the active tab steps.
+    //
     // The window watches the whole application (setup_), since the press goes
     // to whatever widget is under the pointer, and an editor may take it
     // before this window would hear it. Taking the event here also stops Qt
@@ -280,10 +284,12 @@ protected:
 
         switch (static_cast<QMouseEvent*>(event)->button()) {
         case Qt::BackButton:
+            tree_->activateLeafContaining(widget);
             action(ActionIds::TAB_BACK)->trigger();
             return true;
 
         case Qt::ForwardButton:
+            tree_->activateLeafContaining(widget);
             action(ActionIds::TAB_FORWARD)->trigger();
             return true;
 

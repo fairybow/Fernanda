@@ -117,6 +117,23 @@ private slots:
         QVERIFY(!history.takeForward());
     }
 
+    void canGoAnswersForEachList()
+    {
+        Fixture_ f{};
+        TabHistory history{};
+
+        QVERIFY(!history.canGoBack());
+        QVERIFY(!history.canGoForward());
+
+        history.record(f.file(u"a.txt"_s));
+        QVERIFY(history.canGoBack());
+        QVERIFY(!history.canGoForward());
+
+        history.pushForward(*history.takeBack());
+        QVERIFY(!history.canGoBack());
+        QVERIFY(history.canGoForward());
+    }
+
     // A new page after going back starts a new line, as in a browser
     void recordClearsTheForwardList()
     {

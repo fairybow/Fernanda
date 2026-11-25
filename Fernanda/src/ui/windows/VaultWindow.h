@@ -1335,15 +1335,11 @@ private:
         }
     }
 
-    enum class TabStep_
-    {
-        Back,
-        Forward
-    };
-
-    // A window's tab.back and tab.forward, this one's or a pop-out's, step
-    // through the history of the active tab in that window's own tree. The
-    // tree is the connections' context, so they go with the window
+    // A window's tab.back and tab.forward, this one's or a pop-out's, and the
+    // arrows in its panes' headers, step through the history of the active
+    // tab in that window's own tree. A header arrow has made its pane active
+    // already. The tree is the connections' context, so they go with the
+    // window
     void connectTabNavigation_(BaseWindow* window)
     {
         auto* tree = window->tabPaneTree();
@@ -1352,13 +1348,19 @@ private:
             window->action(ActionIds::TAB_BACK),
             &QAction::triggered,
             tree,
-            [this, tree] { stepTab_(tree, TabStep_::Back); });
+            [this, tree] { stepTab_(tree, TabHistory::Step::Back); });
 
         connect(
             window->action(ActionIds::TAB_FORWARD),
             &QAction::triggered,
             tree,
-            [this, tree] { stepTab_(tree, TabStep_::Forward); });
+            [this, tree] { stepTab_(tree, TabHistory::Step::Forward); });
+
+        connect(
+            tree,
+            &TabPaneTree::tabStepRequested,
+            this,
+            [this, tree](TabHistory::Step step) { stepTab_(tree, step); });
     }
 
     // Go back or forward in tree's active tab. The next entry is built into a
@@ -1370,7 +1372,7 @@ private:
     // A pinned tab steps too, keeping its pin (replacePage carries it): the
     // pin keeps an open from taking the tab over, and a step is asked for
     // outright
-    void stepTab_(TabPaneTree* tree, TabStep_ step)
+    void stepTab_(TabPaneTree* tree, TabHistory::Step step)
     {
         auto* leaf = tree->activeLeaf();
         auto* current = leaf ? leaf->currentPage() : nullptr;
@@ -1381,7 +1383,7 @@ private:
         }
 
         auto history = pageHistory(current);
-        auto back = (step == TabStep_::Back);
+        auto back = (step == TabHistory::Step::Back);
 
         while (auto entry = back ? history.takeBack() : history.takeForward()) {
             auto* page = buildTabHistoryPage_(*entry, tree->window());
@@ -1401,8 +1403,10 @@ private:
             return;
         }
 
-        // Every entry left in that direction was dropped
+        // Every entry left in that direction was dropped, so its arrow in the
+        // header greys
         setPageHistory(current, history);
+        tree->refreshPageHeader(current);
     }
 
     // A page built again from its tab history entry, or nullptr when it

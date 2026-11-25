@@ -79,6 +79,7 @@ add_library(AppTestMocs OBJECT
     ${PROJECT_SOURCE_DIR}/src/ui/tabs/NewTabButton.h
     ${PROJECT_SOURCE_DIR}/src/ui/tabs/TabBar.h
     ${PROJECT_SOURCE_DIR}/src/ui/tabs/TabCloseButton.h
+    ${PROJECT_SOURCE_DIR}/src/ui/tabs/TabHeader.h
     ${PROJECT_SOURCE_DIR}/src/ui/tabs/TabPaneLeaf.h
     ${PROJECT_SOURCE_DIR}/src/ui/widgets/GlyphButton.h
 )

@@ -47,6 +47,7 @@
 #include "ui/UiConstants.h"
 #include "ui/UiUtility.h"
 #include "ui/sidebar/VaultEntryDragMime.h"
+#include "ui/tabs/TabHistory.h"
 #include "ui/tabs/TabPaneLeaf.h"
 
 namespace Fernanda::Ui {
@@ -176,6 +177,34 @@ public:
         }
     }
 
+    // Page-addressed: show page in its pane's header again after something
+    // the header shows changed (setPageHistory)
+    void refreshPageHeader(QWidget* page)
+    {
+        if (auto* leaf = leafFor_(page)) {
+            leaf->refreshPageHeader(page);
+        }
+    }
+
+    // Make the pane holding widget active, focusing its current page, as
+    // pressing one of its tabs does. For the mouse's back and forward
+    // buttons, which act on the pane under the pointer. False, changing
+    // nothing, when widget isn't in a pane of this tree (the sidebar, say)
+    bool activateLeafContaining(QWidget* widget)
+    {
+        if (!widget || !isAncestorOf(widget)) {
+            return false;
+        }
+
+        auto* leaf = leafContaining_(widget);
+        if (!leaf) {
+            return false;
+        }
+
+        activateLeaf_(leaf);
+        return true;
+    }
+
     // --- Splits ------------------------------------------------------------
 
     // Split the active leaf, adding a fresh empty leaf beside (Horizontal) or
@@ -258,6 +287,10 @@ signals:
     // window responds by adding a NewTabPage to the active leaf. Named for the
     // intent, not for the button
     void newTabRequested();
+
+    // An arrow in a pane's header was clicked; the tree has already made that
+    // pane active. The window steps the active tab's history that way
+    void tabStepRequested(TabHistory::Step step);
 
     // A tab was dropped somewhere invalid (no family target). The window
     // creates a PopoutWindow at globalPos and hosts the page there. The page is
@@ -511,6 +544,17 @@ private:
             emit newTabRequested();
         });
 
+        // A header arrow -> make this leaf active, focusing its page as a
+        // tab press would, then ask for the step
+        connect(
+            leaf,
+            &TabPaneLeaf::stepRequested,
+            this,
+            [this, leaf](TabHistory::Step step) {
+                activateLeaf_(leaf);
+                emit tabStepRequested(step);
+            });
+
         // A tab dragged off its bar becomes a QDrag originating here
         connect(
             leaf,
@@ -602,6 +646,17 @@ private:
 
         activeLeaf_ = leaf;
         emit activePageChanged(leaf->currentPage());
+    }
+
+    // Make leaf active and focus its current page. Set outright, not left to
+    // the focus change, which doesn't come while the window isn't active
+    void activateLeaf_(TabPaneLeaf* leaf)
+    {
+        setActiveLeaf_(leaf);
+
+        if (auto* page = leaf->currentPage()) {
+            page->setFocus();
+        }
     }
 
     void onFocusChanged_(QWidget* /*old*/, QWidget* now)
