@@ -32,6 +32,7 @@
 #include <Coco/Path.h>
 #include <Coco/Time.h>
 
+#include "core/CoreConstants.h"
 #include "core/files/FileTypes.h"
 #include "core/files/Io.h"
 #include "core/files/PathKey.h"
@@ -47,6 +48,11 @@ namespace Fernanda {
 // it: a map of buffers keyed by PathKey, a watcher over their files, and the
 // autosave that writes them. GUI-free. App owns the one store and lends it to
 // every Vault and VaultWindow.
+//
+// The map also keeps the most recently closed text files' buffers, so a file
+// reopened after its last tab closed (or was replaced) has its undo history
+// back. Kept buffers are saved and watched like open ones, and follow renames,
+// moves, and outside changes the same way.
 //
 // Which files a window may open is the window's to decide
 // (VaultWindow::vaultOf_); the store holds whatever it's asked to. A Vault's
@@ -100,7 +106,11 @@ public:
             return nullptr;
         }
 
+        // A kept closed buffer (keepClosed_) is about to have a view again, so
+        // it leaves the list, and later closes can't free it from under its
+        // view
         if (auto it = models_.constFind(key); it != models_.constEnd()) {
+            keptClosed_.removeOne(it.value());
             return it.value();
         }
 
@@ -172,11 +182,11 @@ public:
             this,
             &BufferStore::onModelContentChanged_);
 
-        // Last view closed → flush and free the buffer. The base model counts
-        // its own views (GUI-free) and fires this on the 1->0 edge; the lambda
-        // re-derives the map key inside evictModel_
+        // Last view closed → save, then keep or free the buffer. The base model
+        // counts its own views (GUI-free) and fires this on the 1->0 edge; the
+        // lambda re-derives the map key inside onLastViewClosed_
         connect(model, &AbstractFileModel::lastViewClosed, this, [this, model] {
-            evictModel_(model);
+            onLastViewClosed_(model);
         });
 
         DEBUG(
@@ -345,9 +355,11 @@ public:
     // Autosave skips them, so typing stays in the buffer and can't land over
     // the other program's write. Otherwise an autosave between that write and
     // the watcher's reconcile would put the old text back, and the watcher
-    // would take it for its own. Writes asked for outright (a flush, a window
-    // or a tab's last view closing) still happen, so text is never dropped, and
-    // a file gone meanwhile is never written back (writeModel_).
+    // would take it for its own. A buffer whose last view closes isn't written
+    // either: it stays in the store until the release (onLastViewClosed_).
+    // Writes asked for outright (a flush, a window closing) still happen, so
+    // text is never dropped, and a file gone meanwhile is never written back
+    // (writeModel_).
     //
     // The watcher's reports wait for the release too (reconcileOne_). A file
     // removed and put back (a discard trashes it, Git restores it) would
@@ -468,10 +480,16 @@ signals:
 private:
     // Keyed by each file's PathKey. Models are parented to the store. A model
     // is freed when its file is deleted on disk (external deletion, below) or
-    // trashed in-app (applyRemoval) — both through discardModel_ — or when
-    // its last view closes, in any window (eviction — evictModel_); otherwise
-    // it lives as long as the store
+    // trashed in-app (applyRemoval) — both through discardModel_ — or once its
+    // last view has closed, in any window: at once for a buffer that isn't
+    // text, and for text once KEPT_CLOSED_BUFFERS newer closed ones push it out
+    // (onLastViewClosed_). A buffer with unsaved text is never freed that way;
+    // otherwise it lives as long as the store
     QHash<PathKey, AbstractFileModel*> models_{};
+
+    // Closed text buffers kept for reopening, oldest first (keepClosed_). Each
+    // is also in models_, saved, and shown by no view
+    QList<AbstractFileModel*> keptClosed_{};
 
     // Watches the absolute path of every open file. Only files we hold buffers
     // for — the trees' folders are each VaultTreeModel's own watcher's concern
@@ -488,7 +506,7 @@ private:
     // one-shot "ignore the next event" flag would not do: on a platform that
     // sends no echo it lingers and eats the next real change, where a
     // fingerprint can't be "used up". Entries are dropped when a buffer is
-    // discarded or evicted
+    // discarded or freed
     QHash<PathKey, size_t> lastWrittenHash_{};
 
     // An entry whose buffers autosave leaves alone (holdAtOrUnder),
@@ -727,52 +745,105 @@ private:
     // follows the file: drop it from the map, stop watching, forget its
     // fingerprint, announce (every view on it self-closes — this window's
     // pop-outs, and every window for a common file), free. Each view's late
-    // lastViewClosed then lands on evictModel_'s stale-signal guard
+    // lastViewClosed then lands on onLastViewClosed_'s stale-signal guard. A
+    // kept closed buffer leaves keptClosed_ with it
     void discardModel_(AbstractFileModel* model)
     {
         auto key = model->key();
 
         models_.remove(key);
+        keptClosed_.removeOne(model);
         watcher_->removePath(key.path().toQString());
         lastWrittenHash_.remove(key);
         model->notifyRemovedFromDisk();
         model->deleteLater();
     }
 
-    // A model's last view closed (as when its last tab closes): flush any
-    // unsaved bytes, then free the buffer, so models_ doesn't grow as tabs come
-    // and go. Tab close does no IO itself; this is a viewless buffer's final
-    // flush.
+    // A model's last view closed (as when its last tab closes, or a tab's file
+    // is replaced). Tab close does no IO itself; this is where a closed file's
+    // unsaved text is written. Then a text buffer is kept (keepClosed_), so
+    // its undo history is there if the file is reopened, and any other buffer
+    // is freed, since undo is the only reason to keep one.
+    //
+    // A buffer with unsaved text that can't be written now stays in the map
+    // with no view, outside keptClosed_, so nothing frees it:
+    //   - Its file is held (holdAtOrUnder): Git may have rewritten the file,
+    //     and writing would put the old text over Git's. The release takes
+    //     Git's version in as an undoable change, or autosave writes the
+    //     buffer if Git left the file alone
+    //   - The write failed: writeModel_ logged it, and the exit sweeps retry it
+    //   - Its file is gone: the reconcile pass writeModel_ queued discards it
     //
     // SAFE because a view firing this always reaches a live store: the store
     // is App's child and outlives every window close, and at quit,
     // ~QApplication reaps top-level windows before ~QObject reaps App's
     // children. So no closingDown() guard is needed
-    void evictModel_(AbstractFileModel* model)
+    void onLastViewClosed_(AbstractFileModel* model)
     {
-        auto key = model->key();
-
         // Stale-signal guard. External deletion (reconcileChanges_) already
         // dropped this model from the map and deleteLater'd it; its views then
         // self-close on removedFromDisk, and the LAST one firing lastViewClosed
         // lands here on a model already gone. The identity check additionally
-        // refuses to free a DIFFERENT model re-inserted under the same key
+        // refuses to touch a DIFFERENT model re-inserted under the same key
         // (delete + recreate + reopen) off an old model's late signal
-        auto it = models_.constFind(key);
+        auto it = models_.constFind(model->key());
 
         if (it == models_.constEnd() || it.value() != model) {
             return;
         }
 
-        // Flush then free. A failed final write KEEPS the viewless dirty model
-        // in the map rather than freeing it — a buffer is never abandoned; the
-        // exit sweeps and the next close retry it. writeModel_ already logged
-        // CRITICAL, so just bail. A file gone from disk keeps it too, briefly:
-        // the reconcile pass writeModel_ queued discards it
+        if (model->isModified() && isHeld_(model)) {
+            return;
+        }
+
         if (model->isModified() &&
             writeModel_(model) != WriteResult_::Written) {
             return;
         }
+
+        if (!model->isUserEditable()) {
+            freeModel_(model);
+            return;
+        }
+
+        keepClosed_(model);
+    }
+
+    // Keep a closed text buffer for reopening, newest last, and free the
+    // oldest past KEPT_CLOSED_BUFFERS. A kept buffer leaves the list when it
+    // gains a view again (openModel) or its file goes (discardModel_), so
+    // every buffer on it is shown by no view. Nothing edits a buffer with no
+    // view, and a reload from disk leaves it unmodified, so every one is
+    // saved too
+    void keepClosed_(AbstractFileModel* model)
+    {
+        keptClosed_ << model;
+
+        DEBUG(
+            this,
+            "Kept closed model for {} (kept: {})",
+            model->key().path(),
+            keptClosed_.size());
+
+        while (keptClosed_.size() > KEPT_CLOSED_BUFFERS) {
+            auto* oldest = keptClosed_.takeFirst();
+
+            ASSERT(
+                oldest->viewCount() == 0,
+                "A kept closed buffer has a view!");
+            ASSERT(
+                !oldest->isModified(),
+                "A kept closed buffer has unsaved text!");
+
+            freeModel_(oldest);
+        }
+    }
+
+    // Drop a buffer no view shows, its text on disk, from the store, and free
+    // it
+    void freeModel_(AbstractFileModel* model)
+    {
+        auto key = model->key();
 
         models_.remove(key);
         watcher_->removePath(key.path().toQString());
@@ -781,7 +852,7 @@ private:
 
         DEBUG(
             this,
-            "Evicted viewless model for {} (total: {})",
+            "Freed viewless model for {} (total: {})",
             key.path(),
             models_.size());
     }
