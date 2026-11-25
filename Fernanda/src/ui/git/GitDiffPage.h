@@ -33,6 +33,7 @@
 #include "ui/UiConstants.h"
 #include "ui/git/GitDiffView.h"
 #include "ui/tabs/PageIcon.h"
+#include "ui/tabs/PagePath.h"
 
 namespace Fernanda::Ui {
 
@@ -40,7 +41,8 @@ namespace Fernanda::Ui {
 // sidebar's Git page. It's its own kind of page, not a file view: a diff is
 // read from git and never edited, and the file it's of keeps its one buffer
 // in the store, which its own tabs show. Its tab carries the file's name and
-// a diff mark (GIT_DIFF_PAGE_ICON_PATH), so it isn't taken for the file.
+// a diff mark (GIT_DIFF_PAGE_ICON_PATH), so it isn't taken for the file, and
+// its pane's header shows its path in the repository (PagePath).
 // Like a file's, it opens over the active tab unless that one is pinned, and
 // can be pinned, split, or moved to a pop-out. It isn't saved with the
 // workspace.
@@ -110,6 +112,7 @@ private:
         setWindowTitle(entry_.path.nameQString());
         setToolTip(entry_.path.prettyQString());
         setPageIconPath(this, QString::fromLatin1(GIT_DIFF_PAGE_ICON_PATH));
+        setPagePath(this, entry_.path.prettyQString());
 
         message_ = new QLabel(this);
         message_->setAlignment(Qt::AlignCenter);

@@ -15,18 +15,27 @@
 
 #pragma once
 
+#include <QFontMetrics>
 #include <QHBoxLayout>
-#include <QLabel>
+#include <QList>
+#include <QPaintEvent>
+#include <QPainter>
 #include <QPalette>
+#include <QRect>
 #include <QSizePolicy>
 #include <QString>
+#include <QStringList>
 #include <QWidget>
 
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
 #include "ui/UiConstants.h"
+#include "ui/tabs/BreadcrumbFit.h"
+#include "ui/tabs/PageIcon.h"
+#include "ui/tabs/PagePath.h"
 #include "ui/tabs/TabHistory.h"
+#include "ui/widgets/Glyph.h"
 #include "ui/widgets/GlyphButton.h"
 
 namespace Fernanda::Ui {
@@ -66,14 +75,130 @@ private:
     QPalette::ColorRole glyphRole_;
 };
 
+// The header's path: the page's mark, then its folders, muted, each followed
+// by a separator, then its name. Where it doesn't all fit, Breadcrumbs::fit
+// decides how wide each part is drawn, and each part is cut short with an
+// ellipsis to that width. Its tooltip is the whole path. It asks for no width,
+// so a long path never widens the pane
+class TabHeaderPath_ : public QWidget
+{
+public:
+    explicit TabHeaderPath_(QWidget* parentHeader)
+        : QWidget(parentHeader)
+    {
+        setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+    }
+
+    // The folders are the path's, without its last part, the file. The name
+    // is the one the page's tab shows, so a file's has no extension, as in
+    // the file tree
+    void show(const QString& path, const QString& name, const QString& markPath)
+    {
+        folders_ = path.split(u'/', Qt::SkipEmptyParts);
+
+        if (!folders_.isEmpty()) {
+            folders_.removeLast();
+        }
+
+        name_ = name;
+        markPath_ = markPath;
+        setToolTip(path);
+        update();
+    }
+
+protected:
+    void paintEvent([[maybe_unused]] QPaintEvent* event) override
+    {
+        QPainter painter(this);
+        auto metrics = fontMetrics();
+        auto x = 0;
+
+        if (!markPath_.isEmpty()) {
+            auto pixmap = mark_.pixmap(
+                markPath_,
+                TAB_HEADER_MARK_EXTENT,
+                palette().color(TAB_HEADER_MARK_ICON_ROLE),
+                devicePixelRatioF());
+
+            painter.drawPixmap(
+                x,
+                (height() - TAB_HEADER_MARK_EXTENT) / 2,
+                pixmap);
+
+            x += TAB_HEADER_MARK_EXTENT + TAB_HEADER_MARK_GAP;
+        }
+
+        QList<int> widths{};
+        QList<int> minimums{};
+
+        for (const auto& folder : folders_) {
+            widths << metrics.horizontalAdvance(folder);
+            minimums << metrics.horizontalAdvance(folder.left(1) + ELLIPSIS_);
+        }
+
+        auto separator = metrics.horizontalAdvance(SEPARATOR_);
+        auto ellipsis = metrics.horizontalAdvance(ELLIPSIS_);
+
+        auto fit = Breadcrumbs::fit(
+            width() - x,
+            metrics.horizontalAdvance(name_),
+            widths,
+            minimums,
+            separator,
+            ellipsis);
+
+        // A part given its whole width is drawn whole. elidedText measures in
+        // fractions of a pixel, and horizontalAdvance rounds, so asked to fit
+        // a text into its own rounded width, it could cut it short
+        auto draw = [&](const QString& text,
+                        int width,
+                        QPalette::ColorRole role) {
+            auto shown = width >= metrics.horizontalAdvance(text)
+                             ? text
+                             : metrics.elidedText(text, Qt::ElideRight, width);
+
+            painter.setPen(palette().color(role));
+            painter.drawText(
+                QRect(x, 0, width, height()),
+                Qt::AlignLeft | Qt::AlignVCenter,
+                shown);
+
+            x += width;
+        };
+
+        for (qsizetype i = 0; i < fit.folders.size(); ++i) {
+            draw(folders_[i], fit.folders[i], TAB_HEADER_FOLDER_ROLE);
+            draw(SEPARATOR_, separator, TAB_HEADER_FOLDER_ROLE);
+        }
+
+        if (fit.dropped) {
+            draw(ELLIPSIS_, ellipsis, TAB_HEADER_FOLDER_ROLE);
+            draw(SEPARATOR_, separator, TAB_HEADER_FOLDER_ROLE);
+        }
+
+        draw(name_, fit.name, TAB_HEADER_TITLE_ROLE);
+    }
+
+private:
+    static inline const QString SEPARATOR_ = u" / "_s;
+    static inline const QString ELLIPSIS_ = u"\u2026"_s;
+
+    QStringList folders_{};
+    QString name_{};
+    QString markPath_{};
+    Glyph::Cache mark_{};
+};
+
 } // namespace Internal
 
 // The strip over a pane's pages, as Obsidian's view header is: back and
-// forward arrows for the tab's history (TabHistory), then the title of the
+// forward arrows for the tab's history (TabHistory), then the path of the
 // page the pane shows. One per pane (TabPaneLeaf), showing whichever page is
 // current, so like the leaf it learns nothing of page types: it shows the
-// title on the page's tab (a new tab's "New tab" included) and the history the
-// page widget carries.
+// title on the page's tab (a new tab's "New tab" included), and what the page
+// widget carries: its history, its path (PagePath), and its tab's mark
+// (PageIcon), which marks a Common Vault file in a project's window and a
+// diff here as on the tab.
 //
 // An arrow is enabled while the history has an entry that way, and a click
 // asks the leaf to step (stepRequested). The arrows never take the keyboard
@@ -94,15 +219,16 @@ public:
 
     ~TabHeader() override { TRACER; }
 
-    // Show page's history's directions, and the title its tab shows, or
-    // nothing for no page. Called again whenever either may have changed
+    // Show page's history's directions and its path, ending in the title its
+    // tab shows, or nothing for no page. Called again whenever any of them may
+    // have changed
     void showPage(QWidget* page, const QString& title)
     {
         auto history = pageHistory(page);
 
         back_->setEnabled(history.canGoBack());
         forward_->setEnabled(history.canGoForward());
-        title_->setText(title);
+        path_->show(pagePath(page), title, pageIconPath(page));
     }
 
 signals:
@@ -117,7 +243,7 @@ private:
         u":/lucide/ChevronRight.svg"_s,
         TAB_HEADER_FORWARD_ICON_ROLE,
         this);
-    QLabel* title_ = new QLabel(this);
+    Internal::TabHeaderPath_* path_ = new Internal::TabHeaderPath_(this);
 
     void setup_()
     {
@@ -128,11 +254,6 @@ private:
         back_->setToolTip(tr("Navigate back"));
         forward_->setToolTip(tr("Navigate forward"));
 
-        // The title takes what width is left and asks for none, so a long
-        // title never widens the pane: it's cut off at the header's edge
-        title_->setForegroundRole(TAB_HEADER_TITLE_ROLE);
-        title_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
-
         auto* layout = new QHBoxLayout(this);
         layout->setContentsMargins(TAB_HEADER_LEFT_MARGIN, 0, 0, 0);
         layout->setSpacing(0);
@@ -140,7 +261,8 @@ private:
         layout->addSpacing(TAB_HEADER_ARROW_SPACING);
         layout->addWidget(forward_);
         layout->addSpacing(TAB_HEADER_TITLE_GAP);
-        layout->addWidget(title_, 1);
+        layout->addWidget(path_, 1);
+        layout->addSpacing(TAB_HEADER_RIGHT_MARGIN);
 
         connect(back_, &QAbstractButton::clicked, this, [this] {
             emit stepRequested(TabHistory::Step::Back);

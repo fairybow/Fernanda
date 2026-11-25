@@ -75,6 +75,7 @@
 #include "ui/statusbar/WordCounter.h"
 #include "ui/tabs/NewTabPage.h"
 #include "ui/tabs/PageIcon.h"
+#include "ui/tabs/PagePath.h"
 #include "ui/tabs/PagePin.h"
 #include "ui/tabs/TabHistory.h"
 #include "ui/tabs/TabPaneTree.h"
@@ -1136,6 +1137,7 @@ private:
         });
 
         applyGuestMark_(view, key);
+        setPagePath(view, displayPathOf_(key).prettyQString());
         return view;
     }
 
@@ -1190,7 +1192,8 @@ private:
     // file moved, or the Common Vault did. In neither, the view closes; the
     // buffer lives on in any window that still shows it, or, if none does, its
     // last view's save writes any unsaved text to the file. Otherwise its
-    // guest mark follows the vault it's in now
+    // guest mark follows the vault it's in now, and the path its pane's header
+    // shows follows the file
     void reconsiderView_(AbstractFileView* view)
     {
         auto key = view->model()->key();
@@ -1200,10 +1203,16 @@ private:
             return;
         }
 
-        if (applyGuestMark_(view, key)) {
-            if (auto* tree = treeHosting_(view)) {
-                tree->refreshPageIcon(view);
-            }
+        auto* tree = treeHosting_(view);
+
+        if (applyGuestMark_(view, key) && tree) {
+            tree->refreshPageIcon(view);
+        }
+
+        setPagePath(view, displayPathOf_(key).prettyQString());
+
+        if (tree) {
+            tree->refreshPageHeader(view);
         }
     }
 

@@ -285,9 +285,11 @@ set(APP_HEADERS
     src/ui/statusbar/CursorPosition.h
     src/ui/statusbar/WordCounter.h
 
+    src/ui/tabs/BreadcrumbFit.h
     src/ui/tabs/NewTabButton.h
     src/ui/tabs/NewTabPage.h
     src/ui/tabs/PageIcon.h
+    src/ui/tabs/PagePath.h
     src/ui/tabs/PagePin.h
     src/ui/tabs/TabBar.h
     src/ui/tabs/TabCloseButton.h
