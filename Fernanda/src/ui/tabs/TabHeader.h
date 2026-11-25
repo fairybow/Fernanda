@@ -92,10 +92,8 @@ public:
     // The folders are the path's, without its last part, the file. The name
     // is the one the page's tab shows, so a file's has no extension, as in
     // the file tree
-    void setPath(
-        const QString& path,
-        const QString& name,
-        const QString& markPath)
+    void
+    setPath(const QString& path, const QString& name, const QString& markPath)
     {
         folders_ = path.split(u'/', Qt::SkipEmptyParts);
 

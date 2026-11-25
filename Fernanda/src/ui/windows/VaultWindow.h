@@ -1293,8 +1293,8 @@ private:
     activeTabShowsDiff_(const TabPaneTree* tree, const Coco::Path& path)
     {
         auto* leaf = tree->activeLeaf();
-        auto* diff = leaf ? qobject_cast<GitDiffPage*>(leaf->currentPage())
-                          : nullptr;
+        auto* diff =
+            leaf ? qobject_cast<GitDiffPage*>(leaf->currentPage()) : nullptr;
 
         return diff && diff->entry().path == path;
     }

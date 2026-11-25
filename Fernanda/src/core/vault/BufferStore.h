@@ -310,9 +310,8 @@ public:
     // until newer closes pushed its buffers out. A kept buffer is saved and
     // shown by no view, so freeing one loses only its undo history. A buffer
     // with unsaved text and no view is never on the kept list, so it stays
-    void freeKeptAtOrUnder(
-        const PathKey& entry,
-        const QList<PathKey>& keepRoots)
+    void
+    freeKeptAtOrUnder(const PathKey& entry, const QList<PathKey>& keepRoots)
     {
         const auto kept = keptClosed_;
 

@@ -115,13 +115,13 @@ private slots:
     // share of 14 whole
     void aMinimumHeldLowersTheShareForTheRest()
     {
-        auto out = fit(
-            122,
-            50,
-            { 100, 14, 14 },
-            { 18, 10, 10 },
-            SEPARATOR_,
-            ELLIPSIS_);
+        auto out =
+            fit(122,
+                50,
+                { 100, 14, 14 },
+                { 18, 10, 10 },
+                SEPARATOR_,
+                ELLIPSIS_);
 
         QCOMPARE(out.name, 50);
         QCOMPARE(out.folders, (QList<int>{ 18, 12, 12 }));
