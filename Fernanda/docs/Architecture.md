@@ -170,7 +170,7 @@ A tab's content is a page, and a page is a plain `QWidget`. `TabPaneLeaf` and `T
 
 - A file view is an `AbstractFileView`, one view of one file. Each file type has its own subclass.
 - A new tab holds a `NewTabPage`. It is not a file view: a tab with no file has no buffer, and a placeholder buffer would be exactly the off-disk buffer the design rules out. Choosing a file replaces the page in place.
-- What a tab needs from its page travels on the page widget: the title is its window title, and pin state, the tab's mark (which glyph, as an SVG path), and the tab's history (see "Tab history") are properties read through small helper headers. They follow the page through reorders, drags between panes and windows, and restore, with nothing else carrying them.
+- What a tab needs from its page travels on the page widget: the title is its window title, and pin state, the tab's mark (which glyph, as an SVG path), the tab's history (see "Tab history"), and the path its header shows are properties read through small helper headers. They follow the page through reorders, drags between panes and windows, and restore, with nothing else carrying them.
 - Anything that asks "which file is in this tab?" casts the page to `AbstractFileView` and handles null.
 
 `TextFileView` can't itself be a `QPlainTextEdit`, since views share the `AbstractFileView` base. It holds one: `TextEditor`, a `QPlainTextEdit` subclass that draws the line-number gutter, margins, highlight, and selection handles, and runs the typing helpers.
@@ -190,7 +190,18 @@ Each tab has its own back and forward history, as in Obsidian.
 - **`VaultWindow` records and steps,** since it's what builds pages. When a page takes over a tab (`openReplacingActive_`, and a new tab turning into a file), the replaced page's history passes to its replacement, with the replaced page recorded. A new tab records nothing. Opening the file the active tab already shows only focuses it, so the history never gains a step that goes nowhere. A step builds the next entry's page, through `makeView_` for a file, and drops any entry that can't be built (a file gone, or out of the window's vaults; a diff with no repository) before trying the next.
 - **Renames are followed** where the recent files are: on the store's `entryRelocated`, every page's history in the window and its pop-outs is rebased. A file deleted outside Fernanda is left in, and passed over when stepped to.
 - **The actions are each window's own,** minted in `BaseWindow` with the shared ones, so a pop-out has them and their keys. Only `VaultWindow` can build a page, so it connects its own and each pop-out's (see "Actions").
-- **The mouse's back and forward buttons trigger the same actions.** A press goes to the widget under the pointer, which may take it before its window hears it, so each window filters the application's events and takes the presses aimed at itself. Taking them stops Qt passing them up to each parent, which the filter would see again. A quick second press arrives as a double-click and counts as a press; releases do nothing.
+- **The mouse's back and forward buttons trigger the same actions,** after making the pane under the pointer active (`TabPaneTree::activateLeafContaining`), so they step that pane's tab. A press goes to the widget under the pointer, which may take it before its window hears it, so each window filters the application's events and takes the presses aimed at itself. Taking them stops Qt passing them up to each parent, which the filter would see again. A quick second press arrives as a double-click and counts as a press; releases do nothing.
+
+### The pane's header
+
+Each pane (`TabPaneLeaf`) has a header over its pages (`TabHeader`, Obsidian's tab title bar), showing the current page.
+
+- **One per pane, not per page.** Everything it shows comes from the page widget or its tab: the title on the tab, the history, the tab's mark, and the path (`PagePath`, a property as the mark is). So the leaf stays ignorant of page types. Whoever knows the path sets it: `VaultWindow` for a file view, when it's made and in `reconsiderView_`, which runs after every move and Common Vault change; a diff page for itself, as it sets its own mark.
+- **It's part of the page area, not the tab row.** It sits inside the leaf's main stack, above the page stack, so it hides with the underlay when the pane is empty, and its strip counts as page, not tab bar, when a tab is dropped.
+- **A change under the current page is drawn when asked** (`TabPaneTree::refreshPageHeader`), as a changed mark is: there's no signal for a property. A page becoming current is drawn then.
+- **An arrow is an intent, like the + button.** The leaf passes it to the tree, which makes the pane active and focuses its page, then emits `tabStepRequested`; `VaultWindow` connects that for its own tree and each pop-out's.
+- **How wide each part of the path is drawn is a pure function** (`Breadcrumbs::fit`), tested on its own. The header measures and draws. A part given its full width is drawn whole, not passed to `elidedText`: that measures in fractions of a pixel, where `horizontalAdvance` rounds, so it can cut a text short at its own rounded width.
+- **Hidden by a vault setting.** `BaseWindow::applyConfig` passes it to the tree, which applies it to every leaf and remembers it for each new one.
 
 ## The split tree
 
@@ -212,6 +223,7 @@ flowchart TD
 - **A window focuses its active page on first show.** A hidden widget can't take focus, so focusing pages during restore does nothing. `BaseWindow` does it once the window is shown.
 - **A tab press focuses its page after the bar handles it.** `QTabBar::tabBarClicked` fires before the bar changes the current tab, and the change moves focus again, so `TabBar` emits its own `tabPressed` afterward.
 - **The tree reports its active page.** The status bar follows that signal, not focus, because closing a tab or restoring a layout doesn't reliably move focus.
+- **A page is replaced by showing the new one first, then removing the old.** The stack moves focus from the page it stops showing into the one it starts showing. Removed first, the old, focused page would leave the stack to pick another page itself, and focus would go along the focus chain, into another pane in a split, which would then become the active one.
 - **Restore builds a detached tree and swaps it in at the end.** Collapse handling is suspended during a restore; otherwise the half-built tree reports itself empty, which closes a restoring pop-out before it is shown.
 
 ### Dragging tabs
@@ -234,7 +246,7 @@ The `BufferStore` keeps one buffer for each open file, keyed by the file's `Path
 
 When a buffer's last view closes, in any window, the buffer is saved. Then a text buffer is kept, undo history and all, among the most recently closed (`KEPT_CLOSED_BUFFERS`), so a file reopened, or gone back to in a tab's history, can undo what was typed before; past the limit, the oldest is freed. Any other buffer is freed at once, since undo is the only reason to keep one. A kept buffer stays in the store's map, watched and following renames and outside changes as an open one does, and leaves the list when it gains a view again or its file goes.
 
-A buffer whose text can't be written then is never freed this way. It stays, shown by no view, until a later save: one whose save failed, and one whose file Git holds (see "Autosave and the watcher hold off while Git rewrites files", under Git). Such a buffer isn't put on the list once it's written, so it stays until quit.
+A buffer whose text can't be written then is never freed this way. It stays, shown by no view, until a later save: one whose save failed, and one whose file Git holds (see "Autosave and the watcher hold off while Git rewrites files", under Git). When its modified flag clears, by a later write or by a hold's release taking in Git's version, the store closes it as its last view's close would have, on the next turn of the event loop, since the save may be one of several in a loop over the store's buffers.
 
 Closing a tab does no file IO. It destroys a view, not a buffer.
 

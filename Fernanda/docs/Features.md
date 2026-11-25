@@ -117,11 +117,14 @@ Ctrl+O, or "Go to file" on a new tab. A search field over every file in the vaul
 ## Tabs, panes, and windows
 
 - Opening a file replaces what is in the current tab, unless that tab is pinned. Opening the file the current tab already shows leaves it where it is, keeping its place
-- Each tab keeps its own history of what it has shown. **Navigate back** (Ctrl+Alt+Left, or the mouse's back button) takes the tab to what it showed before, at the same cursor, scroll, and zoom, and **Navigate forward** (Ctrl+Alt+Right, or the mouse's forward button) returns. Both are in the View menu too, and work in pop-outs and in pinned tabs, which stay pinned. Opening something new in the tab after going back clears what was ahead, as in a browser
+- Each tab keeps its own history of what it has shown. **Navigate back** (Ctrl+Alt+Left, the mouse's back button, or the back arrow in the pane's header) takes the tab to what it showed before, at the same cursor, scroll, and zoom, and **Navigate forward** (Ctrl+Alt+Right, the mouse's forward button, or the forward arrow) returns. The keys and the View menu step the current tab; the mouse buttons step the tab of the pane under the pointer, and an arrow its own pane's. They work in pop-outs and in pinned tabs, which stay pinned. Opening something new in the tab after going back clears what was ahead, as in a browser
 - A file that's gone, or no longer in the window's vaults, is passed over on the way back or forward. A renamed or moved one is followed. Diffs are kept in the history too
 - A tab's history lasts while the tab is open, and isn't kept between launches
 - The last 20 text files closed, or replaced in their tab, keep their undo history, so after reopening one, or going back to it, Ctrl+Z undoes what was typed before
 - A new tab opens empty, offering to create a file or go to one
+- Each pane has a header over its tab (Obsidian's tab title bar): the back and forward arrows, greyed when there's nowhere to go, then the path of the file it shows, from the root of its vault as the file tree shows it. The folders are muted and the file's name is not. A Common Vault file in a project's window starts with the box icon, as its tab does; a diff shows its path in the repository, with the diff icon. Hover over the path to see it whole, extension included
+- In a narrow pane the name keeps its full width while there's room for it. The folders share what's left, each shortened to a few letters if need be, and when even that doesn't fit, the innermost go first, with "…" in their place
+- Settings → Appearance → Show tab title bar hides the header in every pane of the vault's windows
 - The same file can be open in any number of tabs, panes, and windows. All of them stay in sync and share one undo history
 - Right-click a tab to close, pin, or unpin it. A pinned tab keeps its file when another is opened and shows a pin in place of its close button
 - Drag a tab along the bar to reorder it, onto another pane's bar to move it there, onto the edge of a pane to split that pane, or anywhere else to pop it out into its own window
@@ -341,7 +344,7 @@ Ctrl+, or the gear beside the vault switcher. Settings belong to the vault and a
 
 - **General**: the version, Check for updates, whether Fernanda checks on its own, and the interface language. The Microsoft Store version has the version and the language only (see [Updates](#updates))
 - **Editor**: line numbers, wrap lines, left/right margin, highlight current line, selection handles, tab width, center on scroll, double-click selects whitespace, typing helpers (auto-pair brackets and quotes, step past closing punctuation), check spelling, spelling language
-- **Appearance**: text font, bold, italic, font size
+- **Appearance**: text font, bold, italic, font size, show tab title bar
 - **Status bar**: the word counter and the cursor position, and which parts of each to show
 - **Focus timer**: whether it shows, the lengths of focus and of each break, and how many focus periods come before a long break
 - **Git**: whether the Git page shows in the sidebar, for a vault in a repository
@@ -385,7 +388,7 @@ Fernanda's menus, settings, and messages are in English and Spanish.
 |---|---|---|
 | `.fernanda/settings.json` | Editor, spelling, status bar, focus timer, and Git settings | Yes |
 | `.fernanda/dictionary.txt` | Words added to the vault's dictionary | Yes |
-| `.fernanda/appearance.json` | Font settings | Yes |
+| `.fernanda/appearance.json` | Font settings, and whether tabs show their title bar | Yes |
 | `.fernanda/workspace.json` | Window, pane, and tab layout | No, it is specific to one machine |
 | `.fernanda/history/` | Writing history, one file per computer | Yes |
 | `.fernanda/.gitignore` | Ignores `workspace.json` | Yes |
@@ -443,7 +446,9 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 - **No fallback trash.** If the system trash refuses an entry, Fernanda declines; Obsidian moves it to a `.trash` folder in the vault
 - **A vault whose folder vanishes has its window closed**, after a message, where Obsidian leaves an empty window open. This includes a vault folder deleted from inside another vault
 - **No Move Vault command.** Obsidian's vault switcher can move a vault to another folder. In Fernanda, move the folder from the file tree of a vault that contains it, and the vault follows; or move it in your file manager, then open it from its new place
-- **No back and forward buttons in the tab.** Obsidian puts its arrows in each tab's header, and right-clicking one lists where it leads. Fernanda's tabs have no header yet: back and forward are on the keys, the mouse buttons, and the View menu
+- **The mouse's back and forward buttons step the pane under the pointer.** Obsidian's step the current tab wherever the pointer is
+- **The tab title bar's arrows have no list.** Right-clicking one of Obsidian's lists where it leads. Clicking its title doesn't rename the file, and its folders don't show themselves in the file tree, as Obsidian's do
+- **The tab title bar keeps the outermost folders.** Obsidian shortens every folder alike; where even shortened folders don't fit, Fernanda drops the innermost first
 - **Undo outlasts a change made outside Fernanda.** Obsidian keeps the undo history of the last 20 files you've moved away from, unless the file was changed outside it. Fernanda keeps that of the last 20 text files closed or replaced, and an outside change to one is one more undo step, as it is for an open file
 - **Licenses are in the app.** Obsidian lists its third-party credits on its help site
 - **No light or dark setting.** Fernanda always follows the system. Obsidian follows it by default and can be set to light or dark

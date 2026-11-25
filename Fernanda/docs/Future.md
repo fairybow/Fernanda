@@ -39,7 +39,7 @@ Nothing here is a promise or a schedule.
 - Remember whether the menu bar is shown
 - Grey out Undo and Redo when there is nothing to undo or redo
 - Shortcuts for splitting a pane
-- A header over each tab's page, as Obsidian's view header, with back and forward arrows for the tab's history. Right-clicking an arrow lists where it leads, to jump straight there
+- In the tab title bar, as Obsidian's: right-clicking an arrow lists where it leads, to jump straight there; clicking the file's name renames it in place; and clicking a folder shows it in the file tree
 - On macOS, replace the menu bar toggle: the system owns the menu bar there, and Cmd+M is Minimize
 
 ### Appearance
@@ -65,6 +65,7 @@ Nothing here is a promise or a schedule.
 
 ### Saving and safety
 
+- **Rescue copies.** When a save fails at a moment its text could be lost, the text is written somewhere Fernanda can still write, outside the vault: a folder in its application data, usually on another drive than a vault that has gone missing. The moments are a tab's last view closing, Quit, logging out of the system, and a window close the user goes ahead with after its save failed. A message says copies were made and where, when they're made or at the next launch. Today, closing the tab of a file that won't save shows nothing, and the text is kept in memory only until Fernanda quits; logging out loses it too; and a window whose file will never save again (a drive gone for good) can't close without losing the text. Copies need nothing from backups and come first
 - When a save fails and can't be retried (a drive gone for good), a window showing each unsaved file's text to copy out by hand. It needs no disk, so it works when every write fails
 - A status indicator that shows a failed save when it happens, not only when the window is closed
 

@@ -134,6 +134,8 @@ git push origin v0.0.0-beta.0
 
 **Back and forward in a tab.** Each tab now keeps its own history, as in Obsidian. **Navigate back** (Ctrl+Alt+Left, or your mouse's back button) takes a tab back to what it showed before, at the same cursor, scroll, and zoom, and **Navigate forward** (Ctrl+Alt+Right, or the forward button) returns. Both are in the View menu too, and work in pop-outs and in pinned tabs.
 
+Each pane now has a header over its tab, as Obsidian's tab title bar does: back and forward arrows, greyed when there's nowhere to go, and the path of the file it shows, from the vault's root. In a narrow pane the file's name keeps its full width and the folders shorten around it. Your mouse's back and forward buttons step the pane under the pointer, even one you haven't clicked into yet. To hide the header, turn off **Settings → Appearance → Show tab title bar**.
+
 - Opening a file over a tab and going back is no longer a loss: the last 20 text files closed or replaced keep their undo history, so Ctrl+Z still undoes what you typed before
 - A file deleted since is skipped, and a renamed or moved one is followed. Diff tabs are part of the history too
 - A tab's history lasts while it's open and isn't kept between launches, as in Obsidian

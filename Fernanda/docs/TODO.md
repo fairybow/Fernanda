@@ -123,7 +123,9 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Under the "C" locale (a Linux session with no locale set), the file tree doesn't read a number in a name as a number: "chapter 10" sorts before "chapter 2"
 - [x] A vault whose root path was not plain (a trailing separator, a `.` or `..` segment) contained nothing by `Vault::contains`, so every create, rename, move, and delete in it was refused. Roots and every path under them are now normalized into keys
 - [ ] The known-vaults list can show one folder twice: a vault once opened by a symlinked path, and the same folder by its resolved path, which is what `App` records now. Records are matched by `PathKey`, which doesn't follow symlinks
-- [ ] A buffer left with unsaved text when its last view closed (its save failed, or Git held its file) is shown by no window, so no window close retries it. Focus loss and quit do, as does a hold's release. Once written, it isn't put among the closed text buffers the store keeps, so it stays in memory until quit rather than being freed in its turn
+- [ ] A buffer left with unsaved text when its last view closed (its save failed, or Git held its file) is shown by no tab, so nothing says it's unsaved, and no window close retries it. Focus loss and quit do, and so does a later autosave once the cause is gone. If it never saves, its text goes when Fernanda quits. Rescue copies are the fix (see "Saving and safety" in [Future.md](Future.md))
+- [x] A buffer like the one above, once saved, stayed in memory until quit rather than being freed in its turn. The store now closes it as its last view's close would have, when its modified flag clears
+- [x] In a split, stepping back or forward in a tab made another pane the active one: replacing a page removed the focused page before showing the new one, and focus went along the focus chain into the other pane. The new page is now shown first
 - [ ] A discard sends its files to the trash one at a time, on the main thread, so Discard all changes over many files can freeze the window for a while. It slows GitHub Desktop too (desktop/desktop#10445). Measure on Windows with a few hundred files before moving it off the main thread
 - [ ] A renamed file whose new path goes to the trash and whose old path the trash then refuses (recreated, and open in another program) is named as left as it was, though its new path is in the trash
 - [ ] Discarding a symlink whose target is missing doesn't send it to the trash: `Coco::Path::exists` follows the link, so it reads as nothing there, and Git then resets it, losing the old target. A fix needs a `Coco::Path::isSymLink`
@@ -151,7 +153,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Run `update_translations` for the Git page's strings, add the English plural forms of "%Ln changed file(s)", "Last fetched %Ln minute(s) ago" (and its hour and day forms), and "Git took longer than %Ln second(s), so it was stopped." to `Translation_en.ts`, and translate them into Spanish. The discard messages' plural forms ("%Ln file(s) couldn't be moved to the system trash…", "Are you sure you want to discard all %Ln changed file(s)?", "%Ln of these file(s) are outside this vault.", "%Ln conflicted file(s) will be left as they are.") are in `Translation_en.ts` already and need Spanish too
 - [x] `LogView` opens on every launch, for testing. Put it behind its command-line flag
 - [x] `CHANGELOG.md` has only a placeholder release entry. Write the real notes before tagging
-- [ ] Run `update_translations` for "Navigate Back" and "Navigate Forward", and translate them into Spanish
+- [ ] Run `update_translations` for "Navigate Back" and "Navigate Forward" (the menu), "Navigate back" and "Navigate forward" (the header's arrows), and the Appearance page's "Interface", "Show tab title bar", and its description, and translate them into Spanish
 - [ ] Test the OS logout save path (`App::onCommitDataRequest_`)
 - [ ] Add the Git page to `CHANGELOG.md`
 - [ ] The Git hand pass, below, on Windows and macOS. Use a scratch repository on GitHub, so pushes and pulls are real, and a vault inside it with a few files
@@ -250,6 +252,7 @@ Run it once on each platform: on Windows signing in through Git Credential Manag
 What the tests in `Fernanda/tests/` don't reach.
 
 - [ ] Stepping back and forward in a tab: `VaultWindow` building pages from a tab's history and passing it on, and `BaseWindow`'s filter for the mouse's back and forward buttons. The history's own rules are tested (`TabHistoryTest`), and the stepping was checked by hand
+- [ ] The tab title bar (`TabHeader`): its arrows' states, and the path it draws. How the path's parts share the width is tested (`BreadcrumbFitTest`), as is where its setting is kept (`VaultConfigTest`), and the header was checked by hand
 - [ ] `FocusTimer`'s ticker and signals, and the sidebar's focus timer button. The rules the timer runs are tested (`FocusCycleTest`)
 - [ ] `Updater`'s request to GitHub and its handling of the reply. The decision it makes from the reply is tested (`UpdateCheckTest`)
 - [ ] The installer's update-check choice: the Windows installer writing and removing `install.ini`, and `AppConfig` reading it as the default. A test would have to put a file beside its own executable, in the build folder
