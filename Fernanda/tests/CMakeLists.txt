@@ -79,6 +79,7 @@ add_library(AppTestMocs OBJECT
     ${PROJECT_SOURCE_DIR}/src/ui/tabs/NewTabButton.h
     ${PROJECT_SOURCE_DIR}/src/ui/tabs/TabBar.h
     ${PROJECT_SOURCE_DIR}/src/ui/tabs/TabCloseButton.h
+    ${PROJECT_SOURCE_DIR}/src/ui/tabs/TabHeader.h
     ${PROJECT_SOURCE_DIR}/src/ui/tabs/TabPaneLeaf.h
     ${PROJECT_SOURCE_DIR}/src/ui/widgets/GlyphButton.h
 )
@@ -103,6 +104,7 @@ function(app_add_test name)
 endfunction()
 
 app_add_test(AppConfigTest)
+app_add_test(BreadcrumbFitTest)
 app_add_test(BufferStoreTest)
 app_add_test(BufferStoreTimedTest)
 app_add_test(FileTypesTest)
@@ -121,6 +123,7 @@ app_add_test(RecentFilesTest)
 app_add_test(SpellCheckerTest)
 app_add_test(SpellCheckersTest)
 app_add_test(SpellWordsTest)
+app_add_test(TabHistoryTest)
 app_add_test(TabPaneLeafTest)
 app_add_test(TextCountsTest)
 app_add_test(TextFileModelTest)

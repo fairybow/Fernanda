@@ -60,6 +60,23 @@ inline constexpr int NEW_TAB_BUTTON_ICON_EXTENT = 12;
 inline constexpr int NEW_TAB_BUTTON_LEFT_GAP = 4;
 inline constexpr int NEW_TAB_BUTTON_RIGHT_GAP = 6;
 
+// The header over each pane's pages (TabHeader), which holds the back and
+// forward arrows and the page's path. HEIGHT is the header's; the arrows'
+// EXTENT and ICON_EXTENT mean what the close button's pair does. LEFT_MARGIN is
+// the space before the back arrow, ARROW_SPACING the space between the two
+// arrows, TITLE_GAP the space between the forward arrow and the path, and
+// RIGHT_MARGIN the space after the path. The path starts with the page's tab
+// mark, if it has one, MARK_EXTENT square and MARK_GAP before the folders
+inline constexpr int TAB_HEADER_HEIGHT = 34;
+inline constexpr int TAB_HEADER_BUTTON_EXTENT = 24;
+inline constexpr int TAB_HEADER_BUTTON_ICON_EXTENT = 16;
+inline constexpr int TAB_HEADER_LEFT_MARGIN = 8;
+inline constexpr int TAB_HEADER_ARROW_SPACING = 2;
+inline constexpr int TAB_HEADER_TITLE_GAP = 12;
+inline constexpr int TAB_HEADER_RIGHT_MARGIN = 12;
+inline constexpr int TAB_HEADER_MARK_EXTENT = 12;
+inline constexpr int TAB_HEADER_MARK_GAP = 6;
+
 // The Common Vault glyph, shared by the Common Vault drawer's header and the
 // tab mark on a Common Vault file's tab. One path so swapping the Lucide icon
 // is a one-place edit
@@ -107,6 +124,18 @@ inline constexpr auto TAB_CLOSE_ICON_ROLE = QPalette::WindowText;
 inline constexpr auto TAB_PIN_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto NEW_TAB_ICON_ROLE = QPalette::WindowText;
 inline constexpr auto TAB_MARK_ICON_ROLE = QPalette::PlaceholderText;
+// The header's arrows are greyed while disabled, which only a role whose
+// Disabled color differs shows. PlaceholderText is the same in every group, so
+// a disabled arrow in it would look like an enabled one
+inline constexpr auto TAB_HEADER_BACK_ICON_ROLE = QPalette::Text;
+inline constexpr auto TAB_HEADER_FORWARD_ICON_ROLE = QPalette::Text;
+inline constexpr auto TAB_HEADER_MARK_ICON_ROLE = QPalette::PlaceholderText;
+
+// The path in a pane's header (TabHeader): its folders and separators, muted,
+// and the page's name. The header sits on the page, in its color (Base), so
+// the name takes the pen text is drawn with there
+inline constexpr auto TAB_HEADER_FOLDER_ROLE = QPalette::PlaceholderText;
+inline constexpr auto TAB_HEADER_TITLE_ROLE = QPalette::Text;
 
 inline constexpr int DEFAULT_VAULT_WINDOW_WIDTH = 800;
 inline constexpr int DEFAULT_VAULT_WINDOW_HEIGHT = 600;

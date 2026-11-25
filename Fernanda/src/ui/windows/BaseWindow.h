@@ -23,7 +23,9 @@
 #include <QLineEdit>
 #include <QList>
 #include <QMainWindow>
+#include <QMouseEvent>
 #include <QMoveEvent>
+#include <QObject>
 #include <QPlainTextEdit>
 #include <QResizeEvent>
 #include <QShowEvent>
@@ -98,16 +100,34 @@ public:
         return wordCounter_;
     }
 
-    // The status bar's settings, from the hosting vault's config. A window
-    // doesn't know its vault — a pop-out has none of its own — so the
-    // VaultWindow calls this on itself and on each pop-out it makes, at
-    // construction and on every Vault::configChanged; the same arrangement, and
-    // the same hosting-vault rule, as the views' applyConfig. With both items
-    // switched off the bar itself hides, giving its strip back to the editor,
-    // unless the update notice is showing. With either on it stays, even over
-    // a page that leaves it empty (see class note)
+    // Read an action out of the registry. Asserts on a miss, so a mistyped or
+    // not-yet-registered id stops a debug build at the call site rather than
+    // vanishing. In a release build this returns nullptr and the caller's
+    // QMenu::addAction warns and skips the item — a silent gap, so the assert
+    // is the guard, not the type. Public so VaultWindow can connect the
+    // actions a pop-out mints but can't carry out itself (tab.back and
+    // tab.forward, which build pages only VaultWindow can)
+    [[nodiscard]] QAction* action(const QString& id) const
+    {
+        auto* found = actionRegistry_.value(id);
+        ASSERT(found, "No action is registered under id: {}!", id);
+
+        return found;
+    }
+
+    // The status bar's settings, and whether the panes show their header,
+    // from the hosting vault's config. A window doesn't know its vault — a
+    // pop-out has none of its own — so the VaultWindow calls this on itself and
+    // on each pop-out it makes, at construction and on every
+    // Vault::configChanged; the same arrangement, and the same hosting-vault
+    // rule, as the views' applyConfig. With both items switched off the bar
+    // itself hides, giving its strip back to the editor, unless the update
+    // notice is showing. With either on it stays, even over a page that leaves
+    // it empty (see class note)
     void applyConfig(const VaultConfig& config)
     {
+        tree_->setHeadersShown(config.tabHeader());
+
         wordCounter_->applyConfig(config);
         cursorPosition_->applyConfig(config);
 
@@ -186,19 +206,6 @@ protected:
         fileAction_(id, action);
     }
 
-    // Read an action out of the registry. Asserts on a miss, so a mistyped or
-    // not-yet-registered id stops a debug build at the call site rather than
-    // vanishing. In a release build this returns nullptr and the caller's
-    // QMenu::addAction warns and skips the item — a silent gap, so the assert
-    // is the guard, not the type
-    [[nodiscard]] QAction* action(const QString& id) const
-    {
-        auto* found = actionRegistry_.value(id);
-        ASSERT(found, "No action is registered under id: {}!", id);
-
-        return found;
-    }
-
     // The active view of THIS window's tree — the current page of the active
     // leaf when it's a file view, else nullptr (an empty leaf, or a
     // NewTabPage). The active leaf follows focus, so with splits this is the
@@ -249,6 +256,51 @@ protected:
         emit geometryChanged();
     }
 
+    // A mouse's back and forward buttons, pressed anywhere in this window,
+    // trigger tab.back and tab.forward. Over a pane, that pane is made active
+    // first, so the step is in the tab under the pointer, which needn't be the
+    // one being typed in. Obsidian steps the active tab wherever the pointer
+    // is. Elsewhere (the sidebar), the active tab steps.
+    //
+    // The window watches the whole application (setup_), since the press goes
+    // to whatever widget is under the pointer, and an editor may take it
+    // before this window would hear it. Taking the event here also stops Qt
+    // passing it up from the widget to its parents, each of which this filter
+    // would see again.
+    //
+    // A second quick press arrives as a double-click, so it counts as a press
+    // too. A release does nothing: acting on both would go two steps per
+    // click, as Obsidian once did on Linux
+    bool eventFilter(QObject* watched, QEvent* event) override
+    {
+        auto type = event->type();
+
+        if (type != QEvent::MouseButtonPress &&
+            type != QEvent::MouseButtonDblClick) {
+            return QMainWindow::eventFilter(watched, event);
+        }
+
+        auto* widget = qobject_cast<QWidget*>(watched);
+        if (!widget || widget->window() != this) {
+            return QMainWindow::eventFilter(watched, event);
+        }
+
+        switch (static_cast<QMouseEvent*>(event)->button()) {
+        case Qt::BackButton:
+            tree_->activateLeafContaining(widget);
+            action(ActionIds::TAB_BACK)->trigger();
+            return true;
+
+        case Qt::ForwardButton:
+            tree_->activateLeafContaining(widget);
+            action(ActionIds::TAB_FORWARD)->trigger();
+            return true;
+
+        default:
+            return QMainWindow::eventFilter(watched, event);
+        }
+    }
+
 private:
     bool shown_ = false;
     // App's update checker, which the notice shows. Not owned
@@ -282,6 +334,10 @@ private:
         buildSharedActions_();
         adoptAppActions_(appActions);
         setupStatusBar_();
+
+        // For the mouse's back and forward buttons (eventFilter). Qt drops the
+        // filter when this window is destroyed
+        qApp->installEventFilter(this);
     }
 
     // Items go in as permanent widgets: right-aligned, and never covered by
@@ -459,6 +515,22 @@ private:
                 view->zoomReset();
             }
         });
+
+        // Back and forward in the active tab's history. Only VaultWindow can
+        // build the pages a history names, so it connects these, its own and
+        // each pop-out's. Ctrl+Alt+Left and Right, Obsidian's keys, are
+        // Cmd+Option on macOS. Always enabled, doing nothing at either end of
+        // the history, as undo is at either end of its stack. The mouse's back
+        // and forward buttons trigger them too (eventFilter)
+        registerAction(
+            ActionIds::TAB_BACK,
+            tr("Navigate Back"),
+            QKeySequence(u"Ctrl+Alt+Left"_s));
+
+        registerAction(
+            ActionIds::TAB_FORWARD,
+            tr("Navigate Forward"),
+            QKeySequence(u"Ctrl+Alt+Right"_s));
 
         // Find dispatches to the active view as zoom does, and is inert the
         // same way on a view with nothing to search. The standard keys: Find

@@ -896,10 +896,36 @@ private:
         }
 
         if (old_vault && !hasWindow_(old_vault)) {
+            freeKeptBuffersOf_(old_vault->rootKey());
             old_vault->deleteLater();
         }
 
         emit vaultsChanged();
+    }
+
+    // A vault is going away, so the store frees its kept closed buffers
+    // (BufferStore::freeKeptAtOrUnder), but not those inside a vault still
+    // open or the Common Vault: vaults nest. On the next tick, once the
+    // closing window's views are gone, since each one's buffer joins the kept
+    // list as its view goes, and a window's destroyed comes before its
+    // children are deleted. The vaults still open are read then, too
+    void freeKeptBuffersOf_(const PathKey& root)
+    {
+        Coco::Time::onNextTick(this, [this, root] {
+            QList<PathKey> open_roots{};
+
+            for (const auto& open_vault : openVaults_) {
+                if (open_vault.vault) {
+                    open_roots << open_vault.vault->rootKey();
+                }
+            }
+
+            if (commonVault_) {
+                open_roots << commonVault_->rootKey();
+            }
+
+            bufferStore_->freeKeptAtOrUnder(root, open_roots);
+        });
     }
 
     [[nodiscard]] bool hasWindow_(const Vault* vault) const
@@ -1020,11 +1046,13 @@ private:
     // it is now, which is how its record is spelled
     void onVaultWindowDestroyed_(const Vault* vault)
     {
+        PathKey root_key{};
         Coco::Path root{};
         OpenVault_ entry{};
 
         for (auto it = openVaults_.begin(); it != openVaults_.end(); ++it) {
             if (it.value().vault == vault) {
+                root_key = it.key();
                 root = it.key().path();
                 entry = it.value();
                 openVaults_.erase(it);
@@ -1040,6 +1068,7 @@ private:
         // disposes it. Unset in the meantime, it's an ordinary vault, disposed
         // with its window
         if (entry.vault && entry.vault != commonVault_) {
+            freeKeptBuffersOf_(root_key);
             entry.vault->deleteLater();
         }
 

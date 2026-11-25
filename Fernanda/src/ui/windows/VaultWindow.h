@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <optional>
 #include <utility>
 
 #include <QAbstractButton>
@@ -74,7 +75,9 @@
 #include "ui/statusbar/WordCounter.h"
 #include "ui/tabs/NewTabPage.h"
 #include "ui/tabs/PageIcon.h"
+#include "ui/tabs/PagePath.h"
 #include "ui/tabs/PagePin.h"
+#include "ui/tabs/TabHistory.h"
 #include "ui/tabs/TabPaneTree.h"
 #include "ui/windows/BaseWindow.h"
 #include "ui/windows/FileSwitcher.h"
@@ -133,10 +136,20 @@ public:
     //   SplitRight: splits the active leaf, even an empty one, as Obsidian does
     //   NewWindow: a new pop-out
     // As in Obsidian, a file may be open in several tabs, and opening one never
-    // just focuses its tab. The model comes from the vault vaultOf_ names, so a
-    // Common Vault file outside this vault shares the Common Vault's model
+    // just focuses its tab, except ReplaceActive on the file the active tab
+    // already shows: a new view over it would lose its place, and give the
+    // tab's history a step that goes nowhere. The model comes from the vault
+    // vaultOf_ names, so a Common Vault file outside this vault shares the
+    // Common Vault's model
     void openFile(const PathKey& key, OpenMode mode)
     {
+        auto* tree = tabPaneTree();
+
+        if (mode == OpenMode::ReplaceActive && activeTabShows_(tree, key)) {
+            tree->focusActivePage();
+            return;
+        }
+
         auto* view = makeView_(key, lossyOpenPrompt_(this));
         if (!view) {
             return; // refused — unsupported or unreadable; the store warned
@@ -454,13 +467,15 @@ private:
         });
 
         // A renamed or moved file is recorded by its new key, whichever window
-        // moved it, and so is every file in a moved vault
+        // moved it, and so is every file in a moved vault: in the recent files,
+        // and in every tab's history
         connect(
             bufferStore_,
             &BufferStore::entryRelocated,
             this,
             [this](const PathKey& oldEntry, const PathKey& newEntry) {
                 recentFiles_.rebase(oldEntry, newEntry);
+                rebaseTabHistories_(oldEntry, newEntry);
             });
 
         // The status bar's settings (BaseWindow::applyConfig): now, and on
@@ -644,9 +659,21 @@ private:
         }
     }
 
-    // A diff's tab, placed as a file's would be (placePage_)
+    // A diff's tab, placed as a file's would be (placePage_). Opening over
+    // the active tab the diff it already shows only focuses it, as openFile
+    // does for a file: the page follows the status itself, so a new one would
+    // show nothing newer, and would give the tab's history a step that goes
+    // nowhere
     void openDiff_(const GitStatus::Entry& entry, OpenMode mode)
     {
+        auto* tree = tabPaneTree();
+
+        if (mode == OpenMode::ReplaceActive &&
+            activeTabShowsDiff_(tree, entry.path)) {
+            tree->focusActivePage();
+            return;
+        }
+
         auto* page = new GitDiffPage(gitRepository_, vault_, entry);
         placePage_(page, page->windowTitle(), mode);
     }
@@ -779,6 +806,8 @@ private:
             tr("Git"),
             QKeySequence(u"Ctrl+Shift+G"_s))
             ->setEnabled(false);
+
+        connectTabNavigation_(this);
     }
 
     // The menu bar shows the registry's actions — it doesn't own them. Hidden
@@ -819,6 +848,9 @@ private:
         auto* view_menu = bar->addMenu(tr("View"));
         view_menu->addAction(action(ActionIds::WINDOW_TOGGLE_MENU_BAR));
         view_menu->addAction(action(ActionIds::REPOSITORY_TOGGLE_PAGE));
+        view_menu->addSeparator();
+        view_menu->addAction(action(ActionIds::TAB_BACK));
+        view_menu->addAction(action(ActionIds::TAB_FORWARD));
         view_menu->addSeparator();
         view_menu->addAction(action(ActionIds::VIEW_ZOOM_IN));
         view_menu->addAction(action(ActionIds::VIEW_ZOOM_OUT));
@@ -1117,6 +1149,7 @@ private:
         });
 
         applyGuestMark_(view, key);
+        setPagePath(view, displayPathOf_(key).prettyQString());
         return view;
     }
 
@@ -1171,7 +1204,8 @@ private:
     // file moved, or the Common Vault did. In neither, the view closes; the
     // buffer lives on in any window that still shows it, or, if none does, its
     // last view's save writes any unsaved text to the file. Otherwise its
-    // guest mark follows the vault it's in now
+    // guest mark follows the vault it's in now, and the path its pane's header
+    // shows follows the file
     void reconsiderView_(AbstractFileView* view)
     {
         auto key = view->model()->key();
@@ -1181,10 +1215,16 @@ private:
             return;
         }
 
-        if (applyGuestMark_(view, key)) {
-            if (auto* tree = treeHosting_(view)) {
-                tree->refreshPageIcon(view);
-            }
+        auto* tree = treeHosting_(view);
+
+        if (applyGuestMark_(view, key) && tree) {
+            tree->refreshPageIcon(view);
+        }
+
+        setPagePath(view, displayPathOf_(key).prettyQString());
+
+        if (tree) {
+            tree->refreshPageHeader(view);
         }
     }
 
@@ -1229,10 +1269,223 @@ private:
         auto* current = leaf ? leaf->currentPage() : nullptr;
 
         if (current && !isPagePinned(current)) {
+            passTabHistoryOn_(current, page);
             tree->replacePage(current, page, title);
         } else {
             tree->addToActiveLeaf(page, title);
         }
+    }
+
+    // Whether tree's active tab shows a view of the file
+    [[nodiscard]] static bool
+    activeTabShows_(const TabPaneTree* tree, const PathKey& key)
+    {
+        auto* leaf = tree->activeLeaf();
+        auto* view = leaf ? qobject_cast<AbstractFileView*>(leaf->currentPage())
+                          : nullptr;
+
+        return view && view->model()->key() == key;
+    }
+
+    // Whether tree's active tab shows the diff of the file at path, relative
+    // to the repository's folder
+    [[nodiscard]] static bool
+    activeTabShowsDiff_(const TabPaneTree* tree, const Coco::Path& path)
+    {
+        auto* leaf = tree->activeLeaf();
+        auto* diff =
+            leaf ? qobject_cast<GitDiffPage*>(leaf->currentPage()) : nullptr;
+
+        return diff && diff->entry().path == path;
+    }
+
+    // A page is replacing another in its tab, so the tab's history passes to
+    // the replacement, with the replaced page recorded as the step back. A
+    // page with no entry (a new tab) isn't recorded: there's nothing to go
+    // back to
+    static void passTabHistoryOn_(QWidget* replaced, QWidget* replacement)
+    {
+        auto history = pageHistory(replaced);
+
+        if (auto entry = tabHistoryEntryOf_(replaced)) {
+            history.record(*entry);
+        }
+
+        setPageHistory(replacement, history);
+    }
+
+    // A page as its tab's history records it: a file view by its file and its
+    // own state (cursor, scroll, zoom), a diff by its change. None for a new
+    // tab
+    [[nodiscard]] static std::optional<TabHistory::Entry>
+    tabHistoryEntryOf_(QWidget* page)
+    {
+        TabHistory::Entry entry{};
+
+        if (auto* view = qobject_cast<AbstractFileView*>(page)) {
+            entry.kind = TabHistory::Entry::Kind::File;
+            entry.file = view->model()->key();
+            view->writeViewState(entry.viewState);
+            return entry;
+        }
+
+        if (auto* diff = qobject_cast<GitDiffPage*>(page)) {
+            entry.kind = TabHistory::Entry::Kind::Diff;
+            entry.change = diff->entry();
+            return entry;
+        }
+
+        return std::nullopt;
+    }
+
+    // Every tab's history follows a renamed or moved file, in this window and
+    // its pop-outs. Only file views and diffs are searched: a new tab never
+    // takes over another page, so it never has a history
+    void rebaseTabHistories_(const PathKey& oldEntry, const PathKey& newEntry)
+    {
+        auto rebase_pages_of = [&oldEntry, &newEntry](const QWidget* window) {
+            QList<QWidget*> pages{};
+
+            for (auto* view : window->findChildren<AbstractFileView*>()) {
+                pages << view;
+            }
+
+            for (auto* diff : window->findChildren<GitDiffPage*>()) {
+                pages << diff;
+            }
+
+            for (auto* page : pages) {
+                auto history = pageHistory(page);
+                history.rebase(oldEntry, newEntry);
+                setPageHistory(page, history);
+            }
+        };
+
+        rebase_pages_of(this);
+
+        for (auto* popout : popouts_) {
+            rebase_pages_of(popout);
+        }
+    }
+
+    // A window's tab.back and tab.forward, this one's or a pop-out's, and the
+    // arrows in its panes' headers, step through the history of the active
+    // tab in that window's own tree. A header arrow has made its pane active
+    // already. The tree is the connections' context, so they go with the
+    // window
+    void connectTabNavigation_(BaseWindow* window)
+    {
+        auto* tree = window->tabPaneTree();
+
+        connect(
+            window->action(ActionIds::TAB_BACK),
+            &QAction::triggered,
+            tree,
+            [this, tree] { stepTab_(tree, TabHistory::Step::Back); });
+
+        connect(
+            window->action(ActionIds::TAB_FORWARD),
+            &QAction::triggered,
+            tree,
+            [this, tree] { stepTab_(tree, TabHistory::Step::Forward); });
+
+        connect(
+            tree,
+            &TabPaneTree::tabStepRequested,
+            this,
+            [this, tree](TabHistory::Step step) { stepTab_(tree, step); });
+    }
+
+    // Go back or forward in tree's active tab. The next entry is built into a
+    // page that takes the tab over, and the page it replaces goes on the
+    // other list. An entry that can't be built is dropped and the next one
+    // tried, so a step never stops on a file that's gone. Nothing happens at
+    // either end of the history, or in a new tab, which has none.
+    //
+    // A pinned tab steps too, keeping its pin (replacePage carries it): the
+    // pin keeps an open from taking the tab over, and a step is asked for
+    // outright
+    void stepTab_(TabPaneTree* tree, TabHistory::Step step)
+    {
+        auto* leaf = tree->activeLeaf();
+        auto* current = leaf ? leaf->currentPage() : nullptr;
+
+        auto current_entry = tabHistoryEntryOf_(current);
+        if (!current_entry) {
+            return;
+        }
+
+        auto history = pageHistory(current);
+        auto back = (step == TabHistory::Step::Back);
+
+        while (auto entry = back ? history.takeBack() : history.takeForward()) {
+            auto* page = buildTabHistoryPage_(*entry, tree->window());
+            if (!page) {
+                continue;
+            }
+
+            if (back) {
+                history.pushForward(*current_entry);
+            } else {
+                history.pushBack(*current_entry);
+            }
+
+            setPageHistory(page, history);
+            tree->replacePage(current, page, page->windowTitle());
+            tree->focusActivePage();
+            return;
+        }
+
+        // Every entry left in that direction was dropped, so its arrow in the
+        // header greys
+        setPageHistory(current, history);
+        tree->refreshPageHeader(current);
+    }
+
+    // A page built again from its tab history entry, or nullptr when it
+    // can't be. A file view takes back its state (readViewState), applied as
+    // a restored tab's is, and finds its buffer, undo history and all, if the
+    // store still keeps it. A file no longer on disk or in this window's
+    // vaults is passed over quietly, as a restore passes it over; one the
+    // store refuses is passed over too. A diff needs the repository, and
+    // takes its change from the current status when that lists the file,
+    // since the change may have moved on
+    [[nodiscard]] QWidget*
+    buildTabHistoryPage_(const TabHistory::Entry& entry, QWidget* parentWindow)
+    {
+        if (entry.kind == TabHistory::Entry::Kind::Diff) {
+            if (!gitRepository_->isFound()) {
+                return nullptr;
+            }
+
+            auto change = entry.change;
+
+            for (const auto& listed : gitRepository_->status().entries) {
+                if (listed.path == change.path) {
+                    change = listed;
+                    break;
+                }
+            }
+
+            return new GitDiffPage(gitRepository_, vault_, change);
+        }
+
+        if (!vaultOf_(entry.file) || !entry.file.path().exists()) {
+            DEBUG(
+                this,
+                "Tab history: passing over {}, no longer on disk or in this "
+                "window's vaults",
+                entry.file.path());
+            return nullptr;
+        }
+
+        auto* view = makeView_(entry.file, lossyOpenPrompt_(parentWindow));
+        if (!view) {
+            return nullptr;
+        }
+
+        view->readViewState(entry.viewState);
+        return view;
     }
 
     // The file views in this window and in its pop-outs. A pop-out has no
@@ -1488,7 +1741,8 @@ private:
     }
 
     // The new-tab page becomes the editor in place: same tab, page swapped, in
-    // whichever tree the "+" came from
+    // whichever tree the "+" came from. The tab's history passes on as with any
+    // replacement, though a new tab records nothing in it
     void openInto_(TabPaneTree* tree, NewTabPage* page, const PathKey& key)
     {
         auto* view = makeView_(key, lossyOpenPrompt_(tree->window()));
@@ -1497,6 +1751,7 @@ private:
                     // stays as it was
         }
 
+        passTabHistoryOn_(page, view);
         tree->replacePage(page, view, view->model()->title());
     }
 
@@ -1615,6 +1870,8 @@ private:
         // the user closing it by hand, and destroyed prunes popouts_ — so the
         // pop-out still needs no close logic of its own
         connect(tree, &TabPaneTree::emptied, popout, &QWidget::close);
+
+        connectTabNavigation_(popout);
 
         // The status bar's settings come from this window's vault, as its
         // views' do (makeView_). The pop-out is the connection's context, so
@@ -1792,6 +2049,12 @@ private:
 
         auto key = PathKey::of(absolute);
         if (!vaultOf_(key)) {
+            return;
+        }
+
+        // Dropped on a tab already showing it: focused, as openFile does
+        if (activeTabShows_(tree, key)) {
+            tree->focusActivePage();
             return;
         }
 

@@ -34,6 +34,7 @@ using namespace Qt::StringLiterals;
 //   file.       a file in the vault
 //   folder.     a folder in the vault
 //   window.     one window's own chrome
+//   tab.        the active tab: its back and forward history
 //   view.       one view's presentation, not the buffer: two views of a file
 //               zoom and search apart
 //   vault.      the whole vault (its settings), per window
@@ -61,6 +62,9 @@ inline const QString FILE_OPEN = u"file.open"_s;
 inline const QString FOLDER_NEW = u"folder.new"_s;
 
 inline const QString WINDOW_TOGGLE_MENU_BAR = u"window.toggleMenuBar"_s;
+
+inline const QString TAB_BACK = u"tab.back"_s;
+inline const QString TAB_FORWARD = u"tab.forward"_s;
 
 inline const QString VIEW_ZOOM_IN = u"view.zoomIn"_s;
 inline const QString VIEW_ZOOM_OUT = u"view.zoomOut"_s;

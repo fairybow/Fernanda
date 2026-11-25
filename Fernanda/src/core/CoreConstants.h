@@ -21,6 +21,12 @@ namespace Fernanda {
 
 inline constexpr auto WORKSPACE_FILE_NAME = "workspace.json";
 
+// How many closed text files BufferStore keeps in memory, the most recently
+// closed, so that reopening one brings back its undo history. Each kept file
+// is watched as an open one is, which on Windows holds its folder's handle,
+// so a vault's kept files are freed when the vault closes
+inline constexpr qsizetype KEPT_CLOSED_BUFFERS = 20;
+
 // Whether a stable build is offered prereleases when it checks for updates. A
 // prerelease build always is (Updater, which passes the answer to
 // UpdateCheck::availableUpdate)

@@ -13,10 +13,18 @@
  * See the LICENSE file or visit <https://www.gnu.org/licenses/>
  */
 
+#include <QByteArray>
+#include <QFile>
+#include <QIODevice>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLocale>
 #include <QObject>
 #include <QString>
+#include <QTemporaryDir>
 #include <QTest>
+
+#include <Coco/Path.h>
 
 #include "core/vault/VaultConfig.h"
 
@@ -27,7 +35,8 @@ using Fernanda::VaultConfig;
 // (core/vault/VaultConfig.h): British English for an English locale outside the
 // United States, US English in it or with no locale, and the locale's own name
 // for any other language. The locale is given here, not read from the system,
-// which differs from machine to machine.
+// which differs from machine to machine. And where the tab header's switch is
+// kept, a vault's files in a temporary folder.
 //
 // Qt Test runs every private slot as a test. A slot named <test>_data fills a
 // table, and <test> then runs once per row, reported under the row's name
@@ -72,6 +81,38 @@ private slots:
         QCOMPARE(
             VaultConfig::defaultSpellcheckLanguage(QLocale(locale)),
             expected);
+    }
+
+    void theTabHeaderIsShownUntilSwitchedOff()
+    {
+        VaultConfig config{};
+
+        QVERIFY(config.tabHeader());
+        QVERIFY(!config.setTabHeader(true));
+        QVERIFY(config.setTabHeader(false));
+        QVERIFY(!config.tabHeader());
+    }
+
+    // In appearance.json, under Obsidian's own key, and read back on load
+    void theTabHeaderSwitchIsKeptInAppearance()
+    {
+        QTemporaryDir folder{};
+        Coco::Path root{ folder.path() };
+
+        VaultConfig config{};
+        QVERIFY(config.setTabHeader(false));
+        QVERIFY(config.save(root));
+
+        QFile file(folder.filePath(u".fernanda/appearance.json"_s));
+        QVERIFY(file.open(QIODevice::ReadOnly));
+
+        auto appearance = QJsonDocument::fromJson(file.readAll()).object();
+        QVERIFY(appearance.contains(u"showViewHeader"_s));
+        QCOMPARE(appearance.value(u"showViewHeader"_s).toBool(), false);
+
+        VaultConfig loaded{};
+        loaded.load(root);
+        QVERIFY(!loaded.tabHeader());
     }
 };
 

@@ -39,6 +39,7 @@ Nothing here is a promise or a schedule.
 - Remember whether the menu bar is shown
 - Grey out Undo and Redo when there is nothing to undo or redo
 - Shortcuts for splitting a pane
+- In the tab title bar, as Obsidian's: right-clicking an arrow lists where it leads, to jump straight there; clicking the file's name renames it in place; and clicking a folder shows it in the file tree
 - On macOS, replace the menu bar toggle: the system owns the menu bar there, and Cmd+M is Minimize
 
 ### Appearance
@@ -64,6 +65,7 @@ Nothing here is a promise or a schedule.
 
 ### Saving and safety
 
+- **Rescue copies.** When a save fails at a moment its text could be lost, the text is written somewhere Fernanda can still write, outside the vault: a folder in its application data, usually on another drive than a vault that has gone missing. The moments are a tab's last view closing, Quit, logging out of the system, and a window close the user goes ahead with after its save failed. A message says copies were made and where, when they're made or at the next launch. Today, closing the tab of a file that won't save shows nothing, and the text is kept in memory only until Fernanda quits; logging out loses it too; and a window whose file will never save again (a drive gone for good) can't close without losing the text. Copies need nothing from backups and come first
 - When a save fails and can't be retried (a drive gone for good), a window showing each unsaved file's text to copy out by hand. It needs no disk, so it works when every write fails
 - A status indicator that shows a failed save when it happens, not only when the window is closed
 
@@ -136,6 +138,7 @@ What GitHub Desktop does that the Git page doesn't yet, in the order it's planne
 - **Several spelling languages at once.** A view checks against one dictionary. Several would mean asking each one about every word, merging their suggestions, and deciding which one Add to dictionary answers to. Worth building if writing in two languages in one vault proves common
 - **Managing the dictionary in Fernanda.** Removing an added word means editing `.fernanda/dictionary.txt` by hand, as in Obsidian. A list in Settings would do it in place. Worth building if hand editing proves awkward
 - **Restoring diff tabs, and Find in a diff.** Diff tabs aren't restored when a vault opens again, since a diff is read from Git and may have changed or gone by then. A diff tab could be saved in the workspace as its file and scroll position, and reopened if the file still has changes. Find works in the editor only; a diff tab could take Ctrl+F too. Worth building if diff tabs prove to be something kept open
+- **Keeping each tab's history between launches.** A tab's history lasts while it's open, as Obsidian's does; Obsidian's community plugins add saving it. An entry is already the state `workspace.json` saves for a tab, so each tab's entries could be saved beside it. Its undo history couldn't come back with it. Worth building if a history lost to a relaunch is missed
 - **Searching the whole vault.** A separate feature from Find, with its own list of results. Obsidian's is a plugin of its own
 - **An overwrite toggle on the Insert key,** per editor, with a status bar indicator
 - **Drop zones that move.** While a tab is dragged over a pane's edge, the pane would shrink aside to show where the new pane will land

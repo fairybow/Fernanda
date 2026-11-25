@@ -44,8 +44,9 @@
 // nothing and returns false, so the Vault announces and saves only real
 // changes.
 //
-// Two files: appearance.json holds the text font, as Obsidian's does;
-// settings.json (Obsidian's app.json) holds the rest. load and save handle
+// Two files: appearance.json holds the text font and whether tabs show their
+// header, as Obsidian's does; settings.json (Obsidian's app.json) holds the
+// rest. load and save handle
 // both.
 //
 // Each status bar item (WordCounter, CursorPosition) has a switch, and one for
@@ -74,6 +75,10 @@ public:
 
     static constexpr int MIN_TEXT_FONT_SIZE = 8;
     static constexpr int MAX_TEXT_FONT_SIZE = 48;
+
+    // The header over each pane's pages (TabHeader): the back and forward
+    // arrows and the page's path. On, as Obsidian's tab title bar is
+    static constexpr bool DEFAULT_TAB_HEADER = true;
 
     // The status bar. The word counter is on, showing what Obsidian's shows
     // (words and characters) plus selection counts; the cursor position is
@@ -197,6 +202,11 @@ public:
     [[nodiscard]] bool textFontItalic() const
     {
         return textFontItalic_.value_or(DEFAULT_TEXT_FONT_ITALIC);
+    }
+
+    [[nodiscard]] bool tabHeader() const
+    {
+        return tabHeader_.value_or(DEFAULT_TAB_HEADER);
     }
 
     [[nodiscard]] bool wordCounterEnabled() const
@@ -377,6 +387,11 @@ public:
     [[nodiscard]] bool setTextFontItalic(bool italic)
     {
         return setBool_(textFontItalic_, textFontItalic(), italic);
+    }
+
+    [[nodiscard]] bool setTabHeader(bool shown)
+    {
+        return setBool_(tabHeader_, tabHeader(), shown);
     }
 
     [[nodiscard]] bool setWordCounterEnabled(bool enabled)
@@ -580,6 +595,7 @@ public:
 
         readBool_(appearance, TEXT_FONT_BOLD_KEY_, textFontBold_);
         readBool_(appearance, TEXT_FONT_ITALIC_KEY_, textFontItalic_);
+        readBool_(appearance, TAB_HEADER_KEY_, tabHeader_);
 
         auto settings = JsonIo::read(settingsPath_(vaultRoot));
 
@@ -679,6 +695,7 @@ public:
 
         writeBool_(appearance, TEXT_FONT_BOLD_KEY_, textFontBold_);
         writeBool_(appearance, TEXT_FONT_ITALIC_KEY_, textFontItalic_);
+        writeBool_(appearance, TAB_HEADER_KEY_, tabHeader_);
 
         QJsonObject settings{};
 
@@ -751,13 +768,15 @@ public:
 
 private:
     // Named once because load and save both use each one. Obsidian's own key
-    // for the family is textFontFamily; its size is baseFontSize (in px), not
-    // mirrored here since ours is points
+    // for the family is textFontFamily, and for its tab title bar
+    // showViewHeader; its size is baseFontSize (in px), not mirrored here since
+    // ours is points
     static inline const QString APPEARANCE_FILE_NAME_ = u"appearance.json"_s;
     static inline const QString TEXT_FONT_FAMILY_KEY_ = u"textFontFamily"_s;
     static inline const QString TEXT_FONT_SIZE_KEY_ = u"textFontSize"_s;
     static inline const QString TEXT_FONT_BOLD_KEY_ = u"textFontBold"_s;
     static inline const QString TEXT_FONT_ITALIC_KEY_ = u"textFontItalic"_s;
+    static inline const QString TAB_HEADER_KEY_ = u"showViewHeader"_s;
 
     // settings.json. The bare item name is the item's own switch; its parts
     // carry the name as a prefix
@@ -805,6 +824,7 @@ private:
     std::optional<int> textFontSize_{};
     std::optional<bool> textFontBold_{};
     std::optional<bool> textFontItalic_{};
+    std::optional<bool> tabHeader_{};
 
     std::optional<bool> wordCounterEnabled_{};
     std::optional<bool> wordCounterWords_{};

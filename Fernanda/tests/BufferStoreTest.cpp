@@ -15,7 +15,9 @@
 
 #include <QBuffer>
 #include <QByteArray>
+#include <QCoreApplication>
 #include <QDir>
+#include <QEvent>
 #include <QFile>
 #include <QFileInfo>
 #include <QIODevice>
@@ -32,6 +34,7 @@
 
 #include <Coco/Path.h>
 
+#include "core/CoreConstants.h"
 #include "core/files/PathKey.h"
 #include "core/vault/BufferStore.h"
 #include "models/AbstractFileModel.h"
@@ -42,6 +45,7 @@
 using namespace Qt::StringLiterals;
 using Fernanda::AbstractFileModel;
 using Fernanda::BufferStore;
+using Fernanda::KEPT_CLOSED_BUFFERS;
 using Fernanda::PathKey;
 using Fernanda::TextFileModel;
 
@@ -154,6 +158,57 @@ private:
         QTextCursor cursor(&document);
         cursor.movePosition(QTextCursor::End);
         cursor.insertText(text);
+    }
+
+    // A plain QObject stands in for a view: the buffer only counts its views
+    // and watches for each one's destruction. Shows the buffer in a view and
+    // closes the view again, as a tab would
+    static void showAndClose_(AbstractFileModel* model)
+    {
+        QObject view{};
+        model->addView(&view);
+    }
+
+    // Opens a text file for each of count new names, and returns their
+    // buffers
+    [[nodiscard]] static QList<AbstractFileModel*>
+    openTextFiles_(Fixture_& f, const QString& prefix, qsizetype count)
+    {
+        QList<AbstractFileModel*> models{};
+
+        for (qsizetype i = 0; i < count; ++i) {
+            auto name = u"%1%2.txt"_s.arg(prefix).arg(i);
+            f.write(name, "text");
+            models << f.open(name);
+        }
+
+        return models;
+    }
+
+    // Runs the deletes deleteLater has queued, so a test can tell at once
+    // whether a buffer was freed
+    static void runQueuedDeletes_()
+    {
+        QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+    }
+
+    // Runs what was put off to the next turn of the event loop
+    static void runNextTick_() { QCoreApplication::processEvents(); }
+
+    // Whether the buffer is among the kept closed ones: closing
+    // KEPT_CLOSED_BUFFERS other files after it pushes it out, which frees it.
+    // A buffer that isn't kept is left alone
+    [[nodiscard]] static bool isKept_(Fixture_& f, AbstractFileModel* model)
+    {
+        QSignalSpy destroyed(model, &QObject::destroyed);
+
+        auto others = openTextFiles_(f, u"kept"_s, KEPT_CLOSED_BUFFERS);
+        for (auto* other : others) {
+            showAndClose_(other);
+        }
+
+        runQueuedDeletes_();
+        return destroyed.count() == 1;
     }
 
     [[nodiscard]] static QByteArray pngBytes_()
@@ -479,11 +534,10 @@ private slots:
         QVERIFY(!f.exists(u"one"_s));
     }
 
-    // --- Freeing a buffer ---------------------------------------------------
+    // --- Closing a buffer's last view ---------------------------------------
 
-    // A plain QObject stands in for a view: the buffer only counts its views
-    // and watches for each one's destruction
-    void closingTheLastViewSavesAndFreesTheBuffer()
+    // Reopening the file finds the same buffer, so undo still works
+    void closingTheLastViewSavesAndKeepsATextBuffer()
     {
         Fixture_ f{};
         f.write(u"a.txt"_s, "hello");
@@ -498,15 +552,158 @@ private slots:
             type_(model, u"!"_s);
         }
 
-        // Saved at once, freed a moment later
         QCOMPARE(f.read(u"a.txt"_s), QByteArray("hello!"));
-        QTRY_COMPARE(destroyed.count(), 1);
+        QVERIFY(!model->isModified());
 
-        // A later open reads the file again, into a new buffer
-        auto* reopened = f.open(u"a.txt"_s);
+        runQueuedDeletes_();
+        QCOMPARE(destroyed.count(), 0);
+
+        QCOMPARE(f.open(u"a.txt"_s), model);
+        QVERIFY(model->isUndoAvailable());
+
+        model->undo(nullptr);
+        QCOMPARE(model->data(), QByteArray("hello"));
+    }
+
+    // Undo is the only reason to keep a buffer
+    void closingTheLastViewFreesAnImageBuffer()
+    {
+        Fixture_ f{};
+        f.write(u"a.png"_s, pngBytes_());
+        auto* model = f.open(u"a.png"_s);
+        QVERIFY(model);
+
+        QSignalSpy destroyed(model, &QObject::destroyed);
+
+        showAndClose_(model);
+        runQueuedDeletes_();
+
+        QCOMPARE(destroyed.count(), 1);
+    }
+
+    void closingPastTheLimitFreesTheOldestKeptBuffer()
+    {
+        Fixture_ f{};
+        auto models = openTextFiles_(f, u"a"_s, KEPT_CLOSED_BUFFERS + 1);
+        QVERIFY(!models.contains(nullptr));
+
+        QSignalSpy oldest_destroyed(models[0], &QObject::destroyed);
+        QSignalSpy next_destroyed(models[1], &QObject::destroyed);
+
+        for (auto* model : models) {
+            showAndClose_(model);
+        }
+
+        runQueuedDeletes_();
+
+        QCOMPARE(oldest_destroyed.count(), 1);
+        QCOMPARE(next_destroyed.count(), 0);
+
+        // A later open of the freed file reads it again, into a new buffer
+        auto* reopened = f.open(u"a0.txt"_s);
         QVERIFY(reopened);
-        QCOMPARE(reopened->data(), QByteArray("hello!"));
         QVERIFY(!reopened->isUndoAvailable());
+    }
+
+    // A reopened buffer leaves the kept list, so closing other files can't
+    // free it from under its view
+    void aReopenedBufferIsNotFreedByLaterCloses()
+    {
+        Fixture_ f{};
+        f.write(u"a.txt"_s, "hello");
+        auto* model = f.open(u"a.txt"_s);
+        QVERIFY(model);
+
+        showAndClose_(model);
+        QCOMPARE(f.open(u"a.txt"_s), model);
+
+        QObject view{};
+        model->addView(&view);
+
+        auto others = openTextFiles_(f, u"b"_s, KEPT_CLOSED_BUFFERS + 1);
+        QVERIFY(!others.contains(nullptr));
+
+        QSignalSpy destroyed(model, &QObject::destroyed);
+        QSignalSpy oldest_other_destroyed(others[0], &QObject::destroyed);
+
+        for (auto* other : others) {
+            showAndClose_(other);
+        }
+
+        runQueuedDeletes_();
+
+        QCOMPARE(oldest_other_destroyed.count(), 1);
+        QCOMPARE(destroyed.count(), 0);
+    }
+
+    // A kept buffer whose file goes leaves the kept list with it, so a later
+    // close never reaches the freed buffer
+    void aKeptBufferWhoseFileIsTrashedLeavesTheKeptList()
+    {
+        Fixture_ f{};
+        f.write(u"one/a.txt"_s, "hello");
+        auto* model = f.open(u"one/a.txt"_s);
+        QVERIFY(model);
+
+        showAndClose_(model);
+
+        QSignalSpy destroyed(model, &QObject::destroyed);
+
+        QCOMPARE(f.store.applyRemoval(f.key(u"one"_s)), 1);
+        runQueuedDeletes_();
+        QCOMPARE(destroyed.count(), 1);
+
+        auto others = openTextFiles_(f, u"b"_s, KEPT_CLOSED_BUFFERS + 1);
+        QVERIFY(!others.contains(nullptr));
+
+        QSignalSpy oldest_other_destroyed(others[0], &QObject::destroyed);
+
+        for (auto* other : others) {
+            showAndClose_(other);
+        }
+
+        runQueuedDeletes_();
+
+        QCOMPARE(oldest_other_destroyed.count(), 1);
+    }
+
+    // A vault going away frees its kept buffers, but not those inside a vault
+    // still open, nor a buffer some view still shows
+    void freeKeptAtOrUnderFreesOnlyThoseOutsideTheKeptRoots()
+    {
+        Fixture_ f{};
+        f.write(u"outer/a.txt"_s, "a");
+        f.write(u"outer/inner/b.txt"_s, "b");
+        f.write(u"other/c.txt"_s, "c");
+        f.write(u"outer/d.txt"_s, "d");
+
+        auto* a = f.open(u"outer/a.txt"_s);
+        auto* b = f.open(u"outer/inner/b.txt"_s);
+        auto* c = f.open(u"other/c.txt"_s);
+        auto* d = f.open(u"outer/d.txt"_s);
+        QVERIFY(a && b && c && d);
+
+        showAndClose_(a);
+        showAndClose_(b);
+        showAndClose_(c);
+
+        QObject d_view{};
+        d->addView(&d_view);
+
+        QSignalSpy a_destroyed(a, &QObject::destroyed);
+        QSignalSpy b_destroyed(b, &QObject::destroyed);
+        QSignalSpy c_destroyed(c, &QObject::destroyed);
+        QSignalSpy d_destroyed(d, &QObject::destroyed);
+
+        f.store.freeKeptAtOrUnder(
+            f.key(u"outer"_s),
+            { f.key(u"outer/inner"_s) });
+        runQueuedDeletes_();
+
+        QCOMPARE(a_destroyed.count(), 1);
+        QCOMPARE(b_destroyed.count(), 0);
+        QCOMPARE(c_destroyed.count(), 0);
+        QCOMPARE(d_destroyed.count(), 0);
     }
 
     void closingOneOfTwoViewsKeepsTheBuffer()
@@ -549,6 +746,140 @@ private slots:
         }
 
         QVERIFY(!f.exists(u"a.txt"_s));
+    }
+
+    // While Git rewrites files, closing one's last view writes nothing, so
+    // the old text can't land over Git's. The buffer stays until the release,
+    // and is written then if Git left the file alone
+    void closingTheLastViewWhileHeldWritesNothing()
+    {
+        Fixture_ f{};
+        f.write(u"one/a.txt"_s, "hello");
+        auto* model = f.open(u"one/a.txt"_s);
+        QVERIFY(model);
+
+        f.store.holdAtOrUnder(f.key(u"one"_s));
+
+        {
+            QObject view{};
+            model->addView(&view);
+            type_(model, u"!"_s);
+        }
+
+        QCOMPARE(f.read(u"one/a.txt"_s), QByteArray("hello"));
+        QCOMPARE(f.open(u"one/a.txt"_s), model);
+        QVERIFY(model->isModified());
+
+        f.store.releaseAtOrUnder(f.key(u"one"_s));
+        QVERIFY(f.store.flush().isEmpty());
+
+        QCOMPARE(f.read(u"one/a.txt"_s), QByteArray("hello!"));
+    }
+
+    // What Git wrote stays on disk, and the buffer takes it in at the release
+    // as one undoable change, so undo brings the typing back
+    void closingTheLastViewWhileHeldKeepsWhatGitWrote()
+    {
+        Fixture_ f{};
+        f.write(u"one/a.txt"_s, "hello");
+        auto* model = f.open(u"one/a.txt"_s);
+        QVERIFY(model);
+
+        f.store.holdAtOrUnder(f.key(u"one"_s));
+
+        {
+            QObject view{};
+            model->addView(&view);
+            type_(model, u"!"_s);
+
+            f.write(u"one/a.txt"_s, "from git");
+        }
+
+        f.store.releaseAtOrUnder(f.key(u"one"_s));
+
+        QCOMPARE(f.read(u"one/a.txt"_s), QByteArray("from git"));
+        QCOMPARE(model->data(), QByteArray("from git"));
+
+        model->undo(nullptr);
+        QCOMPARE(model->data(), QByteArray("hello!"));
+    }
+
+    // A buffer its close left unsaved, because Git held its file, is closed
+    // as usual once a later save writes it: it joins the kept closed buffers
+    void aHeldBufferIsKeptOnceWritten()
+    {
+        Fixture_ f{};
+        f.write(u"one/a.txt"_s, "hello");
+        auto* model = f.open(u"one/a.txt"_s);
+        QVERIFY(model);
+
+        f.store.holdAtOrUnder(f.key(u"one"_s));
+
+        {
+            QObject view{};
+            model->addView(&view);
+            type_(model, u"!"_s);
+        }
+
+        f.store.releaseAtOrUnder(f.key(u"one"_s));
+        QVERIFY(f.store.flush().isEmpty());
+        QCOMPARE(f.read(u"one/a.txt"_s), QByteArray("hello!"));
+
+        runNextTick_();
+        QVERIFY(isKept_(f, model));
+    }
+
+    // The same when the release takes in Git's version instead, which saves
+    // the buffer by reloading it rather than writing it
+    void aHeldBufferIsKeptOnceGitsVersionIsTakenIn()
+    {
+        Fixture_ f{};
+        f.write(u"one/a.txt"_s, "hello");
+        auto* model = f.open(u"one/a.txt"_s);
+        QVERIFY(model);
+
+        f.store.holdAtOrUnder(f.key(u"one"_s));
+
+        {
+            QObject view{};
+            model->addView(&view);
+            type_(model, u"!"_s);
+
+            f.write(u"one/a.txt"_s, "from git");
+        }
+
+        f.store.releaseAtOrUnder(f.key(u"one"_s));
+        QVERIFY(!model->isModified());
+
+        runNextTick_();
+        QVERIFY(isKept_(f, model));
+    }
+
+    // Saved after the file was opened again, it has a view, so it stays
+    void aHeldBufferReopenedBeforeItsSaveStaysOpen()
+    {
+        Fixture_ f{};
+        f.write(u"one/a.txt"_s, "hello");
+        auto* model = f.open(u"one/a.txt"_s);
+        QVERIFY(model);
+
+        f.store.holdAtOrUnder(f.key(u"one"_s));
+
+        {
+            QObject view{};
+            model->addView(&view);
+            type_(model, u"!"_s);
+        }
+
+        QCOMPARE(f.open(u"one/a.txt"_s), model);
+        QObject view{};
+        model->addView(&view);
+
+        f.store.releaseAtOrUnder(f.key(u"one"_s));
+        QVERIFY(f.store.flush().isEmpty());
+
+        runNextTick_();
+        QVERIFY(!isKept_(f, model));
     }
 
     // --- Following a vault's file operations --------------------------------
