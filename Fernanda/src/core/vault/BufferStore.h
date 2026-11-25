@@ -189,6 +189,20 @@ public:
             onLastViewClosed_(model);
         });
 
+        // A buffer its last view's close couldn't save (onLastViewClosed_)
+        // stays with no view until it is saved some other way: written by a
+        // later save, or reloaded with Git's version when a hold is released.
+        // Then it's closed as its last view's close would have closed it
+        connect(
+            model,
+            &AbstractFileModel::modificationChanged,
+            this,
+            [this, model](bool modified) {
+                if (!modified) {
+                    maybeCloseSavedViewless_(model);
+                }
+            });
+
         DEBUG(
             this,
             "Opened model for {} (total: {})",
@@ -483,8 +497,8 @@ private:
     // trashed in-app (applyRemoval) — both through discardModel_ — or once its
     // last view has closed, in any window: at once for a buffer that isn't
     // text, and for text once KEPT_CLOSED_BUFFERS newer closed ones push it out
-    // (onLastViewClosed_). A buffer with unsaved text is never freed that way;
-    // otherwise it lives as long as the store
+    // (onLastViewClosed_). A buffer with unsaved text is never freed that way:
+    // it waits, with no view, until it's saved (maybeCloseSavedViewless_)
     QHash<PathKey, AbstractFileModel*> models_{};
 
     // Closed text buffers kept for reopening, oldest first (keepClosed_). Each
@@ -766,7 +780,8 @@ private:
     // is freed, since undo is the only reason to keep one.
     //
     // A buffer with unsaved text that can't be written now stays in the map
-    // with no view, outside keptClosed_, so nothing frees it:
+    // with no view, outside keptClosed_, so nothing frees it until it's saved
+    // (maybeCloseSavedViewless_):
     //   - Its file is held (holdAtOrUnder): Git may have rewritten the file,
     //     and writing would put the old text over Git's. The release takes
     //     Git's version in as an undoable change, or autosave writes the
@@ -837,6 +852,29 @@ private:
 
             freeModel_(oldest);
         }
+    }
+
+    // A buffer just saved, by a write or a reload, that no view shows and that
+    // isn't kept: one onLastViewClosed_ couldn't save. It's closed now as its
+    // last view's close would have closed it: kept if it's text, else freed.
+    //
+    // On the next tick, since the save may be one of several in a loop over
+    // models_ (flush, autosave_), which freeing a buffer would break. And
+    // looked at again then: by that time the file may have been reopened, so
+    // the buffer has a view again, or the buffer discarded, which the model
+    // as context and onLastViewClosed_'s own check cover
+    void maybeCloseSavedViewless_(AbstractFileModel* model)
+    {
+        if (model->viewCount() > 0 || keptClosed_.contains(model)) {
+            return;
+        }
+
+        Coco::Time::onNextTick(model, [this, model] {
+            if (model->viewCount() == 0 && !model->isModified() &&
+                !keptClosed_.contains(model)) {
+                onLastViewClosed_(model);
+            }
+        });
     }
 
     // Drop a buffer no view shows, its text on disk, from the store, and free

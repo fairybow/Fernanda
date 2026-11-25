@@ -192,6 +192,25 @@ private:
         QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
     }
 
+    // Runs what was put off to the next turn of the event loop
+    static void runNextTick_() { QCoreApplication::processEvents(); }
+
+    // Whether the buffer is among the kept closed ones: closing
+    // KEPT_CLOSED_BUFFERS other files after it pushes it out, which frees it.
+    // A buffer that isn't kept is left alone
+    [[nodiscard]] static bool isKept_(Fixture_& f, AbstractFileModel* model)
+    {
+        QSignalSpy destroyed(model, &QObject::destroyed);
+
+        auto others = openTextFiles_(f, u"kept"_s, KEPT_CLOSED_BUFFERS);
+        for (auto* other : others) {
+            showAndClose_(other);
+        }
+
+        runQueuedDeletes_();
+        return destroyed.count() == 1;
+    }
+
     [[nodiscard]] static QByteArray pngBytes_()
     {
         QImage image(2, 2, QImage::Format_RGB32);
@@ -744,6 +763,84 @@ private slots:
 
         model->undo(nullptr);
         QCOMPARE(model->data(), QByteArray("hello!"));
+    }
+
+    // A buffer its close left unsaved, because Git held its file, is closed
+    // as usual once a later save writes it: it joins the kept closed buffers
+    void aHeldBufferIsKeptOnceWritten()
+    {
+        Fixture_ f{};
+        f.write(u"one/a.txt"_s, "hello");
+        auto* model = f.open(u"one/a.txt"_s);
+        QVERIFY(model);
+
+        f.store.holdAtOrUnder(f.key(u"one"_s));
+
+        {
+            QObject view{};
+            model->addView(&view);
+            type_(model, u"!"_s);
+        }
+
+        f.store.releaseAtOrUnder(f.key(u"one"_s));
+        QVERIFY(f.store.flush().isEmpty());
+        QCOMPARE(f.read(u"one/a.txt"_s), QByteArray("hello!"));
+
+        runNextTick_();
+        QVERIFY(isKept_(f, model));
+    }
+
+    // The same when the release takes in Git's version instead, which saves
+    // the buffer by reloading it rather than writing it
+    void aHeldBufferIsKeptOnceGitsVersionIsTakenIn()
+    {
+        Fixture_ f{};
+        f.write(u"one/a.txt"_s, "hello");
+        auto* model = f.open(u"one/a.txt"_s);
+        QVERIFY(model);
+
+        f.store.holdAtOrUnder(f.key(u"one"_s));
+
+        {
+            QObject view{};
+            model->addView(&view);
+            type_(model, u"!"_s);
+
+            f.write(u"one/a.txt"_s, "from git");
+        }
+
+        f.store.releaseAtOrUnder(f.key(u"one"_s));
+        QVERIFY(!model->isModified());
+
+        runNextTick_();
+        QVERIFY(isKept_(f, model));
+    }
+
+    // Saved after the file was opened again, it has a view, so it stays
+    void aHeldBufferReopenedBeforeItsSaveStaysOpen()
+    {
+        Fixture_ f{};
+        f.write(u"one/a.txt"_s, "hello");
+        auto* model = f.open(u"one/a.txt"_s);
+        QVERIFY(model);
+
+        f.store.holdAtOrUnder(f.key(u"one"_s));
+
+        {
+            QObject view{};
+            model->addView(&view);
+            type_(model, u"!"_s);
+        }
+
+        QCOMPARE(f.open(u"one/a.txt"_s), model);
+        QObject view{};
+        model->addView(&view);
+
+        f.store.releaseAtOrUnder(f.key(u"one"_s));
+        QVERIFY(f.store.flush().isEmpty());
+
+        runNextTick_();
+        QVERIFY(!isKept_(f, model));
     }
 
     // --- Following a vault's file operations --------------------------------
