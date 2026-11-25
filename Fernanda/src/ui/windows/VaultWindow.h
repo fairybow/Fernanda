@@ -659,9 +659,21 @@ private:
         }
     }
 
-    // A diff's tab, placed as a file's would be (placePage_)
+    // A diff's tab, placed as a file's would be (placePage_). Opening over
+    // the active tab the diff it already shows only focuses it, as openFile
+    // does for a file: the page follows the status itself, so a new one would
+    // show nothing newer, and would give the tab's history a step that goes
+    // nowhere
     void openDiff_(const GitStatus::Entry& entry, OpenMode mode)
     {
+        auto* tree = tabPaneTree();
+
+        if (mode == OpenMode::ReplaceActive &&
+            activeTabShowsDiff_(tree, entry.path)) {
+            tree->focusActivePage();
+            return;
+        }
+
         auto* page = new GitDiffPage(gitRepository_, vault_, entry);
         placePage_(page, page->windowTitle(), mode);
     }
@@ -1273,6 +1285,18 @@ private:
                           : nullptr;
 
         return view && view->model()->key() == key;
+    }
+
+    // Whether tree's active tab shows the diff of the file at path, relative
+    // to the repository's folder
+    [[nodiscard]] static bool
+    activeTabShowsDiff_(const TabPaneTree* tree, const Coco::Path& path)
+    {
+        auto* leaf = tree->activeLeaf();
+        auto* diff = leaf ? qobject_cast<GitDiffPage*>(leaf->currentPage())
+                          : nullptr;
+
+        return diff && diff->entry().path == path;
     }
 
     // A page is replacing another in its tab, so the tab's history passes to

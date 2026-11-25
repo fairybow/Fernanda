@@ -108,6 +108,26 @@ private slots:
         QCOMPARE(out.folders, (QList<int>{ 40, 20 }));
     }
 
+    // A folder held at its minimum lowers the share for the rest, so a folder
+    // that fit the first share whole may not fit what's left. 72 is left
+    // after the name, 42 of it for folders: the first keeps its minimum of
+    // 18, and the other two share the 24 left, though each fit the first
+    // share of 14 whole
+    void aMinimumHeldLowersTheShareForTheRest()
+    {
+        auto out = fit(
+            122,
+            50,
+            { 100, 14, 14 },
+            { 18, 10, 10 },
+            SEPARATOR_,
+            ELLIPSIS_);
+
+        QCOMPARE(out.name, 50);
+        QCOMPARE(out.folders, (QList<int>{ 18, 12, 12 }));
+        QVERIFY(!out.dropped);
+    }
+
     // Not every minimum fits, so the innermost folders go and an ellipsis
     // stands for them. 55 is left after the name: three folders at their
     // minimums need 60, and two with the ellipsis need 55

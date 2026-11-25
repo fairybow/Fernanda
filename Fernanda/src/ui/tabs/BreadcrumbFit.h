@@ -30,7 +30,8 @@ namespace Fernanda::Ui::Breadcrumbs {
 // only once there's no room left for any folder. The folders share what's
 // left, as Obsidian's breadcrumbs do: a folder narrower than its share keeps
 // its full width, and the rest are shortened to equal shares, each no shorter
-// than its minimum (a letter and an ellipsis, as the caller measures it).
+// than its minimum (a letter and an ellipsis, as the caller measures it). The
+// widths drawn never add up to more than the width available.
 //
 // When even the minimums don't fit, folders are dropped from the inside out,
 // keeping the outermost, and one ellipsis stands where they were. With no
@@ -109,43 +110,56 @@ fit(int available,
 
     out.dropped = kept < count;
 
-    // Share out what's left. A folder that fits in its share keeps its full
-    // width, and one whose minimum is more than its share keeps its minimum;
-    // each settles once, and the share is worked out again for the rest
+    // Share out what's left, settling folders in two rounds, the share worked
+    // out again after each pass over the rest. First, a folder whose minimum
+    // is at least the share keeps its minimum; settling one can only lower
+    // the share, so the rounds can't undo each other. Then a folder that fits
+    // in the share keeps its full width; settling one can only raise it. The
+    // minimums go first: a folder kept whole at a share the minimums later
+    // lowered would push the path past its width
     auto left =
         room - kept * separator - (out.dropped ? ellipsis + separator : 0);
 
     QList<int> widths(kept, -1);
     auto unsettled = kept;
-    auto settling = true;
 
-    while (settling && unsettled > 0) {
-        settling = false;
-        auto share = left / unsettled;
+    auto settle_where = [&](const auto& settledWidth) {
+        auto settling = true;
 
-        for (qsizetype i = 0; i < kept; ++i) {
-            if (widths[i] >= 0) {
-                continue;
+        while (settling && unsettled > 0) {
+            settling = false;
+            auto share = left / unsettled;
+
+            for (qsizetype i = 0; i < kept; ++i) {
+                if (widths[i] >= 0) {
+                    continue;
+                }
+
+                auto width = settledWidth(i, share);
+                if (width < 0) {
+                    continue;
+                }
+
+                widths[i] = width;
+                left -= width;
+                --unsettled;
+                settling = true;
             }
-
-            auto minimum = qMin(minimums.value(i), folders[i]);
-
-            if (folders[i] <= share) {
-                widths[i] = folders[i];
-            } else if (minimum >= share) {
-                widths[i] = minimum;
-            } else {
-                continue;
-            }
-
-            left -= widths[i];
-            --unsettled;
-            settling = true;
         }
-    }
+    };
+
+    settle_where([&](qsizetype i, int share) {
+        auto minimum = qMin(minimums.value(i), folders[i]);
+        return minimum >= share ? minimum : -1;
+    });
+
+    settle_where([&](qsizetype i, int share) {
+        return folders[i] <= share ? folders[i] : -1;
+    });
 
     // The folders still unsettled all take the share, the first few a pixel
-    // more until the remainder is used
+    // more until the remainder is used. Each is wider than its minimum, since
+    // the first round left none whose minimum reached the share
     if (unsettled > 0) {
         auto share = left / unsettled;
         auto extra = left % unsettled;

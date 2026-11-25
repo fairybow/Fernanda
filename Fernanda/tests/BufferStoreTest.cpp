@@ -667,6 +667,45 @@ private slots:
         QCOMPARE(oldest_other_destroyed.count(), 1);
     }
 
+    // A vault going away frees its kept buffers, but not those inside a vault
+    // still open, nor a buffer some view still shows
+    void freeKeptAtOrUnderFreesOnlyThoseOutsideTheKeptRoots()
+    {
+        Fixture_ f{};
+        f.write(u"outer/a.txt"_s, "a");
+        f.write(u"outer/inner/b.txt"_s, "b");
+        f.write(u"other/c.txt"_s, "c");
+        f.write(u"outer/d.txt"_s, "d");
+
+        auto* a = f.open(u"outer/a.txt"_s);
+        auto* b = f.open(u"outer/inner/b.txt"_s);
+        auto* c = f.open(u"other/c.txt"_s);
+        auto* d = f.open(u"outer/d.txt"_s);
+        QVERIFY(a && b && c && d);
+
+        showAndClose_(a);
+        showAndClose_(b);
+        showAndClose_(c);
+
+        QObject d_view{};
+        d->addView(&d_view);
+
+        QSignalSpy a_destroyed(a, &QObject::destroyed);
+        QSignalSpy b_destroyed(b, &QObject::destroyed);
+        QSignalSpy c_destroyed(c, &QObject::destroyed);
+        QSignalSpy d_destroyed(d, &QObject::destroyed);
+
+        f.store.freeKeptAtOrUnder(
+            f.key(u"outer"_s),
+            { f.key(u"outer/inner"_s) });
+        runQueuedDeletes_();
+
+        QCOMPARE(a_destroyed.count(), 1);
+        QCOMPARE(b_destroyed.count(), 0);
+        QCOMPARE(c_destroyed.count(), 0);
+        QCOMPARE(d_destroyed.count(), 0);
+    }
+
     void closingOneOfTwoViewsKeepsTheBuffer()
     {
         Fixture_ f{};

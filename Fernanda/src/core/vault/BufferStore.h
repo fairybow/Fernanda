@@ -303,6 +303,40 @@ public:
         }
     }
 
+    // Free the kept closed buffers (keepClosed_) at or under entry, except
+    // those at or under any of keepRoots. For a vault no window shows any
+    // more: on Windows a kept buffer's watch holds its file's folder open, so
+    // the vault's folders couldn't be renamed or deleted outside Fernanda
+    // until newer closes pushed its buffers out. A kept buffer is saved and
+    // shown by no view, so freeing one loses only its undo history. A buffer
+    // with unsaved text and no view is never on the kept list, so it stays
+    void freeKeptAtOrUnder(
+        const PathKey& entry,
+        const QList<PathKey>& keepRoots)
+    {
+        const auto kept = keptClosed_;
+
+        for (auto* model : kept) {
+            auto key = model->key();
+
+            if (!key.isAtOrUnder(entry)) {
+                continue;
+            }
+
+            auto under_kept_root = std::any_of(
+                keepRoots.cbegin(),
+                keepRoots.cend(),
+                [&key](const PathKey& root) { return key.isAtOrUnder(root); });
+
+            if (under_kept_root) {
+                continue;
+            }
+
+            keptClosed_.removeOne(model);
+            freeModel_(model);
+        }
+    }
+
     // After the disk op moved oldEntry to newEntry. Every tree moves its row
     // (VaultTreeModel::applyRelocation), keeping the entry and what's under it
     // expanded and selected; a tree left to its watcher would re-list and show
