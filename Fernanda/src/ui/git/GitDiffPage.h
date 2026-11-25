@@ -78,6 +78,12 @@ public:
 
     ~GitDiffPage() override { TRACER; }
 
+    // The change shown, as the last status listed it
+    [[nodiscard]] const GitStatus::Entry& entry() const noexcept
+    {
+        return entry_;
+    }
+
 protected:
     void showEvent(QShowEvent* event) override
     {

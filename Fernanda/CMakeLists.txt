@@ -291,6 +291,7 @@ set(APP_HEADERS
     src/ui/tabs/PagePin.h
     src/ui/tabs/TabBar.h
     src/ui/tabs/TabCloseButton.h
+    src/ui/tabs/TabHistory.h
     src/ui/tabs/TabPaneLeaf.h
     src/ui/tabs/TabPaneTree.h
 
