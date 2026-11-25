@@ -37,7 +37,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Closing every window from the Windows taskbar (right-click the icon, Close all windows) reopens only one vault next launch. To Fernanda the closes look like closing each window by hand, which clears that vault's open flag while another is still open; only the last keeps it. Pop-outs can be lost the same way, if one closes before its vault window saves the layout. A short grace period before a closed window's flag is cleared, dropped if the app quits first, would cover vault windows; pop-outs would need their layout kept for that time too
 - [ ] "Go to file" on a new tab in a pop-out used to activate the main window and never return focus to the pop-out. Likely fixed now that the switcher opens over the page's own window: verify
 - [ ] Pop-out Z-order isn't restored: a pop-out that was in front of its vault window comes back behind it. Vault windows restore in the right order among themselves, so this may be pop-outs only, and may not be fixable (which would be fine)
-- [ ] Opening the file that is already in the active, unpinned tab should do nothing
+- [x] Opening the file already in the active tab replaced its view with a new one, so the cursor and scroll went back to the top. It's now only focused
 - [ ] Minor: dragging a file quickly from near its row's bottom edge moves the selection highlight down to the next row, though that row isn't selected
 - [x] New file and New folder in a collapsed folder left it collapsed, so the new entry couldn't be seen. The tree that asked now opens the folders above it and selects it
 - [x] Manage Vaults' row for a vault whose folder is missing was taller than the others, and its name sat far from its warning icon. The list sizes its icons to the glyph, gives every row one height, and `Style` keeps a list item's text the tree's margin from its icon
@@ -123,7 +123,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Under the "C" locale (a Linux session with no locale set), the file tree doesn't read a number in a name as a number: "chapter 10" sorts before "chapter 2"
 - [x] A vault whose root path was not plain (a trailing separator, a `.` or `..` segment) contained nothing by `Vault::contains`, so every create, rename, move, and delete in it was refused. Roots and every path under them are now normalized into keys
 - [ ] The known-vaults list can show one folder twice: a vault once opened by a symlinked path, and the same folder by its resolved path, which is what `App` records now. Records are matched by `PathKey`, which doesn't follow symlinks
-- [ ] A buffer kept after its last view's save failed is shown by no window, so no window close retries it. Focus loss and quit do
+- [ ] A buffer left with unsaved text when its last view closed (its save failed, or Git held its file) is shown by no window, so no window close retries it. Focus loss and quit do, as does a hold's release. Once written, it isn't put among the closed text buffers the store keeps, so it stays in memory until quit rather than being freed in its turn
 - [ ] A discard sends its files to the trash one at a time, on the main thread, so Discard all changes over many files can freeze the window for a while. It slows GitHub Desktop too (desktop/desktop#10445). Measure on Windows with a few hundred files before moving it off the main thread
 - [ ] A renamed file whose new path goes to the trash and whose old path the trash then refuses (recreated, and open in another program) is named as left as it was, though its new path is in the trash
 - [ ] Discarding a symlink whose target is missing doesn't send it to the trash: `Coco::Path::exists` follows the link, so it reads as nothing there, and Git then resets it, losing the old target. A fix needs a `Coco::Path::isSymLink`
@@ -151,6 +151,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Run `update_translations` for the Git page's strings, add the English plural forms of "%Ln changed file(s)", "Last fetched %Ln minute(s) ago" (and its hour and day forms), and "Git took longer than %Ln second(s), so it was stopped." to `Translation_en.ts`, and translate them into Spanish. The discard messages' plural forms ("%Ln file(s) couldn't be moved to the system trash…", "Are you sure you want to discard all %Ln changed file(s)?", "%Ln of these file(s) are outside this vault.", "%Ln conflicted file(s) will be left as they are.") are in `Translation_en.ts` already and need Spanish too
 - [x] `LogView` opens on every launch, for testing. Put it behind its command-line flag
 - [x] `CHANGELOG.md` has only a placeholder release entry. Write the real notes before tagging
+- [ ] Run `update_translations` for "Navigate Back" and "Navigate Forward", and translate them into Spanish
 - [ ] Test the OS logout save path (`App::onCommitDataRequest_`)
 - [ ] Add the Git page to `CHANGELOG.md`
 - [ ] The Git hand pass, below, on Windows and macOS. Use a scratch repository on GitHub, so pushes and pulls are real, and a vault inside it with a few files
@@ -248,6 +249,7 @@ Run it once on each platform: on Windows signing in through Git Credential Manag
 
 What the tests in `Fernanda/tests/` don't reach.
 
+- [ ] Stepping back and forward in a tab: `VaultWindow` building pages from a tab's history and passing it on, and `BaseWindow`'s filter for the mouse's back and forward buttons. The history's own rules are tested (`TabHistoryTest`), and the stepping was checked by hand
 - [ ] `FocusTimer`'s ticker and signals, and the sidebar's focus timer button. The rules the timer runs are tested (`FocusCycleTest`)
 - [ ] `Updater`'s request to GitHub and its handling of the reply. The decision it makes from the reply is tested (`UpdateCheckTest`)
 - [ ] The installer's update-check choice: the Windows installer writing and removing `install.ini`, and `AppConfig` reading it as the default. A test would have to put a file beside its own executable, in the build folder

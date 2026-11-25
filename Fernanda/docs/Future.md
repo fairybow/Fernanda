@@ -39,6 +39,7 @@ Nothing here is a promise or a schedule.
 - Remember whether the menu bar is shown
 - Grey out Undo and Redo when there is nothing to undo or redo
 - Shortcuts for splitting a pane
+- A header over each tab's page, as Obsidian's view header, with back and forward arrows for the tab's history. Right-clicking an arrow lists where it leads, to jump straight there
 - On macOS, replace the menu bar toggle: the system owns the menu bar there, and Cmd+M is Minimize
 
 ### Appearance
@@ -136,6 +137,7 @@ What GitHub Desktop does that the Git page doesn't yet, in the order it's planne
 - **Several spelling languages at once.** A view checks against one dictionary. Several would mean asking each one about every word, merging their suggestions, and deciding which one Add to dictionary answers to. Worth building if writing in two languages in one vault proves common
 - **Managing the dictionary in Fernanda.** Removing an added word means editing `.fernanda/dictionary.txt` by hand, as in Obsidian. A list in Settings would do it in place. Worth building if hand editing proves awkward
 - **Restoring diff tabs, and Find in a diff.** Diff tabs aren't restored when a vault opens again, since a diff is read from Git and may have changed or gone by then. A diff tab could be saved in the workspace as its file and scroll position, and reopened if the file still has changes. Find works in the editor only; a diff tab could take Ctrl+F too. Worth building if diff tabs prove to be something kept open
+- **Keeping each tab's history between launches.** A tab's history lasts while it's open, as Obsidian's does; Obsidian's community plugins add saving it. An entry is already the state `workspace.json` saves for a tab, so each tab's entries could be saved beside it. Its undo history couldn't come back with it. Worth building if a history lost to a relaunch is missed
 - **Searching the whole vault.** A separate feature from Find, with its own list of results. Obsidian's is a plugin of its own
 - **An overwrite toggle on the Insert key,** per editor, with a status bar indicator
 - **Drop zones that move.** While a tab is dragged over a pane's edge, the pane would shrink aside to show where the new pane will land

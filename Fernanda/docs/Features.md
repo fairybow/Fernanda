@@ -116,7 +116,11 @@ Ctrl+O, or "Go to file" on a new tab. A search field over every file in the vaul
 
 ## Tabs, panes, and windows
 
-- Opening a file replaces what is in the current tab, unless that tab is pinned
+- Opening a file replaces what is in the current tab, unless that tab is pinned. Opening the file the current tab already shows leaves it where it is, keeping its place
+- Each tab keeps its own history of what it has shown. **Navigate back** (Ctrl+Alt+Left, or the mouse's back button) takes the tab to what it showed before, at the same cursor, scroll, and zoom, and **Navigate forward** (Ctrl+Alt+Right, or the mouse's forward button) returns. Both are in the View menu too, and work in pop-outs and in pinned tabs, which stay pinned. Opening something new in the tab after going back clears what was ahead, as in a browser
+- A file that's gone, or no longer in the window's vaults, is passed over on the way back or forward. A renamed or moved one is followed. Diffs are kept in the history too
+- A tab's history lasts while the tab is open, and isn't kept between launches
+- The last 20 text files closed, or replaced in their tab, keep their undo history, so after reopening one, or going back to it, Ctrl+Z undoes what was typed before
 - A new tab opens empty, offering to create a file or go to one
 - The same file can be open in any number of tabs, panes, and windows. All of them stay in sync and share one undo history
 - Right-click a tab to close, pin, or unpin it. A pinned tab keeps its file when another is opened and shows a pin in place of its close button
@@ -404,6 +408,7 @@ The list of known vaults, and which of them is the Common Vault, is kept outside
 | Find | Ctrl+F |
 | Find and replace | Ctrl+H |
 | Next / previous match | F3 / Shift+F3 |
+| Navigate back / forward in the current tab | Ctrl+Alt+Left / Ctrl+Alt+Right |
 | Zoom in / out / reset | Ctrl+= / Ctrl+- / Ctrl+0 |
 | Switch the sidebar between the files and the Git page | Ctrl+Shift+G |
 | Commit, on the Git page | Ctrl+Enter |
@@ -438,6 +443,8 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 - **No fallback trash.** If the system trash refuses an entry, Fernanda declines; Obsidian moves it to a `.trash` folder in the vault
 - **A vault whose folder vanishes has its window closed**, after a message, where Obsidian leaves an empty window open. This includes a vault folder deleted from inside another vault
 - **No Move Vault command.** Obsidian's vault switcher can move a vault to another folder. In Fernanda, move the folder from the file tree of a vault that contains it, and the vault follows; or move it in your file manager, then open it from its new place
+- **No back and forward buttons in the tab.** Obsidian puts its arrows in each tab's header, and right-clicking one lists where it leads. Fernanda's tabs have no header yet: back and forward are on the keys, the mouse buttons, and the View menu
+- **Undo outlasts a change made outside Fernanda.** Obsidian keeps the undo history of the last 20 files you've moved away from, unless the file was changed outside it. Fernanda keeps that of the last 20 text files closed or replaced, and an outside change to one is one more undo step, as it is for an open file
 - **Licenses are in the app.** Obsidian lists its third-party credits on its help site
 - **No light or dark setting.** Fernanda always follows the system. Obsidian follows it by default and can be set to light or dark
 - **Stepping past closing punctuation** is Fernanda's own, as is the switch over both typing helpers
@@ -459,7 +466,7 @@ Obsidian has nothing made for long writing projects, so for those features Scriv
 
 - Starting Fernanda while it's already open doesn't bring its window forward
 - A file name with a period and no real extension (`Chapter 1. The Start`) is read as having an unsupported extension, so the file is hidden
-- On Windows, while Fernanda is open, other programs can't rename or delete a folder if one of its subfolders has been expanded in a file tree or holds an open file. Fernanda's own rename, move, and delete are unaffected
+- On Windows, while Fernanda is open, other programs can't rename or delete a folder if one of its subfolders has been expanded in a file tree, or holds an open file or one of the last 20 text files closed. Fernanda's own rename, move, and delete are unaffected
 - A vault folder moved or renamed outside Fernanda is a new vault to Fernanda: open it again from its new place. Its settings and layout travel with it
 - A Common Vault whose folder can't be found at launch, such as one on a drive that isn't connected, is unset as if the folder were gone. Set it again from Manage Vaults
 - A folder linked into a vault (a symlink or junction) works as part of the vault. A file that can be reached two ways, through a link and directly, is two documents, which can save over each other. Keep a linked folder's target outside every vault, as Obsidian also asks
