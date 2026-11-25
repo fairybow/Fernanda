@@ -177,6 +177,18 @@ public:
         }
     }
 
+    // Show or hide every pane's header, now and in every pane made later: the
+    // vault's "Show tab title bar" setting, from the window
+    // (BaseWindow::applyConfig)
+    void setHeadersShown(bool shown)
+    {
+        headersShown_ = shown;
+
+        for (auto* leaf : leaves_()) {
+            leaf->setHeaderShown(shown);
+        }
+    }
+
     // Page-addressed: show page in its pane's header again after something
     // the header shows changed (setPageHistory)
     void refreshPageHeader(QWidget* page)
@@ -504,6 +516,9 @@ private:
     // still points at the old subtree until the swap, so isEmpty_() reads stale
     bool restoring_ = false;
 
+    // Whether panes show their header (setHeadersShown), for each new leaf
+    bool headersShown_ = true;
+
     // --- Construction / wiring ---------------------------------------------
 
     void setup_()
@@ -537,6 +552,7 @@ private:
     TabPaneLeaf* makeLeaf_()
     {
         auto* leaf = new TabPaneLeaf; // parented on insertion into a splitter
+        leaf->setHeaderShown(headersShown_);
 
         // "+" -> make this leaf active, then re-emit as intent
         connect(leaf, &TabPaneLeaf::addPageRequested, this, [this, leaf] {

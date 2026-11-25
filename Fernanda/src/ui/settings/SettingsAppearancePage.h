@@ -31,14 +31,17 @@
 namespace Fernanda::Ui {
 
 // The settings dialog's Appearance page, Obsidian's Appearance tab: where the
-// text font lives. The column, and how a page talks to its Vault, are
-// SettingsPage's.
+// text font lives, and whether tabs show their header. The column, and how a
+// page talks to its Vault, are SettingsPage's.
 //
 // The Font section, in Obsidian's order where it has the setting: the text
 // font's family, Bold and Italic, then its size. Obsidian has no bold or italic
 // for its text font; Fernanda keeps them because it's plain-text first —
 // there's no Markdown styling to carry emphasis instead. Obsidian's size slider
-// has a reset button beside it; this one doesn't
+// has a reset button beside it; this one doesn't.
+//
+// The Interface section, after Font as in Obsidian, has Obsidian's "Show tab
+// title bar": the header over each pane's pages (TabHeader)
 class SettingsAppearancePage : public SettingsPage
 {
     Q_OBJECT
@@ -53,7 +56,11 @@ public:
     ~SettingsAppearancePage() override { TRACER; }
 
 private:
-    void setup_() { setupFontSection_(); }
+    void setup_()
+    {
+        setupFontSection_();
+        setupInterfaceSection_();
+    }
 
     void setupFontSection_()
     {
@@ -98,6 +105,24 @@ private:
             vault()->setConfig(&VaultConfig::setTextFontSize, value);
         });
         addRow(tr("Font size"), tr("The text font's size, in points."), size);
+    }
+
+    void setupInterfaceSection_()
+    {
+        const auto& config = vault()->config();
+
+        addHeading(tr("Interface"));
+
+        auto* header = new ToggleSwitch(content());
+        header->setChecked(config.tabHeader());
+        connect(header, &QAbstractButton::toggled, this, [this](bool checked) {
+            vault()->setConfig(&VaultConfig::setTabHeader, checked);
+        });
+        addRow(
+            tr("Show tab title bar"),
+            tr("Show a header at the top of every tab, with its back and "
+               "forward arrows and its file's path."),
+            header);
     }
 };
 

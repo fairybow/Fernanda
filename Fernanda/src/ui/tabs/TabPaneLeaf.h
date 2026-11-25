@@ -274,6 +274,11 @@ public:
     // Draw page's tab mark again, after its mark changed (setPageIconPath)
     void refreshPageIcon(QWidget* page) { applyPageIcon_(indexOf(page), page); }
 
+    // Show or hide the header (TabHeader) over the pages. Hidden, it takes no
+    // room. The tree passes on the window's setting (TabPaneTree::
+    // setHeadersShown), to every leaf it makes
+    void setHeaderShown(bool shown) { header_->setVisible(shown); }
+
     // Show page in the header again, after something the header shows
     // changed under it (its history: setPageHistory). Nothing when page isn't
     // the one the header shows: a page becoming current is shown then

@@ -115,16 +115,19 @@ public:
         return found;
     }
 
-    // The status bar's settings, from the hosting vault's config. A window
-    // doesn't know its vault — a pop-out has none of its own — so the
-    // VaultWindow calls this on itself and on each pop-out it makes, at
-    // construction and on every Vault::configChanged; the same arrangement, and
-    // the same hosting-vault rule, as the views' applyConfig. With both items
-    // switched off the bar itself hides, giving its strip back to the editor,
-    // unless the update notice is showing. With either on it stays, even over
-    // a page that leaves it empty (see class note)
+    // The status bar's settings, and whether the panes show their header,
+    // from the hosting vault's config. A window doesn't know its vault — a
+    // pop-out has none of its own — so the VaultWindow calls this on itself and
+    // on each pop-out it makes, at construction and on every
+    // Vault::configChanged; the same arrangement, and the same hosting-vault
+    // rule, as the views' applyConfig. With both items switched off the bar
+    // itself hides, giving its strip back to the editor, unless the update
+    // notice is showing. With either on it stays, even over a page that leaves
+    // it empty (see class note)
     void applyConfig(const VaultConfig& config)
     {
+        tree_->setHeadersShown(config.tabHeader());
+
         wordCounter_->applyConfig(config);
         cursorPosition_->applyConfig(config);
 
