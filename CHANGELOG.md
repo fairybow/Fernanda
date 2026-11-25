@@ -130,13 +130,21 @@ git push origin v0.0.0-beta.0
 
 ## What's New?
 
-- Would like to add: backups and history (forward and backward for a tab)
+- Backups [placeholder]
+
+**Back and forward in a tab.** Each tab now keeps its own history, as in Obsidian. **Navigate back** (Ctrl+Alt+Left, or your mouse's back button) takes a tab back to what it showed before, at the same cursor, scroll, and zoom, and **Navigate forward** (Ctrl+Alt+Right, or the forward button) returns. Both are in the View menu too, and work in pop-outs and in pinned tabs.
+
+- Opening a file over a tab and going back is no longer a loss: the last 20 text files closed or replaced keep their undo history, so Ctrl+Z still undoes what you typed before
+- A file deleted since is skipped, and a renamed or moved one is followed. Diff tabs are part of the history too
+- A tab's history lasts while it's open and isn't kept between launches, as in Obsidian
 
 **Fixed**
 
 - Dragging a scroll bar could leave a row lit after the pointer had moved off it, in the file trees, the Git page's changes list, Go to File, Manage Vaults, and Settings' list of pages. While a scroll bar is dragged, the list only notices the pointer when it scrolls, so moving off the rows without scrolling, or letting go outside the list, left the last row highlighted. Lists now follow the pointer for the whole drag
 - Hovering a tab hid the divider on its right but kept the one on its left, so the hover looked lopsided. A hovered tab now keeps both dividers
 - Switching to the Git page selected the first changed file. Now nothing is selected until you click a file, and clicking below the files, or on the header beside the count, clears the selection
+- Opening the file already showing in the current tab (double-clicking it in the file tree, or choosing it in Go to File) put the cursor and scroll back at the top. The tab now keeps its place
+- Closing a file's last tab while a Git switch, pull, or discard was running wrote what you'd typed over the version Git was bringing in. Fernanda now keeps your typing until Git finishes, then takes in Git's version, and Ctrl+Z brings your typing back
 
 ---
 
