@@ -131,7 +131,8 @@ git push origin v0.0.0-beta.0
 ## What's New?
 
 - Backups [placeholder]
-- Rescue copies
+- Rescue copies [placeholder]
+- DOCX imports [placeholder]
 
 **Back and forward in a tab.** Each tab now keeps its own history, as in Obsidian. **Navigate back** (Ctrl+Alt+Left, or your mouse's back button) takes a tab back to what it showed before, at the same cursor, scroll, and zoom, and **Navigate forward** (Ctrl+Alt+Right, or the forward button) returns. Both are in the View menu too, and work in pop-outs and in pinned tabs.
 
