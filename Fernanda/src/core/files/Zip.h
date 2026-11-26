@@ -48,11 +48,6 @@ struct Entry
 
 namespace Internal {
 
-// The largest entry readEntry will decompress. Archives read this way come
-// from outside Fernanda, and the size is checked against what the archive
-// declares, before anything is allocated
-constexpr qint64 MAX_ENTRY_SIZE_ = 256LL * 1024 * 1024;
-
 // miniz asks for reads and writes at file offsets. It writes an entry's
 // header, then its data, then goes back to fill the header in, so the write
 // side seeks too. Either returns the bytes moved, and 0 on failure, which
@@ -175,7 +170,7 @@ addEntries_(mz_zip_archive& zip, const QList<Entry>& entries)
 }
 
 [[nodiscard]] inline std::optional<QByteArray>
-extract_(mz_zip_archive& zip, const QString& name)
+extract_(mz_zip_archive& zip, const QString& name, qint64 maxSize)
 {
     auto utf8_name = name.toUtf8();
     auto index = mz_zip_reader_locate_file(
@@ -202,12 +197,12 @@ extract_(mz_zip_archive& zip, const QString& name)
         return std::nullopt;
     }
 
-    if (stat.m_uncomp_size > mz_uint64(MAX_ENTRY_SIZE_)) {
+    if (stat.m_uncomp_size > mz_uint64(maxSize)) {
         WARN(
             "Zip entry {} declares {} bytes, over the {} allowed!",
             name,
             stat.m_uncomp_size,
-            MAX_ENTRY_SIZE_);
+            maxSize);
         return std::nullopt;
     }
 
@@ -288,11 +283,15 @@ inline bool write(const Coco::Path& archive, const QList<Entry>& entries)
 }
 
 // The named entry's bytes, matched with letter case. nullopt when the archive
-// can't be read, has no such entry, or declares the entry larger than
-// Internal::MAX_ENTRY_SIZE_
+// can't be read, has no such entry, or declares the entry larger than maxSize
+// bytes. The declared size is checked before anything is allocated, so an
+// archive from outside Fernanda can't make it decompress more than the caller
+// allows
 inline std::optional<QByteArray>
-readEntry(const Coco::Path& archive, const QString& name)
+readEntry(const Coco::Path& archive, const QString& name, qint64 maxSize)
 {
+    ASSERT(maxSize >= 0, "maxSize can't be negative!");
+
     if (archive.isEmpty()) {
         DEBUG("Path empty!");
         return std::nullopt;
@@ -320,7 +319,7 @@ readEntry(const Coco::Path& archive, const QString& name)
         return std::nullopt;
     }
 
-    auto data = Internal::extract_(zip, name);
+    auto data = Internal::extract_(zip, name, maxSize);
     mz_zip_reader_end(&zip);
 
     return data;

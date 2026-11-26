@@ -14,7 +14,6 @@
  */
 
 #include <QByteArray>
-#include <QByteArrayView>
 #include <QDir>
 #include <QList>
 #include <QObject>
@@ -22,6 +21,7 @@
 #include <QStringList>
 #include <QTemporaryDir>
 #include <QTest>
+#include <QtTypes>
 
 #include <Coco/Path.h>
 
@@ -31,8 +31,9 @@
 using namespace Qt::StringLiterals;
 
 // Zip archives (core/files/Zip.h): what's written reads back, names match
-// exactly, a failed write leaves the old archive alone, and an entry declared
-// too large isn't decompressed. Each test works in its own temporary folder.
+// exactly, a failed write leaves the old archive alone, and an entry over the
+// reader's limit isn't decompressed. Each test works in its own temporary
+// folder.
 //
 // Qt Test runs every private slot as a test
 class ZipTest : public QObject
@@ -40,6 +41,9 @@ class ZipTest : public QObject
     Q_OBJECT
 
 private:
+    // A limit no entry in these tests comes near
+    static constexpr qint64 ANY_SIZE_ = 1024 * 1024;
+
     struct Fixture_
     {
         QTemporaryDir folder{};
@@ -99,13 +103,14 @@ private slots:
                       u"notes/"_s + accented + u".txt"_s) }));
 
         QCOMPARE(
-            Fernanda::Zip::readEntry(archive, u"one.txt"_s)
+            Fernanda::Zip::readEntry(archive, u"one.txt"_s, ANY_SIZE_)
                 .value_or(QByteArray{}),
             QByteArray("one"));
         QCOMPARE(
             Fernanda::Zip::readEntry(
                 archive,
-                u"notes/"_s + accented + u".txt"_s)
+                u"notes/"_s + accented + u".txt"_s,
+                ANY_SIZE_)
                 .value_or(QByteArray{}),
             QByteArray("\xC3\xA9t\xC3\xA9"));
     }
@@ -123,7 +128,8 @@ private slots:
                 archive,
                 { f.entry(u"empty.txt"_s, u"empty.txt"_s) }));
 
-        auto data = Fernanda::Zip::readEntry(archive, u"empty.txt"_s);
+        auto data =
+            Fernanda::Zip::readEntry(archive, u"empty.txt"_s, ANY_SIZE_);
 
         QVERIFY(data.has_value());
         QVERIFY(data->isEmpty());
@@ -139,7 +145,8 @@ private slots:
         QVERIFY(
             Fernanda::Zip::write(archive, { f.entry(u"a.txt"_s, u"a.txt"_s) }));
 
-        QVERIFY(!Fernanda::Zip::readEntry(archive, u"b.txt"_s).has_value());
+        QVERIFY(!Fernanda::Zip::readEntry(archive, u"b.txt"_s, ANY_SIZE_)
+                     .has_value());
     }
 
     void entryNamesMatchLetterCase()
@@ -152,7 +159,8 @@ private slots:
         QVERIFY(
             Fernanda::Zip::write(archive, { f.entry(u"a.txt"_s, u"a.txt"_s) }));
 
-        QVERIFY(!Fernanda::Zip::readEntry(archive, u"A.txt"_s).has_value());
+        QVERIFY(!Fernanda::Zip::readEntry(archive, u"A.txt"_s, ANY_SIZE_)
+                     .has_value());
     }
 
     void aFileThatIsntAZipReadsAsNothing()
@@ -160,7 +168,10 @@ private slots:
         Fixture_ f{};
         f.write(u"fake.zip"_s, "not a zip");
 
-        QVERIFY(!Fernanda::Zip::readEntry(f.absolute(u"fake.zip"_s), u"a.txt"_s)
+        QVERIFY(!Fernanda::Zip::readEntry(
+                     f.absolute(u"fake.zip"_s),
+                     u"a.txt"_s,
+                     ANY_SIZE_)
                      .has_value());
     }
 
@@ -187,39 +198,32 @@ private slots:
 
         QCOMPARE(f.read(u"a.zip"_s), before);
         QCOMPARE(
-            Fernanda::Zip::readEntry(archive, u"a.txt"_s)
+            Fernanda::Zip::readEntry(archive, u"a.txt"_s, ANY_SIZE_)
                 .value_or(QByteArray{}),
             QByteArray("first"));
         QCOMPARE(f.names(), QStringList({ u"a.txt"_s, u"a.zip"_s }));
     }
 
-    // The archive is edited to declare its entry 2 GiB, far over the limit,
-    // while its data stays a few bytes. The declared size alone refuses it
-    void anEntryDeclaredTooLargeIsRefused()
+    // The limit is checked against the size the archive declares: an entry of
+    // exactly the limit reads, and one byte over doesn't
+    void anEntryOverTheLimitIsRefused()
     {
         Fixture_ f{};
-        f.write(u"a.txt"_s, "small");
+        f.write(u"ten.txt"_s, "0123456789");
 
         auto archive = f.absolute(u"a.zip"_s);
 
         QVERIFY(
-            Fernanda::Zip::write(archive, { f.entry(u"a.txt"_s, u"a.txt"_s) }));
-        QVERIFY(Fernanda::Zip::readEntry(archive, u"a.txt"_s).has_value());
+            Fernanda::Zip::write(
+                archive,
+                { f.entry(u"ten.txt"_s, u"ten.txt"_s) }));
 
-        // The central directory's record of the entry starts "PK\1\2", and
-        // its uncompressed size is the 4 bytes at offset 24, little-endian
-        auto bytes = f.read(u"a.zip"_s);
-        auto record = bytes.indexOf(QByteArrayView("PK\x01\x02", 4));
-        QVERIFY(record >= 0);
-        QVERIFY(record + 28 <= bytes.size());
-
-        bytes[record + 24] = char(0xFF);
-        bytes[record + 25] = char(0xFF);
-        bytes[record + 26] = char(0xFF);
-        bytes[record + 27] = char(0x7F);
-        f.write(u"a.zip"_s, bytes);
-
-        QVERIFY(!Fernanda::Zip::readEntry(archive, u"a.txt"_s).has_value());
+        QCOMPARE(
+            Fernanda::Zip::readEntry(archive, u"ten.txt"_s, 10)
+                .value_or(QByteArray{}),
+            QByteArray("0123456789"));
+        QVERIFY(
+            !Fernanda::Zip::readEntry(archive, u"ten.txt"_s, 9).has_value());
     }
 };
 
