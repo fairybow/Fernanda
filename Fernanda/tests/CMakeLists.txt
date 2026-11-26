@@ -17,8 +17,8 @@
 find_package(Qt6 REQUIRED COMPONENTS Test)
 
 # What any target here needs to compile the app's headers: the same include
-# root, the same APP_DEBUG definition, Coco, Hunspell, the same Qt modules,
-# and the same compiler options.
+# root, the same APP_DEBUG definition, Coco, Hunspell, miniz, the same Qt
+# modules, and the same compiler options.
 function(app_configure_test_target name)
     target_include_directories(${name} PRIVATE
         ${PROJECT_SOURCE_DIR}/src
@@ -38,6 +38,7 @@ function(app_configure_test_target name)
     target_link_libraries(${name} PRIVATE
         Coco::Coco
         hunspell
+        miniz
         Qt6::Core
         Qt6::Gui
         Qt6::PdfWidgets
