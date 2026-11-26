@@ -256,6 +256,7 @@ set(APP_HEADERS
     src/core/files/Io.h
     src/core/files/JsonIo.h
     src/core/files/PathKey.h
+    src/core/files/Zip.h
 
     src/core/git/GitDiff.h
     src/core/git/GitRefName.h
