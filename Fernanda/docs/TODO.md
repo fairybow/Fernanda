@@ -108,8 +108,6 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 - [ ] The downloaded and Microsoft Store versions share one single-instance key (`Coco::StartCop`, keyed by the app's name), so they can't run at the same time: whichever starts second hands off to the first and exits. Worth knowing when testing the two side by side
 
-- [ ] The key the `microsoft-store` job signs in to Partner Center with expires; its date is on the Fernanda GitHub Actions application's page, under Partner Center's User management → Microsoft Entra applications. Before then, add a new key there, replace `PARTNER_CENTER_CLIENT_SECRET` in the `microsoft-store` environment, and delete the old key. Making a key needs the tenant's admin account, not the Outlook sign-in
-- [ ] The Partner Center application has the Manager role, which Microsoft's documentation gives for the submission API. The Developer role covers uploading packages and submitting; once a submission has gone through, try it, and go back to Manager if the next one is refused
 - [ ] The Git page's discard questions (one file's, and Discard all changes') are plain `QMessageBox`es, the first worded as the file tree's Delete prompt is, and may still look too square for their text. If so, the fix belongs to every message box (the style, or a dialog of Fernanda's own), not to this one alone
 - [ ] All logged paths, decide if we want to use pretty string or not, and also if we want them quoted or not (and if we want a method for Path to add quotes or something instead of adjusting all fmt strings)
 - [ ] Same for error report strings from outside Fernanda, like GitRepository's "result.error" usage, which should probably be quoted
@@ -274,7 +272,6 @@ What the tests in `Fernanda/tests/` don't reach.
 - [ ] Signing in to a real remote, through a credential manager, and failing cleanly where Git would ask in a terminal. The tests sync with a bare repository in a temporary folder
 - [ ] `JsonIo`, `WorkspaceFile`, and everything in `views/` (apart from `TextSearch`) and `ui/`. The find bar and the way `TextFileView` drives a search are among them, as are the misspelling underlines and the spelling items in the editor's context menu. Considered for `TabPaneTree`'s save and restore and left out: a mistake there costs a layout, not text, and shows on the next launch
 - [ ] Re-running the release's `msix` job alone, from the same run's deployment
-- [ ] The release's `microsoft-store` job. It runs only for a release that gets a package, so the next one is its first run
 - [ ] What Windows closing the Store version for an update keeps: whether that close goes through Quit, so the open windows and their layout are saved, or ends the process. Can be tried by registering a package layout with a higher version over the running app with `Add-AppxPackage -Register <manifest> -ForceApplicationShutdown`, then checking the log for the quit and the next launch for the layout
 - [ ] `Msix::runsFromPackage()` and the Store version's General page, which only a packaged run reaches. Checked by hand in a registered package
 - [ ] Signing in to a remote through Git Credential Manager from the Microsoft Store version: the Git hand pass's sync, in the packaged app
