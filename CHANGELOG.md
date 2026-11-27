@@ -142,12 +142,13 @@ Each pane now has a header over its tab, as Obsidian's tab title bar does: back 
 - A file deleted since is skipped, and a renamed or moved one is followed. Diff tabs are part of the history too
 - A tab's history lasts while it's open and isn't kept between launches, as in Obsidian
 
-**Importing Word documents.** **File → Import…**, or **Import** in a file tree's right-click menu, brings Word documents (`.docx`) into the vault as plain text, one or several at a time. Each becomes a `.txt` file with the document's name, at the vault root or in the folder you right-clicked.
+**Importing files.** **File → Import…**, or **Import** in a file tree's right-click menu, brings files into the vault from anywhere on your computer, one or several at a time, at the vault root or in the folder you right-clicked. Text files, PDFs, and images are copied in unchanged. Word documents (`.docx`) are converted to plain text, each as a `.txt` file with the document's name.
 
-- Each paragraph becomes a line, with tabs and line breaks kept. Tracked changes come in as if accepted, fields as the text they show, text boxes after the paragraph they're anchored to, and tables row by row
+- One import can mix types, and a name that's taken gets a number
+- In a Word document, each paragraph becomes a line, with tabs and line breaks kept. Tracked changes come in as if accepted, fields as the text they show, text boxes after the paragraph they're anchored to, and tables row by row
 - Footnotes and endnotes are marked in the text as `[1]`, `[2]`, and so on, and listed after it
 - Formatting, list numbers and bullets, headers and footers, comments, and images are left behind
-- A document that can't be read imports nothing, and one message lists every file that didn't import and why
+- A file that can't be imported leaves nothing behind, and one message lists every file that didn't import and why
 - Zip files are read with [miniz](https://github.com/richgel999/miniz), now listed under **Settings → General → Licenses**
 
 See [Features.md](https://github.com/fairybow/Fernanda/blob/v0.30.0-beta.0/Fernanda/docs/Features.md#importing) for the details.

@@ -231,6 +231,7 @@ Run it once on each platform: on Windows signing in through Git Credential Manag
 
 ## Code
 
+- [x] `DocxTest.cpp` was never registered in `tests/CMakeLists.txt`, so neither CI nor CTest built or ran it. It's registered now
 - [x] `GitRepository`'s class comment had lines broken short. Rewrapped
 - [x] Cleanup from the Git review: the six operation-step kinds in `GitRepository` are one, the toggle action is `repository.togglePage`, unused `using` lines are gone, the Git constants sit under their comments, and paths aren't written to a `git` that failed to start
 - [x] Remove the unused `GitBranchPlus` and `GitPullRequestArrow` icons from `Lucide.qrc` and `resources/lucide/`

@@ -39,7 +39,7 @@ Everything is under `Fernanda/src/`, in the `Fernanda` namespace. Apart from `Ma
 | `core/` | Constants shared by the folders below, the keys of `workspace.json`, and a window's recent files |
 | `core/app/` | What `App` owns: the app's settings file and folders, the actions it owns and the action ids, launch arguments, the interface language, the bundled fonts, the list of known vaults with its order, and the check that the build's own macros are defined |
 | `core/dist/` | The version and publication details, the update check, and whether Fernanda runs from the Microsoft Store package |
-| `core/files/` | File keys, file types, and file IO, plain, JSON, and zip, and reading Word documents |
+| `core/files/` | File keys, the types Fernanda opens and imports, file IO (plain, JSON, and zip), and reading Word documents |
 | `core/git/` | The repository a vault is in, and reading what `git` prints: status, diffs, remote addresses, branch names as they're typed, and the folder Git refuses to trust |
 | `core/spell/` | Spellcheck: the dictionaries, the word rules, and the vault's word lists |
 | `core/vault/` | `Vault`, the buffer store, the vault tree model, the vault's configuration, and its `.fernanda` folder |
@@ -275,6 +275,8 @@ The file trees hand out absolute paths; the sidebar makes them keys.
 | `ImageFileModel` | The file's bytes and one decoded image, shared by every view |
 
 Which class a file gets is decided by its extension, from one table in `core/files/FileTypes.h`. The same table decides what the file trees and Go to File list, so they can't disagree with what the vault will open. `BufferStore::openModel` refuses anything not in the table before reading it; that refusal is the authority, and the hiding upstream is a courtesy.
+
+What can be imported comes from `core/files/ImportTypes.h`. Its table lists only the types converted on import (a Word document, read by `Docx.h`), and every type `FileTypes` lists is copied in unchanged, so the two can't disagree about what a copy may bring into a vault. Converted types stay out of `FileTypes`, which would otherwise list them in the trees as files Fernanda opens. `Vault::copyFile` refuses anything `FileTypes` doesn't list.
 
 PDF and image buffers share no base beyond `AbstractFileModel`. What they have in common is one byte array.
 

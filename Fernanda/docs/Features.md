@@ -102,17 +102,27 @@ Text files are read as UTF-8. A text file that isn't valid UTF-8 (an old Windows
 
 ### Importing
 
-File → Import…, or Import in a file tree's right-click menu, brings Word documents (`.docx`) into the vault as plain text. Several can be chosen at once.
+File → Import…, or Import in a file tree's right-click menu, brings files from anywhere on the computer into the vault: at the vault root from the File menu, or in the folder that was right-clicked. Several can be chosen at once, of any importable types. Each file's extension decides what happens to it:
 
-- Each becomes a `.txt` file with the document's name: at the vault root from the File menu, or in the folder that was right-clicked. A name that's taken gets a number (`Chapter 1 1.txt`)
+- A file Fernanda opens (see [Supported types](#supported-types)) is copied in unchanged, byte for byte, under its own name
+- A Word document (`.docx`) is converted to plain text, as a `.txt` file with the document's name
+- Any other file is refused, even one typed into the dialog's name box
+
+Whatever the type:
+
+- A name that's taken gets a number (`Chapter 1 1.txt`, `map 1.png`). A name beginning with a period loses it, so the file isn't hidden
+- A file already in the vault can be imported too, as a numbered copy
 - One imported file opens, replacing the current tab unless it's pinned. Several open nothing, so a batch doesn't fill the window with tabs. Either way the file tree selects the last one
+- A file that can't be imported leaves nothing in the vault. One message lists every file that didn't import and why
+
+#### Word documents
+
 - Each paragraph becomes a line. Tabs and line breaks are kept
 - Tracked changes come in as if accepted, and fields as the text they show (a page number, a date)
 - A text box's text follows the paragraph it's anchored to, and a table's text comes row by row
 - Footnotes and endnotes are marked in the text as `[1]`, `[2]`, and so on, numbered together in the order they appear, and listed after the text, one per line
 - Formatting is left behind: italics, bold, and headings, and list numbers and bullets. So are headers and footers, comments, images, and equations. Text hidden directly is left out; text hidden through a style comes in
 - A footnote with a custom mark in place of its number comes in with both: `[1]*`
-- A document that can't be read imports nothing. One message lists every file that didn't import and why
 - Old `.doc` files aren't supported. Save them as `.docx` in Word first
 
 ### Go to File
@@ -471,7 +481,7 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 - **No Markdown pairing.** Obsidian's "Auto pair Markdown syntax" pairs `*`, `_`, and the like, and applies them to selected text. Fernanda pairs brackets and quotes only
 - **A focus timer is built in.** Obsidian has none; community plugins add one, and some of them log each session to a note. Fernanda's settings are kept per vault, as a plugin's are, and it writes nothing into the vault
 - **Writing history is built in.** Obsidian has none; community plugins such as Better Word Count keep the words typed today and totals for the vault. Fernanda's is kept per vault, in the vault, and adds up the writing from every computer the vault is synced to
-- **Word documents can be imported,** as plain text. Obsidian has no importer of its own for them: its Importer plugin doesn't take them, and community plugins convert them to Markdown
+- **Import is built in,** for any file Fernanda opens, which is copied in, and for Word documents, converted to plain text. Obsidian brings files in by dragging them onto its file explorer, which Fernanda doesn't do yet. Its Importer plugin has you pick a format before the files, and doesn't take Word documents; community plugins convert them to Markdown. Fernanda picks what to do from each file's extension, so one import can mix types
 - **Git is built in.** Obsidian has none; its community plugin Obsidian Git adds commits, pulls, and pushes, which it can also run on a schedule. Fernanda's Git page does what GitHub Desktop does, and contacts the remote only when you click
 - **Updates aren't installed for you.** Fernanda says a newer version is out and links to it. Obsidian downloads updates itself and applies them when it restarts
 
@@ -482,6 +492,7 @@ Obsidian has nothing made for long writing projects, so for those features Scriv
 - **Writing history keeps words written as well as net words.** Scrivener's Writing History keeps net words alone, worked out from the change in the project's total, so a day spent rewriting can show little or nothing. Fernanda also keeps the words each edit added, which deleting doesn't take away
 - **Writing time is recorded.** Scrivener's Writing History records words and characters
 - **Each computer keeps its own record, and the records are added up.** A vault synced between computers, or committed with Git, shows the writing done on all of them, and no two computers write the same file. Scrivener keeps one history inside the project, and people syncing a project between devices report days that come out as zero or a handful of words
+- **Word documents come in as plain text.** Scrivener's File → Import → Files keeps a Word document's formatting, as rich text, and its Import and Split cuts one into several documents at a separator. Fernanda keeps the words, with footnotes and endnotes as numbered notes after the text, one document to one file
 
 ## Known limits
 

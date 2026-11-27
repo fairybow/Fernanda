@@ -162,9 +162,9 @@ What GitHub Desktop does that the Git page doesn't yet, in the order it's planne
 - **Two tools from the original Fernanda:** keeping a window on top of other programs, and keeping the computer awake while writing. Staying awake needs code for each platform
 - **Importing as Markdown.** A per-vault setting for how a type that can become Markdown (a Word document, today) is imported: as plain text, as now, or as Markdown with its italics, bold, headings, and lists kept. Fernanda doesn't render Markdown, so the marks would show as typed. Worth building if emphasis lost on import proves a real cost
 - **List numbers and bullets in imports.** A Word list item comes in as a plain line. Its number or bullet is worked out from the document's numbering definitions, with their levels, formats, and restarts, which is a reader of its own. Worth building if imported lists prove hard to follow
-- **More import types:** RTF, as Hearth imported, and OpenDocument text (`.odt`), which is a zip of XML like Word's. Old `.doc` files are a binary format with no simple reader. Worth building if drafts arrive in them
-- **Dropping outside files on a file tree,** copying them into the folder they're dropped on, as Obsidian does, with Word documents imported on the way. The tree takes only its own drags today. Worth building if the Import menu proves slow for bringing files in
-- **Importing in the background.** Conversion runs while the window waits, so a batch of long documents can hold it still for a moment. Worth building if that proves noticeable
+- **More import types:** RTF, as Hearth imported, and OpenDocument text (`.odt`), which is a zip of XML like Word's. Each would be a converted type, read by its own header, as Word documents are. Old `.doc` files are a binary format with no simple reader. Worth building if drafts arrive in them
+- **Dropping outside files on a file tree,** importing them into the folder they're dropped on as Import does: copied if Fernanda opens them, converted if they're Word documents. Obsidian copies files dropped onto its file explorer. The tree takes only its own drags today. Worth building if the Import menu proves slow for bringing files in
+- **Importing in the background.** Conversion and copying run while the window waits, so a batch of long documents or large files can hold it still for a moment. Worth building if that proves noticeable
 
 ## Not planned
 
