@@ -13,9 +13,11 @@
  * See the LICENSE file or visit <https://www.gnu.org/licenses/>
  */
 
+#include <QList>
 #include <QMetaType>
 #include <QObject>
 #include <QString>
+#include <QStringList>
 #include <QTest>
 
 #include <Coco/Path.h>
@@ -106,6 +108,39 @@ private slots:
         QCOMPARE(
             Fernanda::FileTypes::isSupported(Coco::Path(path)),
             expected != Type::Unsupported);
+    }
+
+    void typesListsEachTypeOnceInTableOrder()
+    {
+        QCOMPARE(
+            Fernanda::FileTypes::types(),
+            (QList<Type>{ Type::Text, Type::Pdf, Type::Image }));
+    }
+
+    void patternsOf()
+    {
+        QCOMPARE(
+            Fernanda::FileTypes::patternsOf(Type::Text),
+            (QStringList{ u"*.txt"_s,
+                          u"*.md"_s,
+                          u"*.markdown"_s,
+                          u"*.fountain"_s }));
+        QCOMPARE(
+            Fernanda::FileTypes::patternsOf(Type::Pdf),
+            QStringList{ u"*.pdf"_s });
+        QVERIFY(Fernanda::FileTypes::patternsOf(Type::Unsupported).isEmpty());
+    }
+
+    // Every pattern names its own type, so a file dialog's filter and typeOf
+    // agree on what each file is
+    void everyPatternIsItsOwnType()
+    {
+        for (auto type : Fernanda::FileTypes::types()) {
+            for (const auto& pattern : Fernanda::FileTypes::patternsOf(type)) {
+                auto name = u"a"_s + pattern.mid(1);
+                QCOMPARE(Fernanda::FileTypes::typeOf(Coco::Path(name)), type);
+            }
+        }
     }
 
     void isHiddenName_data()

@@ -170,6 +170,22 @@ private:
         cursor.insertText(text);
     }
 
+    // Writes a file outside any vault, for a copy to bring in
+    [[nodiscard]] static Coco::Path writeOutside_(
+        const QTemporaryDir& folder,
+        const QString& name,
+        const QByteArray& bytes)
+    {
+        auto path = Coco::Path(folder.filePath(name));
+        QFile file(path.toQString());
+
+        if (file.open(QIODevice::WriteOnly)) {
+            file.write(bytes);
+        }
+
+        return path;
+    }
+
     // The names of the history files in a vault folder
     [[nodiscard]] static QStringList
     historyFilesIn_(const QTemporaryDir& folder)
@@ -354,6 +370,125 @@ private slots:
         QCOMPARE(
             f.vault.createFile(f.rootKey(), u"..."_s, u"b"_s),
             f.key(u"Untitled.txt"_s));
+    }
+
+    // --- Copying -------------------------------------------------------------
+
+    // The bytes come in as they are: CRLF line endings, and bytes that aren't
+    // UTF-8, which only opening the file would ask about
+    void copyFileCopiesTheBytesUnderTheFilesName()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        QByteArray bytes("Caf\xE9\r\nNext");
+        auto source = writeOutside_(elsewhere, u"Notes.md"_s, bytes);
+
+        QCOMPARE(f.vault.copyFile(f.rootKey(), source), f.key(u"Notes.md"_s));
+        QCOMPARE(f.read(u"Notes.md"_s), bytes);
+        QVERIFY(source.isFile());
+    }
+
+    void copiedNamesAreUnique()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        auto source = writeOutside_(elsewhere, u"Notes.md"_s, "b");
+        f.write(u"Notes.md"_s, "a");
+
+        QCOMPARE(f.vault.copyFile(f.rootKey(), source), f.key(u"Notes 1.md"_s));
+        QCOMPARE(f.read(u"Notes.md"_s), QByteArray("a"));
+        QCOMPARE(f.read(u"Notes 1.md"_s), QByteArray("b"));
+    }
+
+    void copiedNamesAreNeverHidden()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        auto source = writeOutside_(elsewhere, u".notes.md"_s, "a");
+
+        QCOMPARE(f.vault.copyFile(f.rootKey(), source), f.key(u"notes.md"_s));
+    }
+
+    // The extension isn't respelled. Checked by the folder's own listing, so
+    // a filesystem that ignores case still shows it
+    void copyFileKeepsTheExtensionsLetterCase()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        auto source = writeOutside_(elsewhere, u"Notes.MD"_s, "a");
+        f.makeFolder(u"one"_s);
+
+        QVERIFY(!f.vault.copyFile(f.key(u"one"_s), source).isEmpty());
+        QCOMPARE(f.namesIn(u"one"_s), QStringList{ u"Notes.MD"_s });
+    }
+
+    void copyIntoAFolder()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        auto source = writeOutside_(elsewhere, u"map.png"_s, "png");
+        f.makeFolder(u"one"_s);
+
+        QCOMPARE(
+            f.vault.copyFile(f.key(u"one"_s), source),
+            f.key(u"one/map.png"_s));
+    }
+
+    // A file already in the vault is copied like any other
+    void copyFromInsideTheVaultMakesACopy()
+    {
+        Fixture_ f{};
+        f.write(u"Notes.md"_s, "a");
+
+        QCOMPARE(
+            f.vault.copyFile(f.rootKey(), f.absolute(u"Notes.md"_s)),
+            f.key(u"Notes 1.md"_s));
+        QCOMPARE(f.read(u"Notes 1.md"_s), QByteArray("a"));
+    }
+
+    // Nothing lands in the vault that the trees would hide
+    void copyOfAnUnsupportedTypeIsRefused()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        auto source = writeOutside_(elsewhere, u"draft.docx"_s, "a");
+
+        QVERIFY(f.vault.copyFile(f.rootKey(), source).isEmpty());
+        QVERIFY(!f.exists(u"draft.docx"_s));
+    }
+
+    void copyIntoAMissingFolderFailsAndMakesNothing()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        auto source = writeOutside_(elsewhere, u"Notes.md"_s, "a");
+
+        QVERIFY(f.vault.copyFile(f.key(u"gone"_s), source).isEmpty());
+        QVERIFY(!f.exists(u"gone"_s));
+    }
+
+    void copyOutsideTheVaultIsRefused()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        QTemporaryDir target{};
+        auto source = writeOutside_(elsewhere, u"Notes.md"_s, "a");
+
+        QVERIFY(f.vault.copyFile(PathKey::of(Coco::Path(target.path())), source)
+                    .isEmpty());
+        QVERIFY(QDir(target.path())
+                    .entryList(QDir::AllEntries | QDir::NoDotAndDotDot)
+                    .isEmpty());
+    }
+
+    void copyOfAMissingFileFails()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        auto source = Coco::Path(elsewhere.filePath(u"gone.md"_s));
+
+        QVERIFY(f.vault.copyFile(f.rootKey(), source).isEmpty());
+        QVERIFY(!f.exists(u"gone.md"_s));
     }
 
     void createFileAtMakesTheFoldersAboveIt()

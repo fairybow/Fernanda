@@ -162,8 +162,7 @@ public:
 
     // Create a text file named stem, with .txt, inside a directory, holding
     // text as UTF-8, and return its key (empty on failure). A taken name gets a
-    // number. Any periods stem begins with are dropped, so the file isn't
-    // hidden, and a stem left empty becomes "Untitled"
+    // number, and the stem is made visible first (visibleStem_)
     PathKey
     createFile(const PathKey& dir, const QString& stem, const QString& text)
     {
@@ -172,23 +171,51 @@ public:
             return {};
         }
 
-        auto base = stem;
-
-        while (base.startsWith(u'.')) {
-            base.remove(0, 1);
-        }
-
-        if (base.trimmed().isEmpty()) {
-            base = UNTITLED_NAME_;
-        }
-
-        auto absolute = uniqueChildPath_(dir.path(), base, u".txt"_s);
+        auto absolute =
+            uniqueChildPath_(dir.path(), visibleStem_(stem), u".txt"_s);
 
         // CreateDirs::No: a folder deleted before the create (between a
         // right-click and the click, or while an import ran) stays deleted,
         // and the create fails
         if (!Io::write(text.toUtf8(), absolute, Io::CreateDirs::No)) {
             WARN("Failed to create a new file at {}!", absolute);
+            return {};
+        }
+
+        treeModel_->applyAddition(absolute);
+
+        auto key = PathKey::of(absolute);
+        emit fileWritten(key);
+        return key;
+    }
+
+    // Copy a file from anywhere, byte for byte, into a directory under its own
+    // name, and return the copy's key (empty on failure). The extension is
+    // kept as it is, letter case included. A taken name gets a number, and the
+    // stem is made visible first (visibleStem_). Only a type Fernanda opens is
+    // copied, so nothing lands in the vault that the trees would hide. A file
+    // already in the vault is copied like any other
+    PathKey copyFile(const PathKey& dir, const Coco::Path& source)
+    {
+        if (!contains(dir)) {
+            WARN("Can't copy a file into {}: outside the vault!", dir.path());
+            return {};
+        }
+
+        if (!FileTypes::isSupported(source)) {
+            WARN("Can't copy {}: not a type Fernanda opens!", source);
+            return {};
+        }
+
+        auto absolute = uniqueChildPath_(
+            dir.path(),
+            visibleStem_(source.stemQString()),
+            source.extQString());
+
+        // QFile::copy makes no folders, so a folder deleted before the copy
+        // stays deleted, and the copy fails
+        if (!Coco::copy(source, absolute)) {
+            WARN("Failed to copy {} to {}!", source, absolute);
             return {};
         }
 
@@ -755,6 +782,23 @@ private:
         if (JsonIo::write(history_.toJson(), path, Io::CreateDirs::Yes)) {
             emit fileWritten(PathKey::of(path));
         }
+    }
+
+    // A stem as a new file takes it: any periods it begins with are dropped,
+    // so the file isn't hidden, and a stem left empty becomes UNTITLED_NAME_
+    [[nodiscard]] static QString visibleStem_(const QString& stem)
+    {
+        auto base = stem;
+
+        while (base.startsWith(u'.')) {
+            base.remove(0, 1);
+        }
+
+        if (base.trimmed().isEmpty()) {
+            return UNTITLED_NAME_;
+        }
+
+        return base;
     }
 
     // "Untitled.txt", then "Untitled 1.txt", ... — the first not already

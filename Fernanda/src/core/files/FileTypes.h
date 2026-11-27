@@ -16,7 +16,9 @@
 #pragma once
 
 #include <QLatin1StringView>
+#include <QList>
 #include <QString>
+#include <QStringList>
 
 #include <Coco/Path.h>
 
@@ -33,6 +35,8 @@
 // Unsupported and never reaches a TextFileModel, where one stray keystroke
 // would autosave mangled UTF-8 over the original
 namespace Fernanda::FileTypes {
+
+using namespace Qt::StringLiterals;
 
 enum class Type
 {
@@ -99,6 +103,35 @@ inline constexpr ExtensionEntry_ EXTENSIONS_[] = {
 [[nodiscard]] inline bool isSupported(const Coco::Path& path)
 {
     return typeOf(path) != Type::Unsupported;
+}
+
+// Every type Fernanda opens, once each, in the table's order
+[[nodiscard]] inline QList<Type> types()
+{
+    QList<Type> result{};
+
+    for (const auto& entry : Internal::EXTENSIONS_) {
+        if (!result.contains(entry.type)) {
+            result << entry.type;
+        }
+    }
+
+    return result;
+}
+
+// A type's extensions as a file dialog's patterns ("*.txt", "*.md"), in the
+// table's order. Empty for Unsupported
+[[nodiscard]] inline QStringList patternsOf(Type type)
+{
+    QStringList result{};
+
+    for (const auto& entry : Internal::EXTENSIONS_) {
+        if (entry.type == type) {
+            result << u"*"_s + QString::fromLatin1(entry.extension);
+        }
+    }
+
+    return result;
 }
 
 // Is an entry hidden from Fernanda's listings — the vault trees and the

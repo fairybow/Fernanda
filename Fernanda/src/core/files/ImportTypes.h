@@ -22,12 +22,17 @@
 
 #include <Coco/Path.h>
 
-// The one authority on which files Fernanda imports, and as what. Extension-
-// based, like FileTypes, and separate from it: FileTypes says what Fernanda
-// opens, which the trees and the Vault rely on, and an importable file isn't
-// one Fernanda opens. Importing reads a file from outside the vault and writes
-// its text into the vault as a new file; the reading for each type is its own
-// header's (Docx.h)
+#include "core/files/FileTypes.h"
+
+// The one authority on which files Fernanda imports, and as what. A file is
+// imported one of two ways: converted, its text read out and written into the
+// vault as a new text file (the reading for each type is its own header's, as
+// Docx.h), or copied in unchanged, for a file Fernanda already opens.
+//
+// Only converted types are listed here. Which files are copied is FileTypes'
+// to say, so the two lists can't drift apart. Converted types stay out of
+// FileTypes: it says what Fernanda opens, which the trees and the Vault rely
+// on, and a converted file isn't one Fernanda opens
 namespace Fernanda::ImportTypes {
 
 using namespace Qt::StringLiterals;
@@ -35,6 +40,7 @@ using namespace Qt::StringLiterals;
 enum class Type
 {
     Unsupported = 0,
+    Copy, // Any type Fernanda opens (FileTypes::isSupported)
     Docx,
 };
 
@@ -46,15 +52,16 @@ struct ExtensionEntry_
     const char* extension = nullptr;
 };
 
-// Matched case-insensitively, so .DOCX and .docx are the same type. A type
-// with several extensions takes one row for each
+// Converted types only. Matched case-insensitively, so .DOCX and .docx are
+// the same type. A type with several extensions takes one row for each
 inline constexpr ExtensionEntry_ EXTENSIONS_[] = {
     { Type::Docx, ".docx" },
 };
 
 } // namespace Internal
 
-// A path's type by its extension (std::filesystem semantics, via Coco::Path)
+// A path's type by its extension (std::filesystem semantics, via Coco::Path):
+// a converted type from the table, else Copy for a type Fernanda opens
 [[nodiscard]] inline Type typeOf(const Coco::Path& path)
 {
     auto ext = path.extQString();
@@ -67,10 +74,15 @@ inline constexpr ExtensionEntry_ EXTENSIONS_[] = {
         }
     }
 
+    if (FileTypes::isSupported(path)) {
+        return Type::Copy;
+    }
+
     return Type::Unsupported;
 }
 
-// Every type Fernanda imports, once each, in the table's order
+// Every converted type, once each, in the table's order. Copy isn't one: the
+// types it covers are FileTypes::types()
 [[nodiscard]] inline QList<Type> types()
 {
     QList<Type> result{};
@@ -84,8 +96,9 @@ inline constexpr ExtensionEntry_ EXTENSIONS_[] = {
     return result;
 }
 
-// A type's extensions as a file dialog's patterns ("*.docx"), in the table's
-// order. Empty for Unsupported
+// A converted type's extensions as a file dialog's patterns ("*.docx"), in
+// the table's order. Empty for Unsupported and Copy, whose patterns are
+// FileTypes::patternsOf each of its types
 [[nodiscard]] inline QStringList patternsOf(Type type)
 {
     QStringList result{};

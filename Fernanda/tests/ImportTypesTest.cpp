@@ -22,6 +22,7 @@
 
 #include <Coco/Path.h>
 
+#include "core/files/FileTypes.h"
 #include "core/files/ImportTypes.h"
 
 using namespace Qt::StringLiterals;
@@ -53,12 +54,18 @@ private slots:
         QTest::newRow("upper case") << u"a.DOCX"_s << Type::Docx;
         QTest::newRow("mixed case") << u"a.Docx"_s << Type::Docx;
 
-        // Anything not in the table is unsupported, files Fernanda opens
-        // included: bringing those in would be a copy, not an import
+        // A type Fernanda opens is copied, whatever its letter case
+        QTest::newRow("txt") << u"a.txt"_s << Type::Copy;
+        QTest::newRow("md") << u"a.md"_s << Type::Copy;
+        QTest::newRow("fountain") << u"a.fountain"_s << Type::Copy;
+        QTest::newRow("pdf") << u"a.pdf"_s << Type::Copy;
+        QTest::newRow("png") << u"a.png"_s << Type::Copy;
+        QTest::newRow("upper case copy") << u"a.MD"_s << Type::Copy;
+
+        // Anything neither converted nor opened is unsupported
         QTest::newRow("old Word") << u"a.doc"_s << Type::Unsupported;
         QTest::newRow("OpenDocument") << u"a.odt"_s << Type::Unsupported;
-        QTest::newRow("txt") << u"a.txt"_s << Type::Unsupported;
-        QTest::newRow("md") << u"a.md"_s << Type::Unsupported;
+        QTest::newRow("svg") << u"a.svg"_s << Type::Unsupported;
         QTest::newRow("backup of a document")
             << u"a.docx.bak"_s << Type::Unsupported;
         QTest::newRow("no extension") << u"docx"_s << Type::Unsupported;
@@ -77,7 +84,8 @@ private slots:
         QCOMPARE(Fernanda::ImportTypes::typeOf(Coco::Path(path)), expected);
     }
 
-    void typesListsEachImportableTypeOnce()
+    // Converted types only: Copy's types are FileTypes'
+    void typesListsEachConvertedTypeOnce()
     {
         QCOMPARE(Fernanda::ImportTypes::types(), QList<Type>{ Type::Docx });
     }
@@ -87,11 +95,12 @@ private slots:
         QCOMPARE(
             Fernanda::ImportTypes::patternsOf(Type::Docx),
             QStringList{ u"*.docx"_s });
+        QVERIFY(Fernanda::ImportTypes::patternsOf(Type::Copy).isEmpty());
         QVERIFY(Fernanda::ImportTypes::patternsOf(Type::Unsupported).isEmpty());
     }
 
-    // Every pattern names its own type, so the dialog's filter and typeOf
-    // agree on what each file is
+    // Every pattern the import dialog offers names the type it's offered as:
+    // each converted type's its own, and every FileTypes pattern Copy
     void everyPatternIsItsOwnType()
     {
         for (auto type : Fernanda::ImportTypes::types()) {
@@ -99,6 +108,15 @@ private slots:
                  Fernanda::ImportTypes::patternsOf(type)) {
                 auto name = u"a"_s + pattern.mid(1);
                 QCOMPARE(Fernanda::ImportTypes::typeOf(Coco::Path(name)), type);
+            }
+        }
+
+        for (auto type : Fernanda::FileTypes::types()) {
+            for (const auto& pattern : Fernanda::FileTypes::patternsOf(type)) {
+                auto name = u"a"_s + pattern.mid(1);
+                QCOMPARE(
+                    Fernanda::ImportTypes::typeOf(Coco::Path(name)),
+                    Type::Copy);
             }
         }
     }
