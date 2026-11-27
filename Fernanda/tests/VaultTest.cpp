@@ -323,10 +323,8 @@ private slots:
         Fixture_ f{};
 
         QCOMPARE(
-            f.vault.createFile(
-                f.rootKey(),
-                u"Chapter 1"_s,
-                u"Caf\u00E9\nNext"_s),
+            f.vault
+                .createFile(f.rootKey(), u"Chapter 1"_s, u"Caf\u00E9\nNext"_s),
             f.key(u"Chapter 1.txt"_s));
         QCOMPARE(f.read(u"Chapter 1.txt"_s), QByteArray("Caf\xC3\xA9\nNext"));
     }
