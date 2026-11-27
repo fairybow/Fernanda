@@ -31,7 +31,7 @@
 using namespace Qt::StringLiterals;
 
 // Word documents as plain text (core/files/Docx.h). The text tests give
-// textOf a document part's XML directly; the file tests build .docx files with
+// textOf the parts' XML directly; the file tests build .docx files with
 // Zip::write, so no binary test files are kept in the repo. Each file test
 // works in its own temporary folder.
 //
@@ -67,16 +67,64 @@ private:
 
     [[nodiscard]] static QString textOf_(const QByteArray& body)
     {
-        return Fernanda::Docx::textOf(document_(body)).value_or(u"(none)"_s);
+        return Fernanda::Docx::textOf(document_(body), {}, {})
+            .value_or(u"(none)"_s);
+    }
+
+    // A footnotes or endnotes part (root "footnotes" or "endnotes"), with the
+    // separator notes Word writes first
+    [[nodiscard]] static QByteArray
+    notesPart_(const QByteArray& root, const QByteArray& notes)
+    {
+        auto note = root.chopped(1);
+
+        return R"(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>)"
+               R"(<w:)" +
+               root +
+               R"( xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">)"
+               R"(<w:)" +
+               note +
+               R"( w:type="separator" w:id="-1"><w:p><w:r><w:separator/>)"
+               R"(</w:r></w:p></w:)" +
+               note + R"(>)" + notes + R"(</w:)" + root + R"(>)";
+    }
+
+    [[nodiscard]] static QString textWithNotes_(
+        const QByteArray& body,
+        const QByteArray& footnotes,
+        const QByteArray& endnotes)
+    {
+        return Fernanda::Docx::textOf(document_(body), footnotes, endnotes)
+            .value_or(u"(none)"_s);
+    }
+
+    // A part's relationships, each given as its type's last word and its
+    // target
+    [[nodiscard]] static QByteArray
+    relationshipsOf_(const QList<std::pair<QByteArray, QByteArray>>& targets)
+    {
+        QByteArray xml =
+            R"(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>)"
+            R"(<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">)";
+
+        for (auto i = 0; i < targets.size(); ++i) {
+            xml +=
+                R"(<Relationship Id="rId)" + QByteArray::number(i + 1) +
+                R"(" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/)" +
+                targets.at(i).first + R"(" Target=")" + targets.at(i).second +
+                R"("/>)";
+        }
+
+        return xml + R"(</Relationships>)";
     }
 
     // Package relationships naming target as the main document
     [[nodiscard]] static QByteArray relationships_(const QByteArray& target)
     {
-        return R"(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>)"
-               R"(<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">)"
-               R"(<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target=")" +
-               target + R"("/></Relationships>)";
+        return relationshipsOf_(
+            {
+                { "officeDocument", target }
+        });
     }
 
     struct Fixture_
@@ -265,7 +313,7 @@ private slots:
             "http://purl.oclc.org/ooxml/wordprocessingml/main");
 
         QCOMPARE(
-            Fernanda::Docx::textOf(xml).value_or(u"(none)"_s),
+            Fernanda::Docx::textOf(xml, {}, {}).value_or(u"(none)"_s),
             u"Strict"_s);
     }
 
@@ -279,7 +327,7 @@ private slots:
     // A document with no text is still a document: empty text, not nothing
     void anEmptyDocumentIsEmpty()
     {
-        auto text = Fernanda::Docx::textOf(document_(QByteArray{}));
+        auto text = Fernanda::Docx::textOf(document_(QByteArray{}), {}, {});
 
         QVERIFY(text.has_value());
         QVERIFY(text->isEmpty());
@@ -287,7 +335,7 @@ private slots:
 
     void malformedXmlIsNothing()
     {
-        QVERIFY(!Fernanda::Docx::textOf(document_("<w:p><w:r><w:t>Cut"))
+        QVERIFY(!Fernanda::Docx::textOf(document_("<w:p><w:r><w:t>Cut"), {}, {})
                      .has_value());
     }
 
@@ -296,8 +344,93 @@ private slots:
         QVERIFY(
             !Fernanda::Docx::textOf(
                  R"(<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">)"
-                 R"(<w:p><w:r><w:t>Header</w:t></w:r></w:p></w:hdr>)")
+                 R"(<w:p><w:r><w:t>Header</w:t></w:r></w:p></w:hdr>)",
+                 {},
+                 {})
                  .has_value());
+    }
+
+    // Footnotes and endnotes are numbered together, in the order the text
+    // references them, and listed after it. A note's own number mark is
+    // dropped, and its paragraphs and breaks become spaces
+    void notesAreMarkedAndListed()
+    {
+        auto body = QByteArray(
+            R"(<w:p><w:r><w:t>One</w:t></w:r>)"
+            R"(<w:r><w:footnoteReference w:id="2"/></w:r>)"
+            R"(<w:r><w:t xml:space="preserve"> two</w:t></w:r>)"
+            R"(<w:r><w:endnoteReference w:id="1"/></w:r></w:p>)"
+            R"(<w:p><w:r><w:t>Three</w:t></w:r>)"
+            R"(<w:r><w:footnoteReference w:id="3"/></w:r></w:p>)");
+
+        auto footnotes = notesPart_(
+            "footnotes",
+            R"(<w:footnote w:id="2"><w:p><w:r><w:footnoteRef/></w:r>)"
+            R"(<w:r><w:t xml:space="preserve"> First note.</w:t></w:r></w:p>)"
+            R"(</w:footnote>)"
+            R"(<w:footnote w:id="3"><w:p><w:r><w:footnoteRef/></w:r>)"
+            R"(<w:r><w:t>Second,</w:t></w:r></w:p>)"
+            R"(<w:p><w:r><w:t>in</w:t><w:br/><w:t>two parts.</w:t></w:r></w:p>)"
+            R"(</w:footnote>)");
+
+        auto endnotes = notesPart_(
+            "endnotes",
+            R"(<w:endnote w:id="1"><w:p><w:r><w:endnoteRef/></w:r>)"
+            R"(<w:r><w:t xml:space="preserve"> An endnote.</w:t></w:r></w:p>)"
+            R"(</w:endnote>)");
+
+        QCOMPARE(
+            textWithNotes_(body, footnotes, endnotes),
+            u"One[1] two[2]\nThree[3]\n\n"
+            u"[1] First note.\n[2] An endnote.\n[3] Second, in two parts."_s);
+    }
+
+    void aDeletedReferenceIsNotNumbered()
+    {
+        auto body = QByteArray(
+            R"(<w:p><w:del><w:r><w:footnoteReference w:id="1"/></w:r></w:del>)"
+            R"(<w:r><w:t>Kept</w:t></w:r>)"
+            R"(<w:r><w:footnoteReference w:id="2"/></w:r></w:p>)");
+
+        auto footnotes = notesPart_(
+            "footnotes",
+            R"(<w:footnote w:id="1"><w:p><w:r><w:t>Gone</w:t></w:r></w:p>)"
+            R"(</w:footnote>)"
+            R"(<w:footnote w:id="2"><w:p><w:r><w:t>Stays</w:t></w:r></w:p>)"
+            R"(</w:footnote>)");
+
+        QCOMPARE(
+            textWithNotes_(body, footnotes, {}),
+            u"Kept[1]\n\n[1] Stays"_s);
+    }
+
+    // A reference to a note the document doesn't have keeps its marker
+    void aMissingNoteKeepsItsMarker()
+    {
+        QCOMPARE(
+            textWithNotes_(
+                R"(<w:p><w:r><w:t>A</w:t></w:r>)"
+                R"(<w:r><w:footnoteReference w:id="7"/></w:r></w:p>)",
+                {},
+                {}),
+            u"A[1]\n\n[1]"_s);
+    }
+
+    // Damaged notes give no text, as a damaged document does
+    void malformedOrMisplacedNotesAreNothing()
+    {
+        auto body = QByteArray("<w:p><w:r><w:t>A</w:t></w:r></w:p>");
+
+        QVERIFY(!Fernanda::Docx::textOf(
+                     document_(body),
+                     notesPart_("footnotes", "<w:footnote>"),
+                     {})
+                     .has_value());
+        QVERIFY(!Fernanda::Docx::textOf(
+                     document_(body),
+                     notesPart_("endnotes", QByteArray{}),
+                     {})
+                     .has_value());
     }
 
     void aWordFileReads()
@@ -381,6 +514,58 @@ private slots:
                 { u"_rels/.rels"_s,  relationships_("../document.xml") },
                 { u"document.xml"_s,
                  document_("<w:p><w:r><w:t>Hello</w:t></w:r></w:p>")   }
+        });
+
+        QCOMPARE(
+            Fernanda::Docx::toPlainText(archive).failure,
+            Fernanda::Docx::Failure::NotAWordDocument);
+    }
+
+    // The main document's relationships name its notes, relative to its own
+    // folder or from the package's root
+    void aWordFileReadsItsNotes()
+    {
+        Fixture_ f{};
+        auto archive = f.zip(
+            {
+                { u"_rels/.rels"_s, relationships_("word/document.xml") },
+                { u"word/_rels/document.xml.rels"_s,
+                 relationshipsOf_(
+                      { { "footnotes", "footnotes.xml" },
+                        { "endnotes", "/word/endnotes.xml" } }) },
+                { u"word/document.xml"_s,
+                 document_(
+                      R"(<w:p><w:r><w:t>Text</w:t></w:r>)"
+                      R"(<w:r><w:footnoteReference w:id="1"/></w:r>)"
+                      R"(<w:r><w:endnoteReference w:id="1"/></w:r></w:p>)") },
+                { u"word/footnotes.xml"_s,
+                 notesPart_(
+                      "footnotes", R"(<w:footnote w:id="1"><w:p><w:r><w:t>Foot</w:t></w:r>)"
+                      R"(</w:p></w:footnote>)") },
+                { u"word/endnotes.xml"_s,
+                 notesPart_(
+                      "endnotes", R"(<w:endnote w:id="1"><w:p><w:r><w:t>End</w:t></w:r>)"
+                      R"(</w:p></w:endnote>)") }
+        });
+
+        auto conversion = Fernanda::Docx::toPlainText(archive);
+
+        QCOMPARE(conversion.failure, Fernanda::Docx::Failure::None);
+        QCOMPARE(conversion.text, u"Text[1][2]\n\n[1] Foot\n[2] End"_s);
+    }
+
+    // A notes part the relationships name has to be there, as the main
+    // document does
+    void aNamedNotesPartThatIsMissingIsNotAWordDocument()
+    {
+        Fixture_ f{};
+        auto archive = f.zip(
+            {
+                { u"_rels/.rels"_s,                  relationships_("word/document.xml") },
+                { u"word/_rels/document.xml.rels"_s,
+                 relationshipsOf_({ { "footnotes", "footnotes.xml" } })                  },
+                { u"word/document.xml"_s,
+                 document_("<w:p><w:r><w:t>Text</w:t></w:r></w:p>")                      }
         });
 
         QCOMPARE(

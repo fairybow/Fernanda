@@ -19,6 +19,8 @@
 
 #include <QByteArray>
 #include <QChar>
+#include <QHash>
+#include <QList>
 #include <QString>
 #include <QStringList>
 #include <QStringView>
@@ -36,7 +38,9 @@
 // document sees is kept: deleted tracked changes, field codes, hidden text, and
 // Word's fallback copies of content are skipped. A text box's paragraphs follow
 // the paragraph it's anchored to, and a table's paragraphs come row by row.
-// Headers, footers, and comments are left out.
+// Footnotes and endnotes are marked [1], [2], and so on, numbered together in
+// reading order, and listed after the text, each on one line. Headers, footers,
+// and comments are left out.
 //
 // Elements are matched by namespace as well as name, so documents in Word's
 // Strict Open XML format read the same as ordinary ones
@@ -47,8 +51,8 @@ using namespace Qt::StringLiterals;
 enum class Failure
 {
     None,
-    NotAWordDocument, // Not a zip, no main document, or a part too large
-    Damaged // The main document's XML is malformed or isn't a document
+    NotAWordDocument, // Not a zip, no main document, or a part unreadable
+    Damaged           // A part's XML is malformed or isn't what it should be
 };
 
 struct Conversion
@@ -71,6 +75,13 @@ constexpr QStringView MC_ =
     u"http://schemas.openxmlformats.org/markup-compatibility/2006";
 constexpr QStringView RELATIONSHIPS_ =
     u"http://schemas.openxmlformats.org/package/2006/relationships";
+
+// A footnote or endnote reference, in the order the text makes them
+struct NoteReference_
+{
+    bool isEndnote = false;
+    QString id{};
+};
 
 [[nodiscard]] inline bool isW_(const QXmlStreamReader& reader, QStringView name)
 {
@@ -120,13 +131,20 @@ isMc_(const QXmlStreamReader& reader, QStringView name)
     return hidden;
 }
 
-inline void readParagraph_(QXmlStreamReader& reader, QStringList& lines);
+inline void readParagraph_(
+    QXmlStreamReader& reader,
+    QStringList& lines,
+    QList<NoteReference_>& references);
 
 // The content of whatever element the reader is in, up to its end, added to
 // the paragraph's line. A paragraph met inside it (a text box's) goes to
-// after, to follow the paragraph being read
-inline void
-readInline_(QXmlStreamReader& reader, QString& line, QStringList& after)
+// after, to follow the paragraph being read. A note reference is added to
+// references, and its marker to the line
+inline void readInline_(
+    QXmlStreamReader& reader,
+    QString& line,
+    QStringList& after,
+    QList<NoteReference_>& references)
 {
     while (reader.readNextStartElement()) {
         if (isSkipped_(reader)) {
@@ -155,8 +173,20 @@ readInline_(QXmlStreamReader& reader, QString& line, QStringList& after)
             line += QChar(0x2011);
             reader.skipCurrentElement();
 
+        } else if (
+            isW_(reader, u"footnoteReference") ||
+            isW_(reader, u"endnoteReference")) {
+            references << NoteReference_{
+                reader.name() == u"endnoteReference",
+                reader.attributes()
+                    .value(reader.namespaceUri(), u"id")
+                    .toString()
+            };
+            line += u'[' + QString::number(references.size()) + u']';
+            reader.skipCurrentElement();
+
         } else if (isW_(reader, u"p")) {
-            readParagraph_(reader, after);
+            readParagraph_(reader, after, references);
 
         } else if (isMc_(reader, u"AlternateContent")) {
             // The first choice is read and the rest, the fallback included,
@@ -165,7 +195,7 @@ readInline_(QXmlStreamReader& reader, QString& line, QStringList& after)
 
             while (reader.readNextStartElement()) {
                 if (!read_one && isMc_(reader, u"Choice")) {
-                    readInline_(reader, line, after);
+                    readInline_(reader, line, after, references);
                     read_one = true;
                 } else {
                     reader.skipCurrentElement();
@@ -178,17 +208,20 @@ readInline_(QXmlStreamReader& reader, QString& line, QStringList& after)
             // inside them is read as if they weren't there. Anything else
             // with no text (an optional hyphen, a symbol-font character)
             // contributes nothing
-            readInline_(reader, line, after);
+            readInline_(reader, line, after, references);
         }
     }
 }
 
-inline void readParagraph_(QXmlStreamReader& reader, QStringList& lines)
+inline void readParagraph_(
+    QXmlStreamReader& reader,
+    QStringList& lines,
+    QList<NoteReference_>& references)
 {
     QString line{};
     QStringList after{};
 
-    readInline_(reader, line, after);
+    readInline_(reader, line, after, references);
 
     lines << line;
     lines << after;
@@ -196,21 +229,24 @@ inline void readParagraph_(QXmlStreamReader& reader, QStringList& lines)
 
 // Everything between paragraphs (the body, tables, rows, cells, content
 // controls) is read through to the paragraphs inside it
-inline void readBlocks_(QXmlStreamReader& reader, QStringList& lines)
+inline void readBlocks_(
+    QXmlStreamReader& reader,
+    QStringList& lines,
+    QList<NoteReference_>& references)
 {
     while (reader.readNextStartElement()) {
         if (isSkipped_(reader)) {
             reader.skipCurrentElement();
 
         } else if (isW_(reader, u"p")) {
-            readParagraph_(reader, lines);
+            readParagraph_(reader, lines, references);
 
         } else if (isMc_(reader, u"AlternateContent")) {
             auto read_one = false;
 
             while (reader.readNextStartElement()) {
                 if (!read_one && isMc_(reader, u"Choice")) {
-                    readBlocks_(reader, lines);
+                    readBlocks_(reader, lines, references);
                     read_one = true;
                 } else {
                     reader.skipCurrentElement();
@@ -218,7 +254,7 @@ inline void readBlocks_(QXmlStreamReader& reader, QStringList& lines)
             }
 
         } else {
-            readBlocks_(reader, lines);
+            readBlocks_(reader, lines, references);
         }
     }
 }
@@ -260,13 +296,17 @@ resolveTarget_(const QString& baseFolder, const QString& target)
     return parts.join(u'/');
 }
 
-// The main document's part name, from the package's relationships. The
-// relationship's type ends in "/officeDocument" in both the ordinary and the
-// Strict format
-[[nodiscard]] inline std::optional<QString>
-mainDocumentPart_(const QByteArray& packageRelationships)
+// The part a relationship of the given type names, from a part's
+// relationships. Types end in the same word ("/officeDocument", "/footnotes")
+// in both the ordinary and the Strict format. nullopt when there's no such
+// relationship, or its target is outside the package
+[[nodiscard]] inline std::optional<QString> relatedPart_(
+    const QByteArray& relationships,
+    const QString& baseFolder,
+    QStringView type)
 {
-    QXmlStreamReader reader(packageRelationships);
+    auto suffix = u'/' + type.toString();
+    QXmlStreamReader reader(relationships);
 
     while (!reader.atEnd()) {
         reader.readNext();
@@ -279,25 +319,131 @@ mainDocumentPart_(const QByteArray& packageRelationships)
 
         auto attributes = reader.attributes();
 
-        if (!attributes.value(u"Type").endsWith(u"/officeDocument") ||
+        if (!attributes.value(u"Type").endsWith(suffix) ||
             attributes.value(u"TargetMode") == u"External") {
             continue;
         }
 
         return resolveTarget_(
-            QString{},
+            baseFolder,
             attributes.value(u"Target").toString());
     }
 
     return std::nullopt;
 }
 
+// The folder a part is in ("word" for "word/document.xml"), empty at the root
+[[nodiscard]] inline QString folderOf_(const QString& part)
+{
+    auto slash = part.lastIndexOf(u'/');
+    return slash < 0 ? QString{} : part.left(slash);
+}
+
+// Where a part's own relationships are: "word/_rels/document.xml.rels" for
+// "word/document.xml"
+[[nodiscard]] inline QString relationshipsOf_(const QString& part)
+{
+    auto folder = folderOf_(part);
+    auto name = part.mid(part.lastIndexOf(u'/') + 1);
+    auto relationships = u"_rels/"_s + name + u".rels"_s;
+    return folder.isEmpty() ? relationships : folder + u'/' + relationships;
+}
+
+// Each note's text by its id, from a footnotes or endnotes part, empty for a
+// part the document doesn't have. A note's paragraphs join with spaces, and
+// its tabs and breaks become spaces, so each note reads as one line. nullopt
+// when the XML is malformed or its root isn't the part expected
+[[nodiscard]] inline std::optional<QHash<QString, QString>>
+notesOf_(const QByteArray& notesXml, QStringView root, QStringView note)
+{
+    QHash<QString, QString> notes{};
+
+    if (notesXml.isEmpty()) {
+        return notes;
+    }
+
+    QXmlStreamReader reader(notesXml);
+
+    if (!reader.readNextStartElement() || !isW_(reader, root)) {
+        return std::nullopt;
+    }
+
+    // A note holds no references of its own, so none are kept
+    QList<NoteReference_> no_references{};
+
+    while (reader.readNextStartElement()) {
+        if (!isW_(reader, note)) {
+            reader.skipCurrentElement();
+            continue;
+        }
+
+        auto id =
+            reader.attributes().value(reader.namespaceUri(), u"id").toString();
+
+        QStringList lines{};
+        readBlocks_(reader, lines, no_references);
+
+        QStringList paragraphs{};
+
+        for (auto line : lines) {
+            line.replace(u'\n', u' ').replace(u'\t', u' ');
+            line = line.trimmed();
+
+            if (!line.isEmpty()) {
+                paragraphs << line;
+            }
+        }
+
+        notes.insert(id, paragraphs.join(u' '));
+    }
+
+    if (reader.hasError()) {
+        WARN(
+            "Malformed Word notes XML at line {} (Error: {})!",
+            reader.lineNumber(),
+            reader.errorString());
+        return std::nullopt;
+    }
+
+    return notes;
+}
+
+// A part named by the main document's relationships: nullopt when it's named
+// but can't be read, empty bytes when it isn't named
+[[nodiscard]] inline std::optional<QByteArray> readRelatedPart_(
+    const Coco::Path& path,
+    const std::optional<QByteArray>& relationships,
+    const QString& baseFolder,
+    QStringView type)
+{
+    if (!relationships) {
+        return QByteArray{};
+    }
+
+    auto part = relatedPart_(*relationships, baseFolder, type);
+
+    if (!part) {
+        return QByteArray{};
+    }
+
+    auto bytes = Zip::readEntry(path, *part, MAX_PART_SIZE_);
+
+    if (!bytes) {
+        WARN("Failed to read {} from {}!", *part, path);
+    }
+
+    return bytes;
+}
+
 } // namespace Internal
 
-// The text of a main document part (document.xml). nullopt when the XML is
-// malformed or its root isn't a document
-[[nodiscard]] inline std::optional<QString>
-textOf(const QByteArray& documentXml)
+// The text of a main document part (document.xml), with its notes listed
+// after it. The notes parts are empty for a document without them. nullopt
+// when any part's XML is malformed or its root isn't the part expected
+[[nodiscard]] inline std::optional<QString> textOf(
+    const QByteArray& documentXml,
+    const QByteArray& footnotesXml,
+    const QByteArray& endnotesXml)
 {
     QXmlStreamReader reader(documentXml);
 
@@ -307,7 +453,8 @@ textOf(const QByteArray& documentXml)
     }
 
     QStringList lines{};
-    Internal::readBlocks_(reader, lines);
+    QList<Internal::NoteReference_> references{};
+    Internal::readBlocks_(reader, lines, references);
 
     if (reader.hasError()) {
         WARN(
@@ -317,7 +464,33 @@ textOf(const QByteArray& documentXml)
         return std::nullopt;
     }
 
-    return lines.join(u'\n');
+    auto footnotes =
+        Internal::notesOf_(footnotesXml, u"footnotes", u"footnote");
+    auto endnotes = Internal::notesOf_(endnotesXml, u"endnotes", u"endnote");
+
+    if (!footnotes || !endnotes) {
+        return std::nullopt;
+    }
+
+    auto text = lines.join(u'\n');
+
+    if (references.isEmpty()) {
+        return text;
+    }
+
+    // A reference to a note the document doesn't have keeps its marker, with
+    // nothing after it
+    QStringList notes{};
+
+    for (auto i = 0; i < references.size(); ++i) {
+        const auto& reference = references.at(i);
+        auto note =
+            (reference.isEndnote ? *endnotes : *footnotes).value(reference.id);
+        auto marker = u'[' + QString::number(i + 1) + u']';
+        notes << (note.isEmpty() ? marker : marker + u' ' + note);
+    }
+
+    return text + u"\n\n"_s + notes.join(u'\n');
 }
 
 // The Word file's text, or why it couldn't be read. A file that fails gives no
@@ -332,7 +505,8 @@ textOf(const QByteArray& documentXml)
         return { QString{}, Failure::NotAWordDocument };
     }
 
-    auto part = Internal::mainDocumentPart_(*relationships);
+    auto part =
+        Internal::relatedPart_(*relationships, QString{}, u"officeDocument");
 
     if (!part) {
         WARN("{} names no main document!", path);
@@ -346,7 +520,30 @@ textOf(const QByteArray& documentXml)
         return { QString{}, Failure::NotAWordDocument };
     }
 
-    auto text = textOf(*xml);
+    // The main document's own relationships are optional: a document
+    // without them has no notes
+    auto part_relationships = Zip::readEntry(
+        path,
+        Internal::relationshipsOf_(*part),
+        Internal::MAX_PART_SIZE_);
+    auto folder = Internal::folderOf_(*part);
+
+    auto footnotes = Internal::readRelatedPart_(
+        path,
+        part_relationships,
+        folder,
+        u"footnotes");
+    auto endnotes = Internal::readRelatedPart_(
+        path,
+        part_relationships,
+        folder,
+        u"endnotes");
+
+    if (!footnotes || !endnotes) {
+        return { QString{}, Failure::NotAWordDocument };
+    }
+
+    auto text = textOf(*xml, *footnotes, *endnotes);
 
     if (!text) {
         return { QString{}, Failure::Damaged };
