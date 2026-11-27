@@ -142,6 +142,8 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Menus and drop-down lists are drawn rounded in a see-through window, which needs a compositor on Linux. Without one, the corners may show dark. `Style` could draw them square there instead. Under X11 with no compositor, a window drawn this way showed as a solid black box over Manage Vaults at first launch, where the beta warning opens
 - [ ] A web address or a file path is spellchecked piece by piece, so "github" and "com" are marked
 - [ ] Unverified: text in decomposed Unicode form (a letter followed by a separate combining accent) is probably marked as misspelled against a dictionary that stores the single-character form. If so, normalize a word before it is checked
+- [ ] A Word document's parts are found by their exact letter case (`Zip::readEntry` matches case), though the Open Packaging Conventions compare part names without it. A document whose relationships name `word/document.xml` but whose zip holds `word/Document.xml` fails as not a Word document. Word itself always matches the case; some other programs may not. Fix if a real file turns up
+- [ ] The Word reader (`Docx.h`) recurses once per level of XML nesting, and `QXmlStreamReader` sets no depth limit, so a document crafted with tens of thousands of nested elements could overflow the stack. Real documents nest a few dozen levels. A depth limit in `readInline_` and `readBlocks_` would refuse one as damaged
 - [x] Settings sliders whose ranges differed in digits (1 to 60 and 1 to 120) were different lengths, since each readout was as wide as its own largest number. Every readout now makes room for three digits (`DISPLAY_SLIDER_READOUT_DIGITS`)
 
 ## Before release

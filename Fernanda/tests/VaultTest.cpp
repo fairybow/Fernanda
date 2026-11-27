@@ -316,14 +316,14 @@ private slots:
         QVERIFY(!f.exists(u"gone"_s));
     }
 
-    // An import is named for its document, with .txt, and holds the text as
-    // UTF-8
-    void importTextFileWritesTheTextUnderTheDocumentsName()
+    // A file made with a name and text takes the name, with .txt, and holds
+    // the text as UTF-8
+    void createFileWithTextWritesItUnderTheStem()
     {
         Fixture_ f{};
 
         QCOMPARE(
-            f.vault.importTextFile(
+            f.vault.createFile(
                 f.rootKey(),
                 u"Chapter 1"_s,
                 u"Caf\u00E9\nNext"_s),
@@ -331,40 +331,31 @@ private slots:
         QCOMPARE(f.read(u"Chapter 1.txt"_s), QByteArray("Caf\xC3\xA9\nNext"));
     }
 
-    void importedNamesAreUnique()
+    void createFileWithTextNamesAreUnique()
     {
         Fixture_ f{};
 
         QCOMPARE(
-            f.vault.importTextFile(f.rootKey(), u"Chapter 1"_s, u"a"_s),
+            f.vault.createFile(f.rootKey(), u"Chapter 1"_s, u"a"_s),
             f.key(u"Chapter 1.txt"_s));
         QCOMPARE(
-            f.vault.importTextFile(f.rootKey(), u"Chapter 1"_s, u"b"_s),
+            f.vault.createFile(f.rootKey(), u"Chapter 1"_s, u"b"_s),
             f.key(u"Chapter 1 1.txt"_s));
         QCOMPARE(f.read(u"Chapter 1.txt"_s), QByteArray("a"));
     }
 
-    // A name beginning with a period would hide the file, so the periods go,
-    // and a name of nothing but periods becomes "Untitled"
-    void importedNamesAreNeverHidden()
+    // A stem beginning with a period would hide the file, so the periods go,
+    // and a stem of nothing but periods becomes "Untitled"
+    void createFileWithTextNamesAreNeverHidden()
     {
         Fixture_ f{};
 
         QCOMPARE(
-            f.vault.importTextFile(f.rootKey(), u".notes"_s, u"a"_s),
+            f.vault.createFile(f.rootKey(), u".notes"_s, u"a"_s),
             f.key(u"notes.txt"_s));
         QCOMPARE(
-            f.vault.importTextFile(f.rootKey(), u"..."_s, u"b"_s),
+            f.vault.createFile(f.rootKey(), u"..."_s, u"b"_s),
             f.key(u"Untitled.txt"_s));
-    }
-
-    void importIntoAMissingFolderFailsAndMakesNothing()
-    {
-        Fixture_ f{};
-
-        QVERIFY(
-            f.vault.importTextFile(f.key(u"gone"_s), u"a"_s, u"a"_s).isEmpty());
-        QVERIFY(!f.exists(u"gone"_s));
     }
 
     void createFileAtMakesTheFoldersAboveIt()

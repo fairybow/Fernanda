@@ -157,16 +157,37 @@ public:
     // off-disk buffers, so the file exists on disk before any buffer opens it
     PathKey createFile(const PathKey& dir)
     {
+        return createFile(dir, u"Untitled"_s, QString{});
+    }
+
+    // Create a text file named stem, with .txt, inside a directory, holding
+    // text as UTF-8, and return its key (empty on failure). A taken name gets a
+    // number. Any periods stem begins with are dropped, so the file isn't
+    // hidden, and a stem left empty becomes "Untitled"
+    PathKey
+    createFile(const PathKey& dir, const QString& stem, const QString& text)
+    {
         if (!contains(dir)) {
             WARN("Can't create a file in {}: outside the vault!", dir.path());
             return {};
         }
 
-        auto absolute = uniqueChildPath_(dir.path(), u"Untitled"_s, u".txt"_s);
+        auto base = stem;
 
-        // CreateDirs::No: a folder deleted between the right-click and the
-        // click stays deleted, and the create fails
-        if (!Io::write(QByteArray{}, absolute, Io::CreateDirs::No)) {
+        while (base.startsWith(u'.')) {
+            base.remove(0, 1);
+        }
+
+        if (base.trimmed().isEmpty()) {
+            base = u"Untitled"_s;
+        }
+
+        auto absolute = uniqueChildPath_(dir.path(), base, u".txt"_s);
+
+        // CreateDirs::No: a folder deleted before the create (between a
+        // right-click and the click, or while an import ran) stays deleted,
+        // and the create fails
+        if (!Io::write(text.toUtf8(), absolute, Io::CreateDirs::No)) {
             WARN("Failed to create a new file at {}!", absolute);
             return {};
         }
@@ -194,45 +215,6 @@ public:
 
         treeModel_->applyAddition(absolute);
         return PathKey::of(absolute);
-    }
-
-    // Create a text file inside a directory, holding text, and return its key
-    // (empty on failure): an imported document's text, under the name it had
-    // (stem, with .txt). A taken name gets a number, as createFile's do. Any
-    // periods the name begins with are dropped, so the file isn't hidden; a
-    // name left empty becomes "Untitled"
-    PathKey
-    importTextFile(const PathKey& dir, const QString& stem, const QString& text)
-    {
-        if (!contains(dir)) {
-            WARN("Can't import a file into {}: outside the vault!", dir.path());
-            return {};
-        }
-
-        auto base = stem;
-
-        while (base.startsWith(u'.')) {
-            base.remove(0, 1);
-        }
-
-        if (base.trimmed().isEmpty()) {
-            base = u"Untitled"_s;
-        }
-
-        auto absolute = uniqueChildPath_(dir.path(), base, u".txt"_s);
-
-        // CreateDirs::No: a folder deleted while the import ran stays deleted,
-        // and the import fails
-        if (!Io::write(text.toUtf8(), absolute, Io::CreateDirs::No)) {
-            WARN("Failed to write an imported file at {}!", absolute);
-            return {};
-        }
-
-        treeModel_->applyAddition(absolute);
-
-        auto key = PathKey::of(absolute);
-        emit fileWritten(key);
-        return key;
     }
 
     // Create an empty file at a full key, making any missing folders above it:

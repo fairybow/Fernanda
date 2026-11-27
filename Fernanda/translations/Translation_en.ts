@@ -172,9 +172,9 @@
     <name>FileImport</name>
     <message numerus="yes">
         <source>%Ln file(s) couldn&apos;t be imported:</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln file couldn&apos;t be imported:</numerusform>
+            <numerusform>%Ln files couldn&apos;t be imported:</numerusform>
         </translation>
     </message>
 </context>

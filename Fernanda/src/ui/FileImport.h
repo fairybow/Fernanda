@@ -78,8 +78,7 @@ importFiles(QWidget* parent, Vault* vault, const PathKey& dir)
             continue;
         }
 
-        auto key =
-            vault->importTextFile(dir, path.stemQString(), conversion.text);
+        auto key = vault->createFile(dir, path.stemQString(), conversion.text);
 
         if (key.isEmpty()) {
             failures << QCoreApplication::translate(
