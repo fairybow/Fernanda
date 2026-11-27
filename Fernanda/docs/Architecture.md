@@ -39,14 +39,14 @@ Everything is under `Fernanda/src/`, in the `Fernanda` namespace. Apart from `Ma
 | `core/` | Constants shared by the folders below, the keys of `workspace.json`, and a window's recent files |
 | `core/app/` | What `App` owns: the app's settings file and folders, the actions it owns and the action ids, launch arguments, the interface language, the bundled fonts, the list of known vaults with its order, and the check that the build's own macros are defined |
 | `core/dist/` | The version and publication details, the update check, and whether Fernanda runs from the Microsoft Store package |
-| `core/files/` | File keys, file types, and file IO, plain and JSON |
+| `core/files/` | File keys, file types, and file IO, plain, JSON, and zip, and reading Word documents |
 | `core/git/` | The repository a vault is in, and reading what `git` prints: status, diffs, remote addresses, branch names as they're typed, and the folder Git refuses to trust |
 | `core/spell/` | Spellcheck: the dictionaries, the word rules, and the vault's word lists |
 | `core/vault/` | `Vault`, the buffer store, the vault tree model, the vault's configuration, and its `.fernanda` folder |
 | `core/writing/` | The focus timer and its rules, the writing history, and the word and character counts |
 | `models/` | One buffer class per file type, and the prime document |
 | `views/` | One view class per file type, and the parts only views use: the text editor with its selection handles and typing helpers, the find bar and the search functions behind it, and the zoom control with its state |
-| `ui/` | The windows and what they open directly: workspace persistence, Go to File, the vault picker, the status bar items. Also the application's style |
+| `ui/` | The windows and what they open directly: workspace persistence, Go to File, the vault picker, importing, the status bar items. Also the application's style |
 | `ui/tabs/` | The split tree, its leaves, the tab bar and its buttons, the new-tab page |
 | `ui/sidebar/` | The sidebar and its page buttons, the file trees, the common drawer, the vault switcher, the settings and focus timer buttons |
 | `ui/settings/` | The settings dialog, its pages, and their rows |
@@ -65,7 +65,7 @@ Includes run one way, from the top of this list down:
 
 `Vault`, `BufferStore`, and everything they own create no window or widget and refer to none, so the data layer can't come to depend on one. They are not limited to QtCore: a text buffer is a `QTextDocument` with a plain-text layout (QtGui and QtWidgets), an image buffer holds a `QPixmap`, and a PDF buffer a `QPdfDocument`. `VaultTreeModel` and the configuration types are QtCore only.
 
-[Coco](https://github.com/fairybow/Coco), a submodule, supplies paths (`Coco::Path`), logging, debounce timers, the countdown the focus timer runs on, and the single-instance guard. [Hunspell](https://github.com/hunspell/hunspell), also a submodule and pinned to a release tag, checks spelling. It has no CMake build of its own, so Fernanda's CMake builds its sources as a static library, with its warnings off.
+[Coco](https://github.com/fairybow/Coco), a submodule, supplies paths (`Coco::Path`), logging, debounce timers, the countdown the focus timer runs on, and the single-instance guard. [Hunspell](https://github.com/hunspell/hunspell), also a submodule and pinned to a release tag, checks spelling. It has no CMake build of its own, so Fernanda's CMake builds its sources as a static library, with its warnings off. [miniz](https://github.com/richgel999/miniz), a submodule pinned to a release tag too, reads and writes zip files, for importing Word documents. It's built from its sources the same way, though it has a CMake build: that build writes Release into the build type when none is set. It's built without its own file functions, so archives are read and written only through Qt (`QFile`, and `QSaveFile` for a write that's whole or absent), and without zlib's names, which it would otherwise put in the global namespace of every file that includes it.
 
 ## Ownership
 

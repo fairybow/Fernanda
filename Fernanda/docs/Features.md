@@ -44,7 +44,7 @@ The vault picker. It opens on first launch, whenever there is no vault to reopen
 - Renaming a vault renames its folder. A vault that is open, and the Common Vault, stay open under the new name
 - A vault that is open can't be removed from the list until its window is closed. The Common Vault is removed by unsetting it, then removing it
 - A new name is checked as you type, by the same rules as a new vault's
-- **Licenses**, under the version, lists Fernanda and everything it is built on or bundles (Qt, Hunspell, the dictionary, the fonts, and the icons), each with its license text
+- **Licenses**, under the version, lists Fernanda and everything it is built on or bundles (Qt, Hunspell, miniz, the dictionary, the fonts, and the icons), each with its license text
 
 ### Vault switcher
 
@@ -91,14 +91,29 @@ Text files are read as UTF-8. A text file that isn't valid UTF-8 (an old Windows
 - Expanded folders are remembered per vault
 - Double-click a file to open it
 - Right-click a file: Open in new tab, Open to the right, Open in new window, Rename, Delete
-- Right-click a folder: New file, New folder, Rename, Delete
-- Right-click empty space: New file, New folder (at the vault root)
+- Right-click a folder: New file, New folder, Import, Rename, Delete
+- Right-click empty space: New file, New folder, Import (at the vault root)
 - New file and New folder open the folder they're made in, and select the new entry. A new file opens in the editor too
 - Click anywhere off the rows to clear the selection
 - Drag a file or folder onto a folder to move it there, or onto empty space to move it to the vault root. Folders expand when hovered and the tree scrolls while dragging
 - Drag a file onto an editor pane to open it there
 - Delete always asks first, and moves the entry to the system trash. If the trash refuses it (a network share, for instance), nothing is deleted. On macOS, Finder offers no Put Back for anything an app moves to the trash: drag it back instead
 - Names are checked as you type for characters and names the operating system forbids
+
+### Importing
+
+File → Import…, or Import in a file tree's right-click menu, brings Word documents (`.docx`) into the vault as plain text. Several can be chosen at once.
+
+- Each becomes a `.txt` file with the document's name: at the vault root from the File menu, or in the folder that was right-clicked. A name that's taken gets a number (`Chapter 1 1.txt`)
+- One imported file opens, replacing the current tab unless it's pinned. Several open nothing, so a batch doesn't fill the window with tabs. Either way the file tree selects the last one
+- Each paragraph becomes a line. Tabs and line breaks are kept
+- Tracked changes come in as if accepted, and fields as the text they show (a page number, a date)
+- A text box's text follows the paragraph it's anchored to, and a table's text comes row by row
+- Footnotes and endnotes are marked in the text as `[1]`, `[2]`, and so on, numbered together in the order they appear, and listed after the text, one per line
+- Formatting is left behind: italics, bold, and headings, and list numbers and bullets. So are headers and footers, comments, images, and equations. Text hidden directly is left out; text hidden through a style comes in
+- A footnote with a custom mark in place of its number comes in with both: `[1]*`
+- A document that can't be read imports nothing. One message lists every file that didn't import and why
+- Old `.doc` files aren't supported. Save them as `.docx` in Word first
 
 ### Go to File
 
@@ -456,6 +471,7 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 - **No Markdown pairing.** Obsidian's "Auto pair Markdown syntax" pairs `*`, `_`, and the like, and applies them to selected text. Fernanda pairs brackets and quotes only
 - **A focus timer is built in.** Obsidian has none; community plugins add one, and some of them log each session to a note. Fernanda's settings are kept per vault, as a plugin's are, and it writes nothing into the vault
 - **Writing history is built in.** Obsidian has none; community plugins such as Better Word Count keep the words typed today and totals for the vault. Fernanda's is kept per vault, in the vault, and adds up the writing from every computer the vault is synced to
+- **Word documents can be imported,** as plain text. Obsidian has no importer of its own for them: its Importer plugin doesn't take them, and community plugins convert them to Markdown
 - **Git is built in.** Obsidian has none; its community plugin Obsidian Git adds commits, pulls, and pushes, which it can also run on a schedule. Fernanda's Git page does what GitHub Desktop does, and contacts the remote only when you click
 - **Updates aren't installed for you.** Fernanda says a newer version is out and links to it. Obsidian downloads updates itself and applies them when it restarts
 
