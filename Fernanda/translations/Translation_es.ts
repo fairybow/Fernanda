@@ -1796,6 +1796,18 @@ La ventana seguirá abierta para que no pierdas tus cambios. Cuando se resuelva 
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Text files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PDFs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Images</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Importable files</source>
         <translation type="unfinished"></translation>
     </message>

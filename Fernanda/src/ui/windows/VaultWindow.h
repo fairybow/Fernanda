@@ -1030,9 +1030,10 @@ private:
     // and no-ops on failure
     void onNewFolderRequested_() { vault_->createFolder(vault_->rootKey()); }
 
-    // Import: chosen files become text files at the vault root (importFiles).
-    // One imported file opens, as New File's does; several open nothing, so a
-    // batch doesn't fill the window with tabs. The tree shows the last
+    // Import: chosen files come into the vault root (importFiles), converted
+    // or copied by type. One imported file opens, as New File's does; several
+    // open nothing, so a batch doesn't fill the window with tabs. The tree
+    // shows the last
     void onImportRequested_()
     {
         auto keys = importFiles(this, vault_, vault_->rootKey());

@@ -15,8 +15,6 @@
 
 #pragma once
 
-#include <optional>
-
 #include <QCoreApplication>
 #include <QList>
 #include <QMessageBox>
@@ -27,6 +25,7 @@
 #include <Coco/Path.h>
 
 #include "core/files/Docx.h"
+#include "core/files/FileTypes.h"
 #include "core/files/ImportTypes.h"
 #include "core/files/PathKey.h"
 #include "core/vault/Vault.h"
@@ -37,20 +36,21 @@ using namespace Qt::StringLiterals;
 
 namespace Internal {
 
-// A file read for import: its text, or nullopt and the message saying why it
-// couldn't be read
-struct ImportedText_
+// One file's import: the key of the file it made, or an empty key and the
+// message saying why it made none
+struct Imported_
 {
-    std::optional<QString> text{};
+    PathKey key{};
     QString failure{};
 };
 
-// The name a type goes by in the dialog's filter
-[[nodiscard]] inline QString importTypeName_(ImportTypes::Type type)
+// The name a converted type goes by in the dialog's filter
+[[nodiscard]] inline QString convertedTypeName_(ImportTypes::Type type)
 {
     switch (type) {
     case ImportTypes::Type::Docx:
         return QCoreApplication::translate("FileImport", "Word documents");
+    case ImportTypes::Type::Copy:
     case ImportTypes::Type::Unsupported:
         break;
     }
@@ -58,8 +58,33 @@ struct ImportedText_
     return {};
 }
 
-// Every importable file first, then each type on its own: "Importable files
-// (*.docx);;Word documents (*.docx)"
+// The name a type Fernanda opens, and so copies, goes by in the filter
+[[nodiscard]] inline QString copiedTypeName_(FileTypes::Type type)
+{
+    switch (type) {
+    case FileTypes::Type::Text:
+        return QCoreApplication::translate("FileImport", "Text files");
+    case FileTypes::Type::Pdf:
+        return QCoreApplication::translate("FileImport", "PDFs");
+    case FileTypes::Type::Image:
+        return QCoreApplication::translate("FileImport", "Images");
+    case FileTypes::Type::Unsupported:
+        break;
+    }
+
+    return {};
+}
+
+// "Name (*.a *.b)"
+[[nodiscard]] inline QString
+filterEntry_(const QString& name, const QStringList& patterns)
+{
+    return name + u" ("_s + patterns.join(u' ') + u')';
+}
+
+// Every importable file first, then each converted type, then each type
+// copied: "Importable files (*.docx *.txt ...);;Word documents (*.docx);;Text
+// files (*.txt *.md ...);;PDFs (*.pdf);;Images (*.png ...)"
 [[nodiscard]] inline QString importFilter_()
 {
     QStringList every_pattern{};
@@ -68,53 +93,92 @@ struct ImportedText_
     for (auto type : ImportTypes::types()) {
         auto patterns = ImportTypes::patternsOf(type);
         every_pattern << patterns;
-        filters << importTypeName_(type) + u" ("_s + patterns.join(u' ') + u')';
+        filters << filterEntry_(convertedTypeName_(type), patterns);
     }
 
-    filters.prepend(
-        QCoreApplication::translate("FileImport", "Importable files") +
-        u" ("_s + every_pattern.join(u' ') + u')');
+    for (auto type : FileTypes::types()) {
+        auto patterns = FileTypes::patternsOf(type);
+        every_pattern << patterns;
+        filters << filterEntry_(copiedTypeName_(type), patterns);
+    }
+
+    filters.prepend(filterEntry_(
+        QCoreApplication::translate("FileImport", "Importable files"),
+        every_pattern));
 
     return filters.join(u";;"_s);
 }
 
-[[nodiscard]] inline ImportedText_ readDocx_(const Coco::Path& path)
+[[nodiscard]] inline QString notSaved_(const Coco::Path& path)
+{
+    return QCoreApplication::translate(
+               "FileImport",
+               "\"%1\" couldn't be saved in the vault.")
+        .arg(path.nameQString());
+}
+
+// A Word document, read as plain text and written into dir as a .txt file
+[[nodiscard]] inline Imported_
+importDocx_(Vault* vault, const PathKey& dir, const Coco::Path& path)
 {
     auto conversion = Docx::toPlainText(path);
     auto name = path.nameQString();
 
     switch (conversion.failure) {
     case Docx::Failure::None:
-        return { conversion.text, {} };
+        break;
 
     case Docx::Failure::NotAWordDocument:
-        return { std::nullopt,
+        return { {},
                  QCoreApplication::translate(
                      "FileImport",
                      "\"%1\" isn't a Word document Fernanda can read.")
                      .arg(name) };
 
     case Docx::Failure::Damaged:
-        return { std::nullopt,
+        return { {},
                  QCoreApplication::translate("FileImport", "\"%1\" is damaged.")
                      .arg(name) };
     }
 
-    return { std::nullopt, {} };
+    auto key = vault->createFile(dir, path.stemQString(), conversion.text);
+
+    if (key.isEmpty()) {
+        return { {}, notSaved_(path) };
+    }
+
+    return { key, {} };
 }
 
-// The file read as the type its extension names. The switch has no default,
-// so a type added to ImportTypes without a case here is a compiler warning
-[[nodiscard]] inline ImportedText_ readForImport_(const Coco::Path& path)
+// A file Fernanda opens, copied into dir unchanged
+[[nodiscard]] inline Imported_
+importCopy_(Vault* vault, const PathKey& dir, const Coco::Path& path)
+{
+    auto key = vault->copyFile(dir, path);
+
+    if (key.isEmpty()) {
+        return { {}, notSaved_(path) };
+    }
+
+    return { key, {} };
+}
+
+// One file imported as the type its extension names. The switch has no
+// default, so a type added to ImportTypes without a case here is a compiler
+// warning
+[[nodiscard]] inline Imported_
+importOne_(Vault* vault, const PathKey& dir, const Coco::Path& path)
 {
     switch (ImportTypes::typeOf(path)) {
+    case ImportTypes::Type::Copy:
+        return importCopy_(vault, dir, path);
     case ImportTypes::Type::Docx:
-        return readDocx_(path);
+        return importDocx_(vault, dir, path);
     case ImportTypes::Type::Unsupported:
         break;
     }
 
-    return { std::nullopt,
+    return { {},
              QCoreApplication::translate(
                  "FileImport",
                  "Fernanda can't import \"%1\".")
@@ -123,13 +187,14 @@ struct ImportedText_
 
 } // namespace Internal
 
-// Asks for files to import, over parent, and imports each into dir as a text
-// file named for it. Each file is read as the type its extension names
-// (ImportTypes); one of no importable type, chosen by typing its name, isn't
-// read at all. A file that fails leaves nothing in the vault, and every file
-// that fails is listed in one warning, each with its reason. Returns the keys
-// of the files made, in the order chosen: empty when the dialog is cancelled
-// or nothing imports. What to open or show afterward is the caller's
+// Asks for files to import, over parent, and imports each into dir as the
+// type its extension names (ImportTypes): a converted type's text becomes a
+// .txt file named for it, and a type Fernanda opens is copied in unchanged.
+// One of neither type, chosen by typing its name, isn't touched. A file that
+// fails leaves nothing in the vault, and every file that fails is listed in
+// one warning, each with its reason. Returns the keys of the files made, in
+// the order chosen: empty when the dialog is cancelled or nothing imports.
+// What to open or show afterward is the caller's
 inline QList<PathKey>
 importFiles(QWidget* parent, Vault* vault, const PathKey& dir)
 {
@@ -143,24 +208,14 @@ importFiles(QWidget* parent, Vault* vault, const PathKey& dir)
     QStringList failures{};
 
     for (const auto& path : paths) {
-        auto read = Internal::readForImport_(path);
+        auto result = Internal::importOne_(vault, dir, path);
 
-        if (!read.text) {
-            failures << read.failure;
+        if (result.key.isEmpty()) {
+            failures << result.failure;
             continue;
         }
 
-        auto key = vault->createFile(dir, path.stemQString(), *read.text);
-
-        if (key.isEmpty()) {
-            failures << QCoreApplication::translate(
-                            "FileImport",
-                            "\"%1\" couldn't be saved in the vault.")
-                            .arg(path.nameQString());
-            continue;
-        }
-
-        imported << key;
+        imported << result.key;
     }
 
     if (!failures.isEmpty()) {
