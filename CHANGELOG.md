@@ -132,7 +132,7 @@ git push origin v0.0.0-beta.0
 
 - Backups [placeholder]
 - Rescue copies [placeholder]
-- DOCX imports [placeholder]
+- Menu bar setting and persistence [placeholder]
 
 **Back and forward in a tab.** Each tab now keeps its own history, as in Obsidian. **Navigate back** (Ctrl+Alt+Left, or your mouse's back button) takes a tab back to what it showed before, at the same cursor, scroll, and zoom, and **Navigate forward** (Ctrl+Alt+Right, or the forward button) returns. Both are in the View menu too, and work in pop-outs and in pinned tabs.
 
@@ -141,6 +141,16 @@ Each pane now has a header over its tab, as Obsidian's tab title bar does: back 
 - Opening a file over a tab and going back is no longer a loss: the last 20 text files closed or replaced keep their undo history, so Ctrl+Z still undoes what you typed before
 - A file deleted since is skipped, and a renamed or moved one is followed. Diff tabs are part of the history too
 - A tab's history lasts while it's open and isn't kept between launches, as in Obsidian
+
+**Importing Word documents.** **File → Import…**, or **Import** in a file tree's right-click menu, brings Word documents (`.docx`) into the vault as plain text, one or several at a time. Each becomes a `.txt` file with the document's name, at the vault root or in the folder you right-clicked.
+
+- Each paragraph becomes a line, with tabs and line breaks kept. Tracked changes come in as if accepted, fields as the text they show, text boxes after the paragraph they're anchored to, and tables row by row
+- Footnotes and endnotes are marked in the text as `[1]`, `[2]`, and so on, and listed after it
+- Formatting, list numbers and bullets, headers and footers, comments, and images are left behind
+- A document that can't be read imports nothing, and one message lists every file that didn't import and why
+- Zip files are read with [miniz](https://github.com/richgel999/miniz), now listed under **Settings → General → Licenses**
+
+See [Features.md](https://github.com/fairybow/Fernanda/blob/v0.30.0-beta.0/Fernanda/docs/Features.md#importing) for the details.
 
 **Fixed**
 
