@@ -46,16 +46,21 @@ private:
     [[nodiscard]] static QByteArray
     document_(const QByteArray& body, const QByteArray& wordNamespace)
     {
-        return R"(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>)"
-               R"(<w:document xmlns:w=")" +
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+               "<w:document xmlns:w=\"" +
                wordNamespace +
-               R"(" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006")"
-               R"( xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing")"
-               R"( xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main")"
-               R"( xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape")"
-               R"( xmlns:v="urn:schemas-microsoft-com:vml">)"
-               R"(<w:body>)" +
-               body + R"(</w:body></w:document>)";
+               "\" "
+               "xmlns:mc=\"http://schemas.openxmlformats.org/"
+               "markup-compatibility/2006\""
+               " xmlns:wp=\"http://schemas.openxmlformats.org/drawingml/2006/"
+               "wordprocessingDrawing\""
+               " xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/"
+               "main\""
+               " xmlns:wps=\"http://schemas.microsoft.com/office/word/2010/"
+               "wordprocessingShape\""
+               " xmlns:v=\"urn:schemas-microsoft-com:vml\">"
+               "<w:body>" +
+               body + "</w:body></w:document>";
     }
 
     [[nodiscard]] static QByteArray document_(const QByteArray& body)
@@ -78,15 +83,16 @@ private:
     {
         auto note = root.chopped(1);
 
-        return R"(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>)"
-               R"(<w:)" +
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+               "<w:" +
                root +
-               R"( xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">)"
-               R"(<w:)" +
+               " xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/"
+               "2006/main\">"
+               "<w:" +
                note +
-               R"( w:type="separator" w:id="-1"><w:p><w:r><w:separator/>)"
-               R"(</w:r></w:p></w:)" +
-               note + R"(>)" + notes + R"(</w:)" + root + R"(>)";
+               " w:type=\"separator\" w:id=\"-1\"><w:p><w:r><w:separator/>"
+               "</w:r></w:p></w:" +
+               note + ">" + notes + "</w:" + root + ">";
     }
 
     [[nodiscard]] static QString textWithNotes_(
@@ -104,18 +110,21 @@ private:
     relationshipsOf_(const QList<std::pair<QByteArray, QByteArray>>& targets)
     {
         QByteArray xml =
-            R"(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>)"
-            R"(<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">)";
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+            "<Relationships "
+            "xmlns=\"http://schemas.openxmlformats.org/package/2006/"
+            "relationships\">";
 
         for (auto i = 0; i < targets.size(); ++i) {
-            xml +=
-                R"(<Relationship Id="rId)" + QByteArray::number(i + 1) +
-                R"(" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/)" +
-                targets.at(i).first + R"(" Target=")" + targets.at(i).second +
-                R"("/>)";
+            xml += "<Relationship Id=\"rId" + QByteArray::number(i + 1) +
+                   "\" "
+                   "Type=\"http://schemas.openxmlformats.org/officeDocument/"
+                   "2006/relationships/" +
+                   targets.at(i).first + "\" Target=\"" + targets.at(i).second +
+                   "\"/>";
         }
 
-        return xml + R"(</Relationships>)";
+        return xml + "</Relationships>";
     }
 
     // Package relationships naming target as the main document
@@ -182,8 +191,8 @@ private slots:
     {
         QCOMPARE(
             textOf_(
-                R"(<w:p><w:r><w:t xml:space="preserve">Dear </w:t></w:r>)"
-                R"(<w:r><w:t>Cun</w:t></w:r><w:r><w:t>egonde</w:t></w:r></w:p>)"),
+                "<w:p><w:r><w:t xml:space=\"preserve\">Dear </w:t></w:r>"
+                "<w:r><w:t>Cun</w:t></w:r><w:r><w:t>egonde</w:t></w:r></w:p>"),
             u"Dear Cunegonde"_s);
     }
 
@@ -193,7 +202,7 @@ private slots:
             textOf_(
                 "<w:p><w:r><w:t>a</w:t><w:tab/><w:t>b</w:t><w:br/>"
                 "<w:t>c</w:t><w:cr/><w:t>d</w:t>"
-                R"(<w:br w:type="page"/><w:t>e</w:t></w:r></w:p>)"),
+                "<w:br w:type=\"page\"/><w:t>e</w:t></w:r></w:p>"),
             u"a\tb\nc\nd\ne"_s);
     }
 
@@ -227,14 +236,15 @@ private slots:
     {
         QCOMPARE(
             textOf_(
-                R"(<w:p><w:r><w:t xml:space="preserve">Page </w:t></w:r>)"
-                R"(<w:r><w:fldChar w:fldCharType="begin"/></w:r>)"
-                R"(<w:r><w:instrText xml:space="preserve"> PAGE </w:instrText></w:r>)"
-                R"(<w:r><w:fldChar w:fldCharType="separate"/></w:r>)"
-                R"(<w:r><w:t>3</w:t></w:r>)"
-                R"(<w:r><w:fldChar w:fldCharType="end"/></w:r></w:p>)"
-                R"(<w:p><w:fldSimple w:instr=" NUMPAGES ">)"
-                R"(<w:r><w:t>9</w:t></w:r></w:fldSimple></w:p>)"),
+                "<w:p><w:r><w:t xml:space=\"preserve\">Page </w:t></w:r>"
+                "<w:r><w:fldChar w:fldCharType=\"begin\"/></w:r>"
+                "<w:r><w:instrText xml:space=\"preserve\"> PAGE "
+                "</w:instrText></w:r>"
+                "<w:r><w:fldChar w:fldCharType=\"separate\"/></w:r>"
+                "<w:r><w:t>3</w:t></w:r>"
+                "<w:r><w:fldChar w:fldCharType=\"end\"/></w:r></w:p>"
+                "<w:p><w:fldSimple w:instr=\" NUMPAGES \">"
+                "<w:r><w:t>9</w:t></w:r></w:fldSimple></w:p>"),
             u"Page 3\n9"_s);
     }
 
@@ -244,7 +254,8 @@ private slots:
             textOf_(
                 "<w:p><w:r><w:t>Seen</w:t></w:r>"
                 "<w:r><w:rPr><w:i/><w:vanish/></w:rPr><w:t> secret</w:t></w:r>"
-                R"(<w:r><w:rPr><w:vanish w:val="0"/></w:rPr><w:t> shown</w:t></w:r></w:p>)"),
+                "<w:r><w:rPr><w:vanish w:val=\"0\"/></w:rPr><w:t> "
+                "shown</w:t></w:r></w:p>"),
             u"Seen shown"_s);
     }
 
@@ -264,18 +275,18 @@ private slots:
     {
         QCOMPARE(
             textOf_(
-                R"(<w:p><w:r><w:t xml:space="preserve">Before </w:t></w:r>)"
-                R"(<w:r><mc:AlternateContent><mc:Choice Requires="wps">)"
-                R"(<w:drawing><wp:anchor><a:graphic><a:graphicData><wps:wsp>)"
-                R"(<wps:txbx><w:txbxContent><w:p><w:r><w:t>Box</w:t></w:r></w:p>)"
-                R"(</w:txbxContent></wps:txbx></wps:wsp></a:graphicData>)"
-                R"(</a:graphic></wp:anchor></w:drawing></mc:Choice>)"
-                R"(<mc:Fallback><w:pict><v:shape><v:textbox><w:txbxContent>)"
-                R"(<w:p><w:r><w:t>Box</w:t></w:r></w:p></w:txbxContent>)"
-                R"(</v:textbox></v:shape></w:pict></mc:Fallback>)"
-                R"(</mc:AlternateContent></w:r>)"
-                R"(<w:r><w:t>after</w:t></w:r></w:p>)"
-                R"(<w:p><w:r><w:t>Next</w:t></w:r></w:p>)"),
+                "<w:p><w:r><w:t xml:space=\"preserve\">Before </w:t></w:r>"
+                "<w:r><mc:AlternateContent><mc:Choice Requires=\"wps\">"
+                "<w:drawing><wp:anchor><a:graphic><a:graphicData><wps:wsp>"
+                "<wps:txbx><w:txbxContent><w:p><w:r><w:t>Box</w:t></w:r></w:p>"
+                "</w:txbxContent></wps:txbx></wps:wsp></a:graphicData>"
+                "</a:graphic></wp:anchor></w:drawing></mc:Choice>"
+                "<mc:Fallback><w:pict><v:shape><v:textbox><w:txbxContent>"
+                "<w:p><w:r><w:t>Box</w:t></w:r></w:p></w:txbxContent>"
+                "</v:textbox></v:shape></w:pict></mc:Fallback>"
+                "</mc:AlternateContent></w:r>"
+                "<w:r><w:t>after</w:t></w:r></w:p>"
+                "<w:p><w:r><w:t>Next</w:t></w:r></w:p>"),
             u"Before after\nBox\nNext"_s);
     }
 
@@ -341,13 +352,14 @@ private slots:
 
     void aPartThatIsntADocumentIsNothing()
     {
-        QVERIFY(
-            !Fernanda::Docx::textOf(
-                 R"(<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">)"
-                 R"(<w:p><w:r><w:t>Header</w:t></w:r></w:p></w:hdr>)",
-                 {},
-                 {})
-                 .has_value());
+        QVERIFY(!Fernanda::Docx::textOf(
+                     "<w:hdr "
+                     "xmlns:w=\"http://schemas.openxmlformats.org/"
+                     "wordprocessingml/2006/main\">"
+                     "<w:p><w:r><w:t>Header</w:t></w:r></w:p></w:hdr>",
+                     {},
+                     {})
+                     .has_value());
     }
 
     // Footnotes and endnotes are numbered together, in the order the text
@@ -356,28 +368,28 @@ private slots:
     void notesAreMarkedAndListed()
     {
         auto body = QByteArray(
-            R"(<w:p><w:r><w:t>One</w:t></w:r>)"
-            R"(<w:r><w:footnoteReference w:id="2"/></w:r>)"
-            R"(<w:r><w:t xml:space="preserve"> two</w:t></w:r>)"
-            R"(<w:r><w:endnoteReference w:id="1"/></w:r></w:p>)"
-            R"(<w:p><w:r><w:t>Three</w:t></w:r>)"
-            R"(<w:r><w:footnoteReference w:id="3"/></w:r></w:p>)");
+            "<w:p><w:r><w:t>One</w:t></w:r>"
+            "<w:r><w:footnoteReference w:id=\"2\"/></w:r>"
+            "<w:r><w:t xml:space=\"preserve\"> two</w:t></w:r>"
+            "<w:r><w:endnoteReference w:id=\"1\"/></w:r></w:p>"
+            "<w:p><w:r><w:t>Three</w:t></w:r>"
+            "<w:r><w:footnoteReference w:id=\"3\"/></w:r></w:p>");
 
         auto footnotes = notesPart_(
             "footnotes",
-            R"(<w:footnote w:id="2"><w:p><w:r><w:footnoteRef/></w:r>)"
-            R"(<w:r><w:t xml:space="preserve"> First note.</w:t></w:r></w:p>)"
-            R"(</w:footnote>)"
-            R"(<w:footnote w:id="3"><w:p><w:r><w:footnoteRef/></w:r>)"
-            R"(<w:r><w:t>Second,</w:t></w:r></w:p>)"
-            R"(<w:p><w:r><w:t>in</w:t><w:br/><w:t>two parts.</w:t></w:r></w:p>)"
-            R"(</w:footnote>)");
+            "<w:footnote w:id=\"2\"><w:p><w:r><w:footnoteRef/></w:r>"
+            "<w:r><w:t xml:space=\"preserve\"> First note.</w:t></w:r></w:p>"
+            "</w:footnote>"
+            "<w:footnote w:id=\"3\"><w:p><w:r><w:footnoteRef/></w:r>"
+            "<w:r><w:t>Second,</w:t></w:r></w:p>"
+            "<w:p><w:r><w:t>in</w:t><w:br/><w:t>two parts.</w:t></w:r></w:p>"
+            "</w:footnote>");
 
         auto endnotes = notesPart_(
             "endnotes",
-            R"(<w:endnote w:id="1"><w:p><w:r><w:endnoteRef/></w:r>)"
-            R"(<w:r><w:t xml:space="preserve"> An endnote.</w:t></w:r></w:p>)"
-            R"(</w:endnote>)");
+            "<w:endnote w:id=\"1\"><w:p><w:r><w:endnoteRef/></w:r>"
+            "<w:r><w:t xml:space=\"preserve\"> An endnote.</w:t></w:r></w:p>"
+            "</w:endnote>");
 
         QCOMPARE(
             textWithNotes_(body, footnotes, endnotes),
@@ -388,16 +400,16 @@ private slots:
     void aDeletedReferenceIsNotNumbered()
     {
         auto body = QByteArray(
-            R"(<w:p><w:del><w:r><w:footnoteReference w:id="1"/></w:r></w:del>)"
-            R"(<w:r><w:t>Kept</w:t></w:r>)"
-            R"(<w:r><w:footnoteReference w:id="2"/></w:r></w:p>)");
+            "<w:p><w:del><w:r><w:footnoteReference w:id=\"1\"/></w:r></w:del>"
+            "<w:r><w:t>Kept</w:t></w:r>"
+            "<w:r><w:footnoteReference w:id=\"2\"/></w:r></w:p>");
 
         auto footnotes = notesPart_(
             "footnotes",
-            R"(<w:footnote w:id="1"><w:p><w:r><w:t>Gone</w:t></w:r></w:p>)"
-            R"(</w:footnote>)"
-            R"(<w:footnote w:id="2"><w:p><w:r><w:t>Stays</w:t></w:r></w:p>)"
-            R"(</w:footnote>)");
+            "<w:footnote w:id=\"1\"><w:p><w:r><w:t>Gone</w:t></w:r></w:p>"
+            "</w:footnote>"
+            "<w:footnote w:id=\"2\"><w:p><w:r><w:t>Stays</w:t></w:r></w:p>"
+            "</w:footnote>");
 
         QCOMPARE(
             textWithNotes_(body, footnotes, {}),
@@ -409,8 +421,8 @@ private slots:
     {
         QCOMPARE(
             textWithNotes_(
-                R"(<w:p><w:r><w:t>A</w:t></w:r>)"
-                R"(<w:r><w:footnoteReference w:id="7"/></w:r></w:p>)",
+                "<w:p><w:r><w:t>A</w:t></w:r>"
+                "<w:r><w:footnoteReference w:id=\"7\"/></w:r></w:p>",
                 {},
                 {}),
             u"A[1]\n\n[1]"_s);
@@ -535,17 +547,17 @@ private slots:
                         { "endnotes", "/word/endnotes.xml" } }) },
                 { u"word/document.xml"_s,
                  document_(
-                      R"(<w:p><w:r><w:t>Text</w:t></w:r>)"
-                      R"(<w:r><w:footnoteReference w:id="1"/></w:r>)"
-                      R"(<w:r><w:endnoteReference w:id="1"/></w:r></w:p>)") },
+                      "<w:p><w:r><w:t>Text</w:t></w:r>"
+                      "<w:r><w:footnoteReference w:id=\"1\"/></w:r>"
+                      "<w:r><w:endnoteReference w:id=\"1\"/></w:r></w:p>") },
                 { u"word/footnotes.xml"_s,
                  notesPart_(
-                      "footnotes", R"(<w:footnote w:id="1"><w:p><w:r><w:t>Foot</w:t></w:r>)"
-                      R"(</w:p></w:footnote>)") },
+                      "footnotes", "<w:footnote w:id=\"1\"><w:p><w:r><w:t>Foot</w:t></w:r>"
+                      "</w:p></w:footnote>") },
                 { u"word/endnotes.xml"_s,
                  notesPart_(
-                      "endnotes", R"(<w:endnote w:id="1"><w:p><w:r><w:t>End</w:t></w:r>)"
-                      R"(</w:p></w:endnote>)") }
+                      "endnotes", "<w:endnote w:id=\"1\"><w:p><w:r><w:t>End</w:t></w:r>"
+                      "</w:p></w:endnote>") }
         });
 
         auto conversion = Fernanda::Docx::toPlainText(archive);
