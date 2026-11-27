@@ -367,6 +367,7 @@ set(APP_HEADERS
     src/ui/windows/VaultOrderButton.h
     src/ui/windows/VaultWindow.h
 
+    src/ui/FileImport.h
     src/ui/OpenMode.h
     src/ui/Style.h
     src/ui/UiConstants.h

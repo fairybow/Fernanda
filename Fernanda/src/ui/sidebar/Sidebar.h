@@ -35,6 +35,7 @@
 #include "core/git/GitRepository.h"
 #include "core/vault/Vault.h"
 #include "core/writing/FocusTimer.h"
+#include "ui/FileImport.h"
 #include "ui/OpenMode.h"
 #include "ui/UiConstants.h"
 #include "ui/git/GitPage.h"
@@ -474,6 +475,27 @@ private:
                 }
 
                 tree->reveal(key.path());
+            });
+
+        // Import: run it into the folder asked for, in this tree's vault. One
+        // imported file opens just as a double-click would; several open
+        // nothing. The tree that asked shows the last
+        connect(
+            tree,
+            &VaultFileTree::importRequested,
+            this,
+            [this, vault, tree](const Coco::Path& absoluteDir) {
+                auto keys = importFiles(this, vault, PathKey::of(absoluteDir));
+
+                if (keys.isEmpty()) {
+                    return;
+                }
+
+                if (keys.size() == 1) {
+                    emit fileActivated(keys.first(), OpenMode::ReplaceActive);
+                }
+
+                tree->reveal(keys.last().path());
             });
 
         // Rename: the Vault renames on disk and re-keys any open buffer, then

@@ -60,6 +60,7 @@ inline const QString TEXT_SELECT_ALL = u"text.selectAll"_s;
 inline const QString FILE_NEW = u"file.new"_s;
 inline const QString FILE_OPEN = u"file.open"_s;
 inline const QString FOLDER_NEW = u"folder.new"_s;
+inline const QString FILE_IMPORT = u"file.import"_s;
 
 inline const QString WINDOW_TOGGLE_MENU_BAR = u"window.toggleMenuBar"_s;
 

@@ -63,6 +63,7 @@
 #include "core/writing/FocusTimer.h"
 #include "models/ImageFileModel.h"
 #include "models/PdfFileModel.h"
+#include "ui/FileImport.h"
 #include "ui/OpenMode.h"
 #include "ui/UiConstants.h"
 #include "ui/WorkspaceFile.h"
@@ -766,6 +767,16 @@ private:
             this,
             &VaultWindow::onNewFolderRequested_);
 
+        auto* import_files = registerAction(
+            ActionIds::FILE_IMPORT,
+            tr("Import..."),
+            QKeySequence{});
+        connect(
+            import_files,
+            &QAction::triggered,
+            this,
+            &VaultWindow::onImportRequested_);
+
         // Ctrl+, is Obsidian's settings hotkey. Explicit rather than
         // QKeySequence::Preferences, which is empty on Windows (as Quit is)
         auto* open_settings = registerAction(
@@ -822,6 +833,8 @@ private:
         file_menu->addAction(action(ActionIds::FILE_NEW));
         file_menu->addAction(action(ActionIds::FILE_OPEN));
         file_menu->addAction(action(ActionIds::FOLDER_NEW));
+        file_menu->addSeparator();
+        file_menu->addAction(action(ActionIds::FILE_IMPORT));
         file_menu->addSeparator();
         file_menu->addAction(action(ActionIds::VAULT_OPEN_SETTINGS));
         file_menu->addAction(action(ActionIds::VAULT_OPEN_WRITING_HISTORY));
@@ -1016,6 +1029,24 @@ private:
     // reflects it exactly as the tree's own New Folder does. createFolder warns
     // and no-ops on failure
     void onNewFolderRequested_() { vault_->createFolder(vault_->rootKey()); }
+
+    // Import: chosen files become text files at the vault root (importFiles).
+    // One imported file opens, as New File's does; several open nothing, so a
+    // batch doesn't fill the window with tabs. The tree shows the last
+    void onImportRequested_()
+    {
+        auto keys = importFiles(this, vault_, vault_->rootKey());
+
+        if (keys.isEmpty()) {
+            return;
+        }
+
+        if (keys.size() == 1) {
+            openFile(keys.first(), OpenMode::ReplaceActive);
+        }
+
+        sidebar_->fileTree()->reveal(keys.last().path());
+    }
 
     // Ctrl+M / View menu: flip the menu bar's visibility. The shortcut is
     // window-owned, so it works while the bar is hidden — the way back from a

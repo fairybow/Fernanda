@@ -196,6 +196,45 @@ public:
         return PathKey::of(absolute);
     }
 
+    // Create a text file inside a directory, holding text, and return its key
+    // (empty on failure): an imported document's text, under the name it had
+    // (stem, with .txt). A taken name gets a number, as createFile's do. Any
+    // periods the name begins with are dropped, so the file isn't hidden; a
+    // name left empty becomes "Untitled"
+    PathKey
+    importTextFile(const PathKey& dir, const QString& stem, const QString& text)
+    {
+        if (!contains(dir)) {
+            WARN("Can't import a file into {}: outside the vault!", dir.path());
+            return {};
+        }
+
+        auto base = stem;
+
+        while (base.startsWith(u'.')) {
+            base.remove(0, 1);
+        }
+
+        if (base.trimmed().isEmpty()) {
+            base = u"Untitled"_s;
+        }
+
+        auto absolute = uniqueChildPath_(dir.path(), base, u".txt"_s);
+
+        // CreateDirs::No: a folder deleted while the import ran stays deleted,
+        // and the import fails
+        if (!Io::write(text.toUtf8(), absolute, Io::CreateDirs::No)) {
+            WARN("Failed to write an imported file at {}!", absolute);
+            return {};
+        }
+
+        treeModel_->applyAddition(absolute);
+
+        auto key = PathKey::of(absolute);
+        emit fileWritten(key);
+        return key;
+    }
+
     // Create an empty file at a full key, making any missing folders above it:
     // Go to File's create, where the user typed the folders (createFile's
     // folder must exist). The vault's own folder is never recreated.
