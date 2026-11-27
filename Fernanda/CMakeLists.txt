@@ -253,6 +253,7 @@ set(APP_HEADERS
     src/core/dist/Version.h
 
     src/core/files/FileTypes.h
+    src/core/files/ImportTypes.h
     src/core/files/Io.h
     src/core/files/JsonIo.h
     src/core/files/PathKey.h

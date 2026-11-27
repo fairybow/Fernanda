@@ -1792,11 +1792,19 @@ La ventana seguirá abierta para que no pierdas tus cambios. Cuando se resuelva 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Import</source>
+        <source>Word documents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Word documents (*.docx)</source>
+        <source>Importable files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fernanda can&apos;t import &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

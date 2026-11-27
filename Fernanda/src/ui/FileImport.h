@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QCoreApplication>
 #include <QList>
 #include <QMessageBox>
@@ -25,6 +27,7 @@
 #include <Coco/Path.h>
 
 #include "core/files/Docx.h"
+#include "core/files/ImportTypes.h"
 #include "core/files/PathKey.h"
 #include "core/vault/Vault.h"
 
@@ -34,30 +37,99 @@ using namespace Qt::StringLiterals;
 
 namespace Internal {
 
-[[nodiscard]] inline QString
-importFailure_(const Coco::Path& path, Docx::Failure failure)
+// A file read for import: its text, or nullopt and the message saying why it
+// couldn't be read
+struct ImportedText_
 {
-    auto name = path.nameQString();
+    std::optional<QString> text{};
+    QString failure{};
+};
 
-    if (failure == Docx::Failure::Damaged) {
-        return QCoreApplication::translate("FileImport", "\"%1\" is damaged.")
-            .arg(name);
+// The name a type goes by in the dialog's filter
+[[nodiscard]] inline QString importTypeName_(ImportTypes::Type type)
+{
+    switch (type) {
+    case ImportTypes::Type::Docx:
+        return QCoreApplication::translate("FileImport", "Word documents");
+    case ImportTypes::Type::Unsupported:
+        break;
     }
 
-    return QCoreApplication::translate(
-               "FileImport",
-               "\"%1\" isn't a Word document Fernanda can read.")
-        .arg(name);
+    return {};
+}
+
+// Every importable file first, then each type on its own: "Importable files
+// (*.docx);;Word documents (*.docx)"
+[[nodiscard]] inline QString importFilter_()
+{
+    QStringList every_pattern{};
+    QStringList filters{};
+
+    for (auto type : ImportTypes::types()) {
+        auto patterns = ImportTypes::patternsOf(type);
+        every_pattern << patterns;
+        filters << importTypeName_(type) + u" ("_s + patterns.join(u' ') + u')';
+    }
+
+    filters.prepend(
+        QCoreApplication::translate("FileImport", "Importable files") +
+        u" ("_s + every_pattern.join(u' ') + u')');
+
+    return filters.join(u";;"_s);
+}
+
+[[nodiscard]] inline ImportedText_ readDocx_(const Coco::Path& path)
+{
+    auto conversion = Docx::toPlainText(path);
+    auto name = path.nameQString();
+
+    switch (conversion.failure) {
+    case Docx::Failure::None:
+        return { conversion.text, {} };
+
+    case Docx::Failure::NotAWordDocument:
+        return { std::nullopt,
+                 QCoreApplication::translate(
+                     "FileImport",
+                     "\"%1\" isn't a Word document Fernanda can read.")
+                     .arg(name) };
+
+    case Docx::Failure::Damaged:
+        return { std::nullopt,
+                 QCoreApplication::translate("FileImport", "\"%1\" is damaged.")
+                     .arg(name) };
+    }
+
+    return { std::nullopt, {} };
+}
+
+// The file read as the type its extension names. The switch has no default,
+// so a type added to ImportTypes without a case here is a compiler warning
+[[nodiscard]] inline ImportedText_ readForImport_(const Coco::Path& path)
+{
+    switch (ImportTypes::typeOf(path)) {
+    case ImportTypes::Type::Docx:
+        return readDocx_(path);
+    case ImportTypes::Type::Unsupported:
+        break;
+    }
+
+    return { std::nullopt,
+             QCoreApplication::translate(
+                 "FileImport",
+                 "Fernanda can't import \"%1\".")
+                 .arg(path.nameQString()) };
 }
 
 } // namespace Internal
 
 // Asks for files to import, over parent, and imports each into dir as a text
-// file named for it. Word documents are the only kind for now. A file that
-// fails leaves nothing in the vault, and every file that fails is listed in
-// one warning, each with its reason. Returns the keys of the files made, in
-// the order chosen: empty when the dialog is cancelled or nothing imports.
-// What to open or show afterward is the caller's
+// file named for it. Each file is read as the type its extension names
+// (ImportTypes); one of no importable type, chosen by typing its name, isn't
+// read at all. A file that fails leaves nothing in the vault, and every file
+// that fails is listed in one warning, each with its reason. Returns the keys
+// of the files made, in the order chosen: empty when the dialog is cancelled
+// or nothing imports. What to open or show afterward is the caller's
 inline QList<PathKey>
 importFiles(QWidget* parent, Vault* vault, const PathKey& dir)
 {
@@ -65,20 +137,20 @@ importFiles(QWidget* parent, Vault* vault, const PathKey& dir)
         parent,
         QCoreApplication::translate("FileImport", "Import"),
         Coco::Path{},
-        QCoreApplication::translate("FileImport", "Word documents (*.docx)"));
+        Internal::importFilter_());
 
     QList<PathKey> imported{};
     QStringList failures{};
 
     for (const auto& path : paths) {
-        auto conversion = Docx::toPlainText(path);
+        auto read = Internal::readForImport_(path);
 
-        if (conversion.failure != Docx::Failure::None) {
-            failures << Internal::importFailure_(path, conversion.failure);
+        if (!read.text) {
+            failures << read.failure;
             continue;
         }
 
-        auto key = vault->createFile(dir, path.stemQString(), conversion.text);
+        auto key = vault->createFile(dir, path.stemQString(), *read.text);
 
         if (key.isEmpty()) {
             failures << QCoreApplication::translate(
