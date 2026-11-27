@@ -356,7 +356,7 @@ Every save, whatever triggered it, goes through one private function in `BufferS
 
 The debounce restarts on every edit and fires when typing pauses. The ceiling starts once per burst and is never restarted, so it still fires under input that never pauses. Whichever fires first saves every modified buffer. One pair for the whole app is enough: one writer types one burst at a time.
 
-A window close saves only the files the window shows, so a file that fails to save in another window can't hold this one open. A buffer no window shows that still has unsaved text (its last view's save failed, or its file was held by Git) is written on focus loss and at quit. Each of these exit paths also writes its vault's pending settings change and writing history (`Vault::saveSettingsNow`, `Vault::saveHistoryNow`).
+A window close saves only the files the window shows, so a file that fails to save in another window can't hold this one open. A buffer no window shows that still has unsaved text (its last view's save failed, or its file was held by Git) is written on focus loss and at quit. Each of these exit paths also writes its vault's pending settings change and writing history (`Vault::saveConfigNow`, `Vault::saveHistoryNow`).
 
 ### A save never creates
 

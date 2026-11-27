@@ -136,7 +136,7 @@ public:
     // Every exit path calls this beside flushing the buffers, so a change made
     // a moment before a close or a quit isn't lost. A failure isn't reported —
     // a settings file is never worth refusing a close over, and Io logged it
-    void saveSettingsNow()
+    void saveConfigNow()
     {
         if (configSaveTimer_->isActive()) {
             saveConfig_();
@@ -144,7 +144,7 @@ public:
     }
 
     // Write pending writing history now, rather than when its timer fires.
-    // Called beside saveSettingsNow on every exit path, for the same reason
+    // Called beside saveConfigNow on every exit path, for the same reason
     void saveHistoryNow()
     {
         if (historySaveTimer_->isActive()) {
@@ -157,7 +157,7 @@ public:
     // off-disk buffers, so the file exists on disk before any buffer opens it
     PathKey createFile(const PathKey& dir)
     {
-        return createFile(dir, u"Untitled"_s, QString{});
+        return createFile(dir, UNTITLED_NAME_, QString{});
     }
 
     // Create a text file named stem, with .txt, inside a directory, holding
@@ -179,7 +179,7 @@ public:
         }
 
         if (base.trimmed().isEmpty()) {
-            base = u"Untitled"_s;
+            base = UNTITLED_NAME_;
         }
 
         auto absolute = uniqueChildPath_(dir.path(), base, u".txt"_s);
@@ -206,7 +206,7 @@ public:
             return {};
         }
 
-        auto absolute = uniqueChildPath_(dir.path(), u"Untitled"_s, QString{});
+        auto absolute = uniqueChildPath_(dir.path(), UNTITLED_NAME_, QString{});
 
         if (!Coco::mkdir(absolute)) {
             WARN("Failed to create a new folder at {}!", absolute);
@@ -592,11 +592,16 @@ private:
     // Per-vault settings, read at construction and saved a beat after the last
     // change: a dragged size slider changes it many times a second, and one
     // write per settle is enough. A pending save is also forced by
-    // saveSettingsNow, which every exit path calls
+    // saveConfigNow, which every exit path calls
     VaultConfig config_{};
     Coco::Time::Debouncer* configSaveTimer_ =
         Coco::Time::newDebouncer(this, &Vault::saveConfig_);
     int configSaveMs_ = 500;
+
+    // The name a new file or folder takes when it's given none. Deliberately
+    // not translated: this is on-disk identity, and the user renames it from
+    // the tree
+    static inline const QString UNTITLED_NAME_ = u"Untitled"_s;
 
     static inline const QString DICTIONARY_FILE_NAME_ = u"dictionary.txt"_s;
 
@@ -754,8 +759,7 @@ private:
 
     // "Untitled.txt", then "Untitled 1.txt", ... — the first not already
     // present inside absoluteDir. An empty ext gives a folder name. Absolute
-    // in, absolute out; the caller makes the key. Deliberately not translated:
-    // this is on-disk identity, and the user renames it from the tree
+    // in, absolute out; the caller makes the key
     Coco::Path uniqueChildPath_(
         const Coco::Path& absoluteDir,
         const QString& base,
@@ -823,7 +827,7 @@ private:
         configSaveTimer_->start(configSaveMs_);
     }
 
-    // The debounced settings write, also forced by saveSettingsNow. Stops the
+    // The debounced settings write, also forced by saveConfigNow. Stops the
     // timer so a forced write doesn't repeat when the timer would have fired
     void saveConfig_()
     {

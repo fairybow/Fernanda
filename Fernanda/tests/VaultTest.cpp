@@ -884,7 +884,7 @@ private slots:
             vault.setConfig(&VaultConfig::setTextFontSize, size);
             QCOMPARE(changed.count(), 2);
 
-            vault.saveSettingsNow();
+            vault.saveConfigNow();
         }
 
         // A second vault on the same folder reads what the first saved
@@ -1210,12 +1210,12 @@ private slots:
         QCOMPARE(heard.size(), 3);
 
         f.vault.setConfig(&VaultConfig::setTextFontSize, 20);
-        f.vault.saveSettingsNow();
+        f.vault.saveConfigNow();
         QCOMPARE(heard.size(), 4);
         QVERIFY(heard.last() == f.key(u".fernanda"_s));
 
         // Nothing pending, nothing written
-        f.vault.saveSettingsNow();
+        f.vault.saveConfigNow();
         QCOMPARE(heard.size(), 4);
 
         if (QSysInfo::machineUniqueId().isEmpty()) {

@@ -559,13 +559,13 @@ private:
 
         for (auto& entry : openVaults_) {
             if (entry.vault) {
-                entry.vault->saveSettingsNow();
+                entry.vault->saveConfigNow();
                 entry.vault->saveHistoryNow();
             }
         }
 
         if (commonVault_) {
-            commonVault_->saveSettingsNow();
+            commonVault_->saveConfigNow();
             commonVault_->saveHistoryNow();
         }
     }

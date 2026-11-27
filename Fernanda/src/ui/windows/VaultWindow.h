@@ -244,7 +244,7 @@ protected:
 
         // A settings change or writing history a moment old is written now,
         // not left to a timer that may never fire
-        vault_->saveSettingsNow();
+        vault_->saveConfigNow();
         vault_->saveHistoryNow();
 
         // Committed to closing: persist final workspace before tearing anything
