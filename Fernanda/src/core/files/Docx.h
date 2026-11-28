@@ -34,17 +34,17 @@
 
 #include "core/files/Zip.h"
 
-// Word documents (.docx) read as plain text: one line per paragraph, in
-// reading order, with formatting dropped. Only the text a reader of the
-// document sees is kept: deleted tracked changes (deleted table rows among
-// them), field codes, hidden text, and Word's fallback copies of content are
-// skipped, and a paragraph whose mark is a deleted tracked change, or hidden,
-// joins the next, as Word shows it. A text box's paragraphs follow the
-// paragraph it's anchored to, and a table's paragraphs come row by row. Ruby is
-// written in Aozora Bunko's notation, base and reading together. Footnotes and
-// endnotes are marked [1], [2], and so on, numbered together in reading order,
-// and listed after the text, each on one line. Headers, footers, and comments
-// are left out.
+// Word documents (.docx) read as plain text: one line per paragraph, in reading
+// order, with formatting dropped. Only the text a reader of the document sees
+// is kept: deleted tracked changes (deleted table rows among them), field codes
+// (nested fields inside them included), hidden text, and Word's fallback copies
+// of content are skipped, and a paragraph whose mark is a deleted tracked
+// change, or hidden, joins the next, as Word shows it. A text box's paragraphs
+// follow the paragraph it's anchored to, and a table's paragraphs come row by
+// row. Ruby is written in Aozora Bunko's notation, base and reading together.
+// Footnotes and endnotes are marked [1], [2], and so on, numbered together in
+// the order the text shows them, and listed after the text, each on one line.
+// Headers, footers, and comments are left out.
 //
 // Elements are matched by namespace as well as name, so documents in Word's
 // Strict Open XML format read the same as ordinary ones. A document nested
@@ -95,12 +95,34 @@ struct NoteReference_
 };
 
 // What reading one part carries from element to element: the note
-// references made so far, and how deeply the reader is nested
+// references made so far, how deeply the reader is nested, and the fields
+// open where it is. A complex field runs from its begin mark to its end mark,
+// across runs and paragraphs, with its instruction before its separate mark
+// and its result after. Fields nest, and each open field is true here while
+// its instruction is being read
 struct ReadState_
 {
     QList<NoteReference_> references{};
     int nesting = 0;
+    QList<bool> openFields{};
+
+    // Is the reader inside a field's instruction, at any level? A nested
+    // field there, result and all, is part of the outer field's instruction
+    [[nodiscard]] bool isInFieldInstruction() const
+    {
+        return openFields.contains(true);
+    }
 };
+
+// Where a note reference sits in a line while the part is read: a mark, the
+// reference's index in ReadState_::references, and a closing mark. Its number
+// is given once the text is whole (numberNotes_), so notes are numbered in the
+// order the text shows them, where a text box's lines come after its
+// paragraph's. The marks are Unicode noncharacters, set aside for a program's
+// own use, and any in a document's own text are dropped as it's read, so a
+// mark is always one of these
+constexpr QChar NOTE_MARK_OPEN_ = u'\uFDD0';
+constexpr QChar NOTE_MARK_CLOSE_ = u'\uFDD1';
 
 // Aozora Bunko's ruby marks: ｜ where the base begins, and 《 》 around the
 // reading
@@ -256,6 +278,48 @@ isMc_(const QXmlStreamReader& reader, QStringView name)
     return deleted;
 }
 
+// A complex field's mark (<w:fldChar w:fldCharType="begin"/>), read to its
+// end and applied to the open fields: begin opens a field in its instruction,
+// separate moves the innermost open field to its result, and end closes it.
+// A separate or end with no field open, as only a damaged document has,
+// changes nothing
+inline void readFieldMark_(QXmlStreamReader& reader, QList<bool>& openFields)
+{
+    auto type =
+        reader.attributes().value(reader.namespaceUri(), u"fldCharType");
+
+    if (type == u"begin") {
+        openFields << true;
+    } else if (type == u"separate" && !openFields.isEmpty()) {
+        openFields.last() = false;
+    } else if (type == u"end" && !openFields.isEmpty()) {
+        openFields.removeLast();
+    }
+
+    reader.skipCurrentElement();
+}
+
+// Does the element add to a line directly? What a field's instruction holds
+// is skipped by this test, so containers (runs, paragraphs) are still read
+// through for the field marks inside them
+[[nodiscard]] inline bool addsText_(const QXmlStreamReader& reader)
+{
+    return isW_(reader, u"t") || isW_(reader, u"tab") ||
+           isW_(reader, u"ptab") || isW_(reader, u"br") ||
+           isW_(reader, u"cr") || isW_(reader, u"noBreakHyphen") ||
+           isW_(reader, u"footnoteReference") ||
+           isW_(reader, u"endnoteReference");
+}
+
+// Text without the noncharacters that mark note references (NOTE_MARK_OPEN_),
+// which mean nothing in a document's own text
+[[nodiscard]] inline QString withoutNoteMarks_(QString text)
+{
+    text.remove(NOTE_MARK_OPEN_);
+    text.remove(NOTE_MARK_CLOSE_);
+    return text;
+}
+
 inline void readInline_(
     QXmlStreamReader& reader,
     QString& line,
@@ -293,11 +357,12 @@ readRuby_(QXmlStreamReader& reader, Lines_& after, ReadState_& state)
 // One element the reader has just entered, read to its end and added to the
 // paragraph's line. A paragraph met inside it (a text box's) goes to after, to
 // follow the paragraph being read. A note reference is added to the state's
-// references, and its marker to the line. False when the element is
-// properties that take away what holds them (a hidden run's, a deleted
-// table row's): the rest of the run or row has been skipped, and its reading
-// ends. Every level of nesting passes through here, so here is where nesting
-// past MAX_NESTING_ is refused, as an XML error that ends the whole read
+// references, and its mark to the line (NOTE_MARK_OPEN_). False when the
+// element is properties that take away what holds them (a hidden run's, a
+// deleted table row's): the rest of the run or row has been skipped, and its
+// reading ends. Every level of nesting passes through here, so here is where
+// nesting past MAX_NESTING_ is refused, as an XML error that ends the whole
+// read
 [[nodiscard]] inline bool readInlineElement_(
     QXmlStreamReader& reader,
     QString& line,
@@ -313,8 +378,16 @@ readRuby_(QXmlStreamReader& reader, Lines_& after, ReadState_& state)
     } else if (isSkipped_(reader)) {
         reader.skipCurrentElement();
 
+    } else if (isW_(reader, u"fldChar")) {
+        readFieldMark_(reader, state.openFields);
+
+    } else if (state.isInFieldInstruction() && addsText_(reader)) {
+        // A field's instruction, a nested field's result inside it included,
+        // isn't shown: only the outer field's result is
+        reader.skipCurrentElement();
+
     } else if (isW_(reader, u"t")) {
-        line += reader.readElementText();
+        line += withoutNoteMarks_(reader.readElementText());
 
     } else if (isW_(reader, u"rPr")) {
         // A run's properties come first in the run, so a hidden run is
@@ -351,7 +424,8 @@ readRuby_(QXmlStreamReader& reader, Lines_& after, ReadState_& state)
             reader.name() == u"endnoteReference",
             reader.attributes().value(reader.namespaceUri(), u"id").toString()
         };
-        line += u'[' + QString::number(state.references.size()) + u']';
+        line += NOTE_MARK_OPEN_ + QString::number(state.references.size() - 1) +
+                NOTE_MARK_CLOSE_;
         reader.skipCurrentElement();
 
     } else if (isW_(reader, u"ruby")) {
@@ -577,6 +651,7 @@ notesOf_(const QByteArray& notesXml, QStringView root, QStringView note)
 
         for (auto line : lines) {
             line.replace(u'\n', u' ').replace(u'\t', u' ');
+            line = withoutNoteMarks_(line);
             line = line.trimmed();
 
             if (!line.isEmpty()) {
@@ -596,6 +671,50 @@ notesOf_(const QByteArray& notesXml, QStringView root, QStringView note)
     }
 
     return notes;
+}
+
+// The whole text with each note reference's mark (NOTE_MARK_OPEN_) numbered
+// [1], [2], and so on in the order the text shows them, and the notes listed
+// after it in that order, one per line. A reference to a note the document
+// doesn't have keeps its number, with nothing after it in the list
+[[nodiscard]] inline QString numberNotes_(
+    const QString& text,
+    const QList<NoteReference_>& references,
+    const QHash<QString, QString>& footnotes,
+    const QHash<QString, QString>& endnotes)
+{
+    QString numbered{};
+    QStringList notes{};
+    qsizetype from = 0;
+
+    while (from < text.size()) {
+        auto open = text.indexOf(NOTE_MARK_OPEN_, from);
+        auto close =
+            open < 0 ? qsizetype(-1) : text.indexOf(NOTE_MARK_CLOSE_, open);
+
+        if (close < 0) {
+            numbered += QStringView(text).mid(from);
+            break;
+        }
+
+        numbered += QStringView(text).mid(from, open - from);
+
+        auto index = QStringView(text).mid(open + 1, close - open - 1).toInt();
+        const auto& reference = references.at(index);
+        auto note =
+            (reference.isEndnote ? endnotes : footnotes).value(reference.id);
+        auto marker = u'[' + QString::number(notes.size() + 1) + u']';
+
+        numbered += marker;
+        notes << (note.isEmpty() ? marker : marker + u' ' + note);
+        from = close + 1;
+    }
+
+    if (notes.isEmpty()) {
+        return numbered;
+    }
+
+    return numbered + u"\n\n"_s + notes.join(u'\n');
 }
 
 // A part named by the main document's relationships: nullopt when it's named
@@ -662,25 +781,11 @@ notesOf_(const QByteArray& notesXml, QStringView root, QStringView note)
         return std::nullopt;
     }
 
-    auto text = lines.join(u'\n');
-
-    if (state.references.isEmpty()) {
-        return text;
-    }
-
-    // A reference to a note the document doesn't have keeps its marker, with
-    // nothing after it
-    QStringList notes{};
-
-    for (auto i = 0; i < state.references.size(); ++i) {
-        const auto& reference = state.references.at(i);
-        auto note =
-            (reference.isEndnote ? *endnotes : *footnotes).value(reference.id);
-        auto marker = u'[' + QString::number(i + 1) + u']';
-        notes << (note.isEmpty() ? marker : marker + u' ' + note);
-    }
-
-    return text + u"\n\n"_s + notes.join(u'\n');
+    return Internal::numberNotes_(
+        lines.join(u'\n'),
+        state.references,
+        *footnotes,
+        *endnotes);
 }
 
 // The Word file's text, or why it couldn't be read. A file that fails gives no

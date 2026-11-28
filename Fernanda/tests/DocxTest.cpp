@@ -382,6 +382,50 @@ private slots:
             u"Page 3\n9"_s);
     }
 
+    // A field nested in another's instruction is part of that instruction,
+    // result and all, so only the outer field's result shows: here an IF
+    // testing a merge field. A field with no result (an index entry) leaves
+    // nothing
+    void aNestedFieldInAnInstructionIsSkipped()
+    {
+        QCOMPARE(
+            textOf_(
+                R"(<w:p><w:r><w:fldChar w:fldCharType="begin"/></w:r>)"
+                R"(<w:r><w:instrText xml:space="preserve"> IF </w:instrText>)"
+                R"(</w:r><w:r><w:fldChar w:fldCharType="begin"/></w:r>)"
+                R"(<w:r><w:instrText> MERGEFIELD Name </w:instrText></w:r>)"
+                R"(<w:r><w:fldChar w:fldCharType="separate"/></w:r>)"
+                R"(<w:r><w:t>Candide</w:t></w:r>)"
+                R"(<w:r><w:fldChar w:fldCharType="end"/></w:r>)"
+                R"(<w:r><w:instrText> = "" "a" "b" </w:instrText></w:r>)"
+                R"(<w:r><w:fldChar w:fldCharType="separate"/></w:r>)"
+                R"(<w:r><w:t>b</w:t></w:r>)"
+                R"(<w:r><w:fldChar w:fldCharType="end"/></w:r>)"
+                R"(<w:r><w:t xml:space="preserve"> and </w:t></w:r>)"
+                R"(<w:r><w:fldChar w:fldCharType="begin"/></w:r>)"
+                R"(<w:r><w:instrText> XE "Westphalia" </w:instrText></w:r>)"
+                R"(<w:r><w:fldChar w:fldCharType="end"/></w:r>)"
+                R"(<w:r><w:t>after</w:t></w:r></w:p>)"),
+            u"b and after"_s);
+    }
+
+    // A field's result can run across paragraphs, as a table of contents'
+    // does, and a field mark with no field open changes nothing
+    void aFieldSpansParagraphs()
+    {
+        QCOMPARE(
+            textOf_(
+                R"(<w:p><w:r><w:fldChar w:fldCharType="begin"/></w:r>)"
+                R"(<w:r><w:instrText> TOC </w:instrText></w:r>)"
+                R"(<w:r><w:fldChar w:fldCharType="separate"/></w:r>)"
+                R"(<w:r><w:t>Chapter 1</w:t></w:r></w:p>)"
+                R"(<w:p><w:r><w:t>Chapter 2</w:t></w:r>)"
+                R"(<w:r><w:fldChar w:fldCharType="end"/></w:r></w:p>)"
+                R"(<w:p><w:r><w:fldChar w:fldCharType="end"/></w:r>)"
+                R"(<w:r><w:t>Body</w:t></w:r></w:p>)"),
+            u"Chapter 1\nChapter 2\nBody"_s);
+    }
+
     void hiddenTextIsSkipped()
     {
         QCOMPARE(
@@ -599,6 +643,47 @@ private slots:
                 {},
                 {}),
             u"A[1]\n\n[1]"_s);
+    }
+
+    // Notes are numbered in the order the text shows them. A text box's lines
+    // come after its paragraph's, so the note in the box, though it comes
+    // first in the document, is numbered after the paragraph's
+    void notesAreNumberedInTheOrderShown()
+    {
+        auto body = QByteArray(
+            R"(<w:p><w:r><w:t xml:space="preserve">Before </w:t></w:r>)"
+            R"(<w:r><w:pict><v:shape><v:textbox><w:txbxContent>)"
+            R"(<w:p><w:r><w:t>Box</w:t></w:r>)"
+            R"(<w:r><w:footnoteReference w:id="1"/></w:r></w:p>)"
+            R"(</w:txbxContent></v:textbox></v:shape></w:pict></w:r>)"
+            R"(<w:r><w:t>after</w:t></w:r>)"
+            R"(<w:r><w:footnoteReference w:id="2"/></w:r></w:p>)");
+
+        auto footnotes = notesPart_(
+            "footnotes",
+            R"(<w:footnote w:id="1"><w:p><w:r><w:t>In the box</w:t></w:r>)"
+            R"(</w:p></w:footnote>)"
+            R"(<w:footnote w:id="2"><w:p><w:r><w:t>In the text</w:t></w:r>)"
+            R"(</w:p></w:footnote>)");
+
+        QCOMPARE(
+            textWithNotes_(body, footnotes, {}),
+            u"Before after[1]\nBox[2]\n\n[1] In the text\n[2] In the box"_s);
+    }
+
+    // The characters that mark a reference while the text is read are
+    // dropped from a document's own text, so they can't pass for one
+    void markCharactersInTheTextAreDropped()
+    {
+        QCOMPARE(
+            textWithNotes_(
+                "<w:p><w:r><w:t>a\xEF\xB7\x90"
+                "0\xEF\xB7\x91"
+                "b</w:t></w:r>"
+                "<w:r><w:footnoteReference w:id=\"7\"/></w:r></w:p>",
+                {},
+                {}),
+            u"a0b[1]\n\n[1]"_s);
     }
 
     // Damaged notes give no text, as a damaged document does
