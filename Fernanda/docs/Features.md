@@ -39,6 +39,7 @@ The vault picker. It opens on first launch, whenever there is no vault to reopen
 
 - Create new vault (a name and a location)
 - Open folder as vault
+- Both start in the folder the last vault was made in or opened from, or in `Documents/Fernanda` the first time or when that folder is gone
 - Recent vaults, most recently used first, or by name, A to Z or Z to A. The button beside the list's title moves between the three orders, and the one chosen is kept. A vault whose folder is gone is shown as missing
 - Right-click a vault to rename it, reveal it in the file explorer, set it as the Common Vault, or remove it from the list. Removing never touches the folder. The Common Vault's own entry offers Unset Common Vault in place of Set and Remove
 - Renaming a vault renames its folder. A vault that is open, and the Common Vault, stay open under the new name
@@ -112,15 +113,19 @@ Whatever the type:
 
 - A name that's taken gets a number (`Chapter 1 1.txt`, `map 1.png`). A name beginning with a period loses it, so the file isn't hidden
 - A file already in the vault can be imported too, as a numbered copy. If it's open with typing not yet saved, it's saved first, so the copy holds what the window shows
+- A copy can be edited even when the file it came from is read-only
+- The dialog opens in the folder files were last imported from, in any window, or in Documents the first time or when that folder is gone
 - One imported file opens, replacing the current tab unless it's pinned. Several open nothing, so a batch doesn't fill the window with tabs. Either way the file tree selects the last one
 - A file that can't be imported leaves nothing in the vault. One message lists every file that didn't import and why
 
 #### Word documents
 
 - Each paragraph becomes a line. Tabs and line breaks are kept
-- Tracked changes come in as if accepted, and fields as the text they show (a page number, a date). A paragraph deleted whole leaves no line, and two paragraphs joined by deleting the break between them come in as one line
+- Tracked changes come in as if accepted, and fields as the text they show (a page number, a date). A paragraph or table row deleted whole leaves no line, and two paragraphs joined by deleting the break between them come in as one line
+- A field inside another field's code (a merge field tested by an IF, say) is part of that code, so only the outer field's result comes in
+- A paragraph whose end is hidden joins the next one, as Word shows it. This is how Word's style separator runs a heading into the text after it
 - A text box's text follows the paragraph it's anchored to, and a table's text comes row by row
-- Footnotes and endnotes are marked in the text as `[1]`, `[2]`, and so on, numbered together in the order they appear, and listed after the text, one per line
+- Footnotes and endnotes are marked in the text as `[1]`, `[2]`, and so on, numbered together in the order they appear in the imported text, and listed after the text, one per line. A text box's notes come after those of the paragraph it's anchored to, as its text does
 - Formatting is left behind: italics, bold, and headings, and list numbers and bullets. So are headers and footers, comments, images, and equations. Text hidden directly is left out; text hidden through a style comes in
 - A footnote with a custom mark in place of its number comes in with both: `[1]*`
 - Ruby (furigana, from Word's Phonetic Guide) comes in Aozora Bunko's plain-text notation, the one Japanese novels use: `｜漢字《かんじ》`, with the base after `｜` and the reading inside `《 》`

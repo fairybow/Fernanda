@@ -146,7 +146,8 @@ Each pane now has a header over its tab, as Obsidian's tab title bar does: back 
 
 - One import can mix types, and a name that's taken gets a number
 - In a Word document, each paragraph becomes a line, with tabs and line breaks kept. Tracked changes come in as if accepted, fields as the text they show, text boxes after the paragraph they're anchored to, and tables row by row
-- Footnotes and endnotes are marked in the text as `[1]`, `[2]`, and so on, and listed after it
+- Footnotes and endnotes are marked in the text as `[1]`, `[2]`, and so on, in the order they appear, and listed after it
+- The dialog opens in the folder you last imported from
 - Formatting, list numbers and bullets, headers and footers, comments, and images are left behind
 - A file that can't be imported leaves nothing behind, and one message lists every file that didn't import and why
 - Zip files are read with [miniz](https://github.com/richgel999/miniz), now listed under **Settings → General → Licenses**
@@ -160,6 +161,7 @@ See [Features.md](https://github.com/fairybow/Fernanda/blob/v0.30.0-beta.0/Ferna
 - Switching to the Git page selected the first changed file. Now nothing is selected until you click a file, and clicking below the files, or on the header beside the count, clears the selection
 - Opening the file already showing in the current tab (double-clicking it in the file tree, or choosing it in Go to File) put the cursor and scroll back at the top. The tab now keeps its place
 - Closing a file's last tab while a Git switch, pull, or discard was running wrote what you'd typed over the version Git was bringing in. Fernanda now keeps your typing until Git finishes, then takes in Git's version, and Ctrl+Z brings your typing back
+- **Create new vault** and **Open folder as vault** opened their dialogs beside the program when the folder you last used had since been deleted, renamed, or unplugged. They now start in `Documents/Fernanda` instead
 
 ---
 
