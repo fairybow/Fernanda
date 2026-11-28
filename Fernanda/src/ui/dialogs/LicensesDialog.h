@@ -232,6 +232,13 @@ private:
               hunspell_files });
 
         entries.append(
+            { u"miniz"_s,
+              tr("Reading and writing zip files."),
+              u"MIT"_s,
+              u"https://github.com/richgel999/miniz"_s,
+              { u":/licenses/miniz"_s } });
+
+        entries.append(
             { tr("English (US) dictionary"),
               tr("A bundled spelling dictionary, made from SCOWL by Kevin "
                  "Atkinson, as LibreOffice publishes it."),

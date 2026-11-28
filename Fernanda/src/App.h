@@ -559,13 +559,13 @@ private:
 
         for (auto& entry : openVaults_) {
             if (entry.vault) {
-                entry.vault->saveSettingsNow();
+                entry.vault->saveConfigNow();
                 entry.vault->saveHistoryNow();
             }
         }
 
         if (commonVault_) {
-            commonVault_->saveSettingsNow();
+            commonVault_->saveConfigNow();
             commonVault_->saveHistoryNow();
         }
     }
@@ -980,11 +980,18 @@ private:
                           ? commonVault_
                           : new Vault(vaultRoot, bufferStore_, this);
 
+        // Import's starting folder is App's, shared by every window: read
+        // when a dialog opens, and saved as soon as files are chosen
         auto window = new Ui::VaultWindow(
             vault,
             commonVault_,
             bufferStore_,
             [this] { return vaultEntries(); },
+            Ui::ImportFolder{ [this] { return appConfig_.importMruDir(); },
+                              [this](const Coco::Path& dir) {
+                                  appConfig_.setImportMruDir(dir);
+                                  appConfig_.save();
+                              } },
             appActions_,
             &spellCheckers_,
             &updater_,

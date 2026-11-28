@@ -5,6 +5,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 ## Current (sort later)
 
+- [ ] Would it be possible/good to store pinned tabs and all session data at relative paths, so a changed vault folder (or higher parent) still works with current dot fernanda folder JSONs?
 - [x] Update MS Store description and ensure doc aligns
 - [x] Ensure website is linked in MS Store over GitHub (maybe)
 - [x] Add writing history to README, MS Store, and webpage
@@ -26,6 +27,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 - [x] Two dialogs run with `exec()`, the non-UTF-8 warning (`LossyOpenPrompt`) and the save-failure message on a window close (`VaultWindow::showSaveFailure_`), were window-modal, so Quit from another window, or the missing-folder check when Fernanda becomes active, could close their window while the dialog's event loop was on its stack. A deferred delete runs in the loop it was posted from, so the window, and the dialog on the stack with it, would have been deleted before `exec()` returned. Both are now application-modal, and the folder check waits until no nested event loop runs (see "Dialogs and event loops" in [Architecture.md](Architecture.md)), which also covers Go to File and the tree's delete confirmation
 - [ ] Unverified on macOS: whether Quit from the Dock or the application menu still reaches `App` while an application-modal dialog is up. If it does, it closes windows under a running `exec()` as the old window-modal dialogs allowed
+- [ ] Unverified on Windows: whether the native file dialog (Import, Create new vault, Open folder as vault) keeps Fernanda's other windows from taking clicks, as Qt's own dialog does on Linux. If it doesn't, setting or unsetting the Common Vault in Manage Vaults during an Import from its drawer would delete the drawer's tree and the old Common Vault's `Vault` under the dialog, and the import would use them when the dialog returns. The fix would be for `App::setCommonVault_` to wait out nested event loops as the missing-folder check does
 - [ ] The Linux AppImage doesn't start on Ubuntu 22.04, Debian 12, Linux Mint 21, or other distros of that age. It carries no `libstdc++`, and Fernanda, built with g++ 13, needs `GLIBCXX_3.4.31`, which those distros' g++ 12 library doesn't have (the bundled Qt needs only `3.4.29`, and nothing needs a glibc newer than 2.34). It does start on Ubuntu 24.04, Debian 13, Fedora 38 and later, and Arch. Building with g++ 12 isn't an option, since Coco uses `<format>`. Until it's fixed, the README and release notes should give the minimum. The fix is to bundle g++ 13's `libstdc++` and `libgcc_s` and have the AppImage's launcher use them only when the system's are older, since an older `libstdc++` forced on a newer system breaks graphics drivers built against the system's. Linking `libstdc++` statically would leave two C++ runtimes in one process, Fernanda's and Qt's
 - [ ] The AppImage bundles only Qt's X11 platform plugin, so on a Wayland desktop Fernanda runs through XWayland, which can be blurry with fractional scaling. Bundling the Wayland plugin is a change to the AppImage step in `release.yml`
 - [x] Sidebar page switch buttons need constant for padding between the buttons (right now they're completely adjacent)
@@ -142,6 +144,18 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Menus and drop-down lists are drawn rounded in a see-through window, which needs a compositor on Linux. Without one, the corners may show dark. `Style` could draw them square there instead. Under X11 with no compositor, a window drawn this way showed as a solid black box over Manage Vaults at first launch, where the beta warning opens
 - [ ] A web address or a file path is spellchecked piece by piece, so "github" and "com" are marked
 - [ ] Unverified: text in decomposed Unicode form (a letter followed by a separate combining accent) is probably marked as misspelled against a dictionary that stores the single-character form. If so, normalize a word before it is checked
+- [x] A Word document's parts were found by their exact letter case, though the Open Packaging Conventions compare part names without it, so a zip holding `word/Document.xml` where the relationships name `word/document.xml` failed as not a Word document. `Zip::readEntry` now takes how to match, and the Word reader ignores case
+- [x] The Word reader (`Docx.h`) recursed for each level of XML nesting with no limit, so a crafted document with tens of thousands of nested elements overflowed the stack (confirmed under AddressSanitizer). Past 256 levels the document is now refused as damaged
+- [x] A table row deleted as a tracked change still came in from a Word document, though accepting the change removes it. The row is now skipped
+- [x] A Word paragraph whose mark was hidden (Word's style separator, which runs a heading into the text after it) came in as its own line. It now joins the next, as a deleted mark does
+- [x] A field nested in another field's instruction (a merge field inside an IF) came in as text beside the outer field's result. Everything in an instruction is now skipped, nested fields included
+- [x] A Word note referenced inside a text box was numbered by its place in the document, so it came before the paragraph's own notes though its text box's lines come after the paragraph. Notes are now numbered in the order the imported text shows them
+- [x] A copy made by Import kept its source's permissions, and on Windows its read-only attribute, so a copy of a read-only file couldn't be saved once edited. `Vault::copyFile` now makes the copy writable
+- [x] Import's file dialog opened beside the executable, since it was given no folder. It now starts where files were last imported from, or in Documents. Create new vault and Open folder as vault did the same when their last-used folder was gone, and now fall back to `Documents/Fernanda`
+- [x] A Word paragraph whose mark was a deleted tracked change came in as its own line: a paragraph deleted whole left an empty line, and two joined by deleting the break between them stayed apart. It now joins the next paragraph, as accepting the change does
+- [x] Ruby in a Word document came in with its reading run into its base. It's now written in Aozora Bunko's notation
+- [x] Importing a file that was open with typing not yet autosaved copied the older text on disk. `Vault::copyFile` now saves the file first, and refuses the copy if that save fails
+- [x] A Word field hidden only in part lost track of where it ended: a hidden run was skipped whole, field marks included, so a field whose separate and end marks were hidden stayed open in its instruction and the rest of the document came in empty, and a hidden begin inside another field's instruction showed part of that instruction. A hidden run's field marks are now still read, and only its text is left out
 - [x] Settings sliders whose ranges differed in digits (1 to 60 and 1 to 120) were different lengths, since each readout was as wide as its own largest number. Every readout now makes room for three digits (`DISPLAY_SLIDER_READOUT_DIGITS`)
 
 ## Before release
@@ -229,6 +243,8 @@ Run it once on each platform: on Windows signing in through Git Credential Manag
 
 ## Code
 
+- [x] `DocxTest.cpp` was never registered in `tests/CMakeLists.txt`, so neither CI nor CTest built or ran it. It's registered now
+- [x] `Zip::write` let a name start with a drive letter (`C:x`), which an unpack on Windows would read as a path on that drive, and let two entries share a name. `Zip::isEntryName` refuses the first, and the write refuses the second
 - [x] `GitRepository`'s class comment had lines broken short. Rewrapped
 - [x] Cleanup from the Git review: the six operation-step kinds in `GitRepository` are one, the toggle action is `repository.togglePage`, unused `using` lines are gone, the Git constants sit under their comments, and paths aren't written to a `git` that failed to start
 - [x] Remove the unused `GitBranchPlus` and `GitPullRequestArrow` icons from `Lucide.qrc` and `resources/lucide/`

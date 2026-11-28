@@ -4,3 +4,6 @@
 [submodule "Fernanda/submodules/hunspell"]
 	path = Fernanda/submodules/hunspell
 	url = https://github.com/hunspell/hunspell
+[submodule "Fernanda/submodules/miniz"]
+	path = Fernanda/submodules/miniz
+	url = https://github.com/richgel999/miniz

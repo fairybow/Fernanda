@@ -39,12 +39,13 @@ The vault picker. It opens on first launch, whenever there is no vault to reopen
 
 - Create new vault (a name and a location)
 - Open folder as vault
+- Both start in the folder the last vault was made in or opened from, or in `Documents/Fernanda` the first time or when that folder is gone
 - Recent vaults, most recently used first, or by name, A to Z or Z to A. The button beside the list's title moves between the three orders, and the one chosen is kept. A vault whose folder is gone is shown as missing
 - Right-click a vault to rename it, reveal it in the file explorer, set it as the Common Vault, or remove it from the list. Removing never touches the folder. The Common Vault's own entry offers Unset Common Vault in place of Set and Remove
 - Renaming a vault renames its folder. A vault that is open, and the Common Vault, stay open under the new name
 - A vault that is open can't be removed from the list until its window is closed. The Common Vault is removed by unsetting it, then removing it
 - A new name is checked as you type, by the same rules as a new vault's
-- **Licenses**, under the version, lists Fernanda and everything it is built on or bundles (Qt, Hunspell, the dictionary, the fonts, and the icons), each with its license text
+- **Licenses**, under the version, lists Fernanda and everything it is built on or bundles (Qt, Hunspell, miniz, the dictionary, the fonts, and the icons), each with its license text
 
 ### Vault switcher
 
@@ -91,14 +92,44 @@ Text files are read as UTF-8. A text file that isn't valid UTF-8 (an old Windows
 - Expanded folders are remembered per vault
 - Double-click a file to open it
 - Right-click a file: Open in new tab, Open to the right, Open in new window, Rename, Delete
-- Right-click a folder: New file, New folder, Rename, Delete
-- Right-click empty space: New file, New folder (at the vault root)
+- Right-click a folder: New file, New folder, Import, Rename, Delete
+- Right-click empty space: New file, New folder, Import (at the vault root)
 - New file and New folder open the folder they're made in, and select the new entry. A new file opens in the editor too
 - Click anywhere off the rows to clear the selection
 - Drag a file or folder onto a folder to move it there, or onto empty space to move it to the vault root. Folders expand when hovered and the tree scrolls while dragging
 - Drag a file onto an editor pane to open it there
 - Delete always asks first, and moves the entry to the system trash. If the trash refuses it (a network share, for instance), nothing is deleted. On macOS, Finder offers no Put Back for anything an app moves to the trash: drag it back instead
 - Names are checked as you type for characters and names the operating system forbids
+
+### Importing
+
+File → Import…, or Import in a file tree's right-click menu, brings files from anywhere on the computer into the vault: at the vault root from the File menu, or in the folder that was right-clicked. Several can be chosen at once, of any importable types. Each file's extension decides what happens to it:
+
+- A file Fernanda opens (see [Supported types](#supported-types)) is copied in unchanged, byte for byte, under its own name
+- A Word document (`.docx`) is converted to plain text, as a `.txt` file with the document's name
+- Any other file is refused, even one typed into the dialog's name box
+
+Whatever the type:
+
+- A name that's taken gets a number (`Chapter 1 1.txt`, `map 1.png`). A name beginning with a period loses it, so the file isn't hidden
+- A file already in the vault can be imported too, as a numbered copy. If it's open with typing not yet saved, it's saved first, so the copy holds what the window shows
+- A copy can be edited even when the file it came from is read-only
+- The dialog opens in the folder files were last imported from, in any window, or in Documents the first time or when that folder is gone
+- One imported file opens, replacing the current tab unless it's pinned. Several open nothing, so a batch doesn't fill the window with tabs. Either way the file tree selects the last one
+- A file that can't be imported leaves nothing in the vault. One message lists every file that didn't import and why
+
+#### Word documents
+
+- Each paragraph becomes a line. Tabs and line breaks are kept
+- Tracked changes come in as if accepted, and fields as the text they show (a page number, a date). A paragraph or table row deleted whole leaves no line, and two paragraphs joined by deleting the break between them come in as one line
+- A field inside another field's code (a merge field tested by an IF, say) is part of that code, so only the outer field's result comes in
+- A paragraph whose end is hidden joins the next one, as Word shows it. This is how Word's style separator runs a heading into the text after it
+- A text box's text follows the paragraph it's anchored to, and a table's text comes row by row
+- Footnotes and endnotes are marked in the text as `[1]`, `[2]`, and so on, numbered together in the order they appear in the imported text, and listed after the text, one per line. A text box's notes come after those of the paragraph it's anchored to, as its text does
+- Formatting is left behind: italics, bold, and headings, and list numbers and bullets. So are headers and footers, comments, images, and equations. Text hidden directly is left out; text hidden through a style comes in
+- A footnote with a custom mark in place of its number comes in with both: `[1]*`
+- Ruby (furigana, from Word's Phonetic Guide) comes in Aozora Bunko's plain-text notation, the one Japanese novels use: `｜漢字《かんじ》`, with the base after `｜` and the reading inside `《 》`
+- Old `.doc` files aren't supported. Save them as `.docx` in Word first
 
 ### Go to File
 
@@ -456,6 +487,7 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 - **No Markdown pairing.** Obsidian's "Auto pair Markdown syntax" pairs `*`, `_`, and the like, and applies them to selected text. Fernanda pairs brackets and quotes only
 - **A focus timer is built in.** Obsidian has none; community plugins add one, and some of them log each session to a note. Fernanda's settings are kept per vault, as a plugin's are, and it writes nothing into the vault
 - **Writing history is built in.** Obsidian has none; community plugins such as Better Word Count keep the words typed today and totals for the vault. Fernanda's is kept per vault, in the vault, and adds up the writing from every computer the vault is synced to
+- **Import is built in,** for any file Fernanda opens, which is copied in, and for Word documents, converted to plain text. Obsidian brings files in by dragging them onto its file explorer, which Fernanda doesn't do yet. Its Importer plugin has you pick a format before the files, and doesn't take Word documents; community plugins convert them to Markdown. Fernanda picks what to do from each file's extension, so one import can mix types
 - **Git is built in.** Obsidian has none; its community plugin Obsidian Git adds commits, pulls, and pushes, which it can also run on a schedule. Fernanda's Git page does what GitHub Desktop does, and contacts the remote only when you click
 - **Updates aren't installed for you.** Fernanda says a newer version is out and links to it. Obsidian downloads updates itself and applies them when it restarts
 
@@ -466,6 +498,7 @@ Obsidian has nothing made for long writing projects, so for those features Scriv
 - **Writing history keeps words written as well as net words.** Scrivener's Writing History keeps net words alone, worked out from the change in the project's total, so a day spent rewriting can show little or nothing. Fernanda also keeps the words each edit added, which deleting doesn't take away
 - **Writing time is recorded.** Scrivener's Writing History records words and characters
 - **Each computer keeps its own record, and the records are added up.** A vault synced between computers, or committed with Git, shows the writing done on all of them, and no two computers write the same file. Scrivener keeps one history inside the project, and people syncing a project between devices report days that come out as zero or a handful of words
+- **Word documents come in as plain text.** Scrivener's File → Import → Files keeps a Word document's formatting, as rich text, and its Import and Split cuts one into several documents at a separator. Fernanda keeps the words, with footnotes and endnotes as numbered notes after the text, one document to one file
 
 ## Known limits
 

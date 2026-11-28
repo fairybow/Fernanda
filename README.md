@@ -105,7 +105,7 @@ You'll need:
 - A C++20 compiler: MSVC 2022, GCC 13, or Apple Clang
 - Qt 6.7 or later, with the Qt PDF and Qt Image Formats modules. Fernanda is developed on Qt 6.11
 
-Clone with submodules, since [Coco](https://github.com/fairybow/Coco) (Fernanda's support library) and [Hunspell](https://github.com/hunspell/hunspell) are submodules:
+Clone with submodules, since [Coco](https://github.com/fairybow/Coco) (Fernanda's support library), [Hunspell](https://github.com/hunspell/hunspell), and [miniz](https://github.com/richgel999/miniz) are submodules:
 
 ```
 git clone --recurse-submodules https://github.com/fairybow/Fernanda

@@ -63,6 +63,7 @@
 #include "core/writing/FocusTimer.h"
 #include "models/ImageFileModel.h"
 #include "models/PdfFileModel.h"
+#include "ui/FileImport.h"
 #include "ui/OpenMode.h"
 #include "ui/UiConstants.h"
 #include "ui/WorkspaceFile.h"
@@ -101,15 +102,18 @@ public:
     // null when there is no Common Vault, and is the window's own Vault in the
     // Common Vault's own window. It can change later (setCommonVault).
     // vaultsProvider is App's vaultEntries(), passed straight to the Sidebar's
-    // switcher. appActions are App's own actions: the base adopts them, and
-    // this window hands the set on to every pop-out it makes. spellCheckers is
-    // App's too, and is where each text view's dictionary comes from. So are
-    // updater and translations, which the settings dialog's General page shows
+    // switcher. importFolder is where App keeps Import's starting folder,
+    // shared with the Sidebar's trees. appActions are App's own actions: the
+    // base adopts them, and this window hands the set on to every pop-out it
+    // makes. spellCheckers is App's too, and is where each text view's
+    // dictionary comes from. So are updater and translations, which the
+    // settings dialog's General page shows
     VaultWindow(
         Vault* borrowedVault,
         Vault* commonVault,
         BufferStore* bufferStore,
         std::function<QList<VaultEntry>()> vaultsProvider,
+        const ImportFolder& importFolder,
         const AppActions& appActions,
         SpellCheckers* spellCheckers,
         Updater* updater,
@@ -119,6 +123,7 @@ public:
         , commonVault_(commonVault)
         , bufferStore_(bufferStore)
         , vaultsProvider_(std::move(vaultsProvider))
+        , importFolder_(importFolder)
         , appActions_(appActions)
         , spellCheckers_(spellCheckers)
         , updater_(updater)
@@ -243,7 +248,7 @@ protected:
 
         // A settings change or writing history a moment old is written now,
         // not left to a timer that may never fire
-        vault_->saveSettingsNow();
+        vault_->saveConfigNow();
         vault_->saveHistoryNow();
 
         // Committed to closing: persist final workspace before tearing anything
@@ -277,6 +282,10 @@ private:
     // App's vaultEntries() — handed to the Sidebar's VaultSwitcher for its
     // "other vaults" menu. Held so setup_ can pass it on
     std::function<QList<VaultEntry>()> vaultsProvider_;
+
+    // App's, for File > Import, and held so setup_ can pass it on to the
+    // Sidebar for the trees' Import
+    ImportFolder importFolder_{};
 
     // App's actions, held only to hand on to pop-outs — the base already
     // adopted them for this window. Not owned here; App outlives every window
@@ -357,6 +366,7 @@ private:
             focusTimer_,
             gitRepository_,
             vaultsProvider_,
+            importFolder_,
             this);
 
         connect(
@@ -766,6 +776,16 @@ private:
             this,
             &VaultWindow::onNewFolderRequested_);
 
+        auto* import_files = registerAction(
+            ActionIds::FILE_IMPORT,
+            tr("Import..."),
+            QKeySequence{});
+        connect(
+            import_files,
+            &QAction::triggered,
+            this,
+            &VaultWindow::onImportRequested_);
+
         // Ctrl+, is Obsidian's settings hotkey. Explicit rather than
         // QKeySequence::Preferences, which is empty on Windows (as Quit is)
         auto* open_settings = registerAction(
@@ -822,6 +842,8 @@ private:
         file_menu->addAction(action(ActionIds::FILE_NEW));
         file_menu->addAction(action(ActionIds::FILE_OPEN));
         file_menu->addAction(action(ActionIds::FOLDER_NEW));
+        file_menu->addSeparator();
+        file_menu->addAction(action(ActionIds::FILE_IMPORT));
         file_menu->addSeparator();
         file_menu->addAction(action(ActionIds::VAULT_OPEN_SETTINGS));
         file_menu->addAction(action(ActionIds::VAULT_OPEN_WRITING_HISTORY));
@@ -1016,6 +1038,25 @@ private:
     // reflects it exactly as the tree's own New Folder does. createFolder warns
     // and no-ops on failure
     void onNewFolderRequested_() { vault_->createFolder(vault_->rootKey()); }
+
+    // Import: chosen files come into the vault root (importFiles), converted
+    // or copied by type. One imported file opens, as New File's does; several
+    // open nothing, so a batch doesn't fill the window with tabs. The tree
+    // shows the last
+    void onImportRequested_()
+    {
+        auto keys = importFiles(this, vault_, vault_->rootKey(), importFolder_);
+
+        if (keys.isEmpty()) {
+            return;
+        }
+
+        if (keys.size() == 1) {
+            openFile(keys.first(), OpenMode::ReplaceActive);
+        }
+
+        sidebar_->fileTree()->reveal(keys.last().path());
+    }
 
     // Ctrl+M / View menu: flip the menu bar's visibility. The shortcut is
     // window-owned, so it works while the bar is hidden — the way back from a

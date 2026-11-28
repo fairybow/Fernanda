@@ -17,8 +17,8 @@
 find_package(Qt6 REQUIRED COMPONENTS Test)
 
 # What any target here needs to compile the app's headers: the same include
-# root, the same APP_DEBUG definition, Coco, Hunspell, the same Qt modules,
-# and the same compiler options.
+# root, the same APP_DEBUG definition, Coco, Hunspell, miniz, the same Qt
+# modules, and the same compiler options.
 function(app_configure_test_target name)
     target_include_directories(${name} PRIVATE
         ${PROJECT_SOURCE_DIR}/src
@@ -38,6 +38,7 @@ function(app_configure_test_target name)
     target_link_libraries(${name} PRIVATE
         Coco::Coco
         hunspell
+        miniz
         Qt6::Core
         Qt6::Gui
         Qt6::PdfWidgets
@@ -107,6 +108,7 @@ app_add_test(AppConfigTest)
 app_add_test(BreadcrumbFitTest)
 app_add_test(BufferStoreTest)
 app_add_test(BufferStoreTimedTest)
+app_add_test(DocxTest)
 app_add_test(FileTypesTest)
 app_add_test(FocusCycleTest)
 app_add_test(GitDiffTest)
@@ -115,6 +117,7 @@ app_add_test(GitRemoteTest)
 app_add_test(GitRepositoryTest)
 app_add_test(GitSafeDirectoryTest)
 app_add_test(GitStatusTest)
+app_add_test(ImportTypesTest)
 app_add_test(IoTest)
 app_add_test(MisspellingTest)
 app_add_test(PrimeDocumentTest)
@@ -137,6 +140,7 @@ app_add_test(VaultTest)
 app_add_test(VaultTreeModelTest)
 app_add_test(WordListTest)
 app_add_test(WritingHistoryTest)
+app_add_test(ZipTest)
 
 # The dictionary that ships with the app, compiled into the one test that
 # installs it

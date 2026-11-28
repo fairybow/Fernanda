@@ -285,6 +285,14 @@
         <translation type="unfinished">Restablecer zoom</translation>
     </message>
     <message>
+        <source>Navigate Back</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Navigate Forward</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Find</source>
         <translation type="unfinished">Buscar</translation>
     </message>
@@ -821,6 +829,10 @@
         <translation type="unfinished">Revisión ortográfica. Se usa bajo la GNU GPL v2 o posterior, una de sus tres licencias. Incluye MySpell, cuyo aviso sigue al suyo.</translation>
     </message>
     <message>
+        <source>Reading and writing zip files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>English (US) dictionary</source>
         <translation type="unfinished">Diccionario de inglés (EE. UU.)</translation>
     </message>
@@ -1002,6 +1014,18 @@
     <message>
         <source>The text font&apos;s size, in points.</source>
         <translation type="unfinished">El tamaño de la fuente del texto, en puntos.</translation>
+    </message>
+    <message>
+        <source>Interface</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show tab title bar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show a header at the top of every tab, with its back and forward arrows and its file&apos;s path.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1429,6 +1453,17 @@
     </message>
 </context>
 <context>
+    <name>Fernanda::Ui::TabHeader</name>
+    <message>
+        <source>Navigate back</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Navigate forward</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Fernanda::Ui::TabPaneLeaf</name>
     <message>
         <source>Close</source>
@@ -1459,6 +1494,10 @@
     <message>
         <source>New folder</source>
         <translation type="unfinished">Carpeta nueva</translation>
+    </message>
+    <message>
+        <source>Import...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Open in new tab</source>
@@ -1556,6 +1595,10 @@
     <message>
         <source>New Folder</source>
         <translation type="unfinished">Carpeta nueva</translation>
+    </message>
+    <message>
+        <source>Import...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Settings...</source>
@@ -1736,6 +1779,60 @@ La ventana seguirá abierta para que no pierdas tus cambios. Cuando se resuelva 
     <message>
         <source>Fit</source>
         <translation type="unfinished">Ajustar</translation>
+    </message>
+</context>
+<context>
+    <name>FileImport</name>
+    <message>
+        <source>&quot;%1&quot; is damaged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; isn&apos;t a Word document Fernanda can read.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Word documents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Text files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PDFs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Images</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Importable files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fernanda can&apos;t import &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; couldn&apos;t be saved in the vault.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln file(s) couldn&apos;t be imported:</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>

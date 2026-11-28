@@ -169,6 +169,16 @@
     </message>
 </context>
 <context>
+    <name>FileImport</name>
+    <message numerus="yes">
+        <source>%Ln file(s) couldn&apos;t be imported:</source>
+        <translation>
+            <numerusform>%Ln file couldn&apos;t be imported:</numerusform>
+            <numerusform>%Ln files couldn&apos;t be imported:</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
     <name>LossyOpenPrompt</name>
     <message numerus="yes">
         <source>%n line(s) contain characters Fernanda can&apos;t read. They&apos;ll open as:</source>

@@ -146,6 +146,11 @@ signals:
     void newFileRequested(const Coco::Path& absoluteDir);
     void newFolderRequested(const Coco::Path& absoluteDir);
 
+    // The context menu asked to import files into this absolute directory (a
+    // folder in the tree, or the vault root for empty space). The Sidebar runs
+    // the import, which asks which files
+    void importRequested(const Coco::Path& absoluteDir);
+
     // The context menu asked to rename an entry in place: absoluteOld is the
     // existing file/folder, newLeaf its new on-disk name (a file's extension is
     // already reattached — the dialog edits the stem). The Sidebar routes it to
@@ -295,7 +300,7 @@ private:
 
     // Transient actions wired straight to intents — VaultFileTree owns no
     // QActions, so nothing here collides with the menu bar's (root-only,
-    // selection-blind) create actions
+    // selection-blind) create and import actions
     void addCreateActions_(QMenu& menu, const Coco::Path& targetDir)
     {
         connect(
@@ -309,6 +314,14 @@ private:
             &QAction::triggered,
             this,
             [this, targetDir] { emit newFolderRequested(targetDir); });
+
+        menu.addSeparator();
+
+        connect(
+            menu.addAction(tr("Import...")),
+            &QAction::triggered,
+            this,
+            [this, targetDir] { emit importRequested(targetDir); });
     }
 
     // Transient, like the create actions — VaultFileTree owns no QAction, so

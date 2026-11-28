@@ -38,7 +38,8 @@ using Fernanda::VaultOrder;
 
 // The app's own settings file (core/app/AppConfig.h): the known-vaults list,
 // whose records name folders by any spelling, the Common Vault's three states,
-// the vault list's order, and what survives a save and a load.
+// the vault list's order, Import's starting folder, and what survives a save
+// and a load.
 //
 // Qt's test mode puts the settings file in a folder of its own, away from the
 // real one, and each test starts with no file there. The vault folders are
@@ -323,6 +324,78 @@ private slots:
         config.load();
 
         QCOMPARE(config.vaultOrder(), VaultOrder::Recent);
+    }
+
+    // --- The new-vault folder ----------------------------------------------
+
+    void theNewVaultFolderStartsAtTheDefault()
+    {
+        AppConfig config{};
+        config.load();
+        QCOMPARE(config.newVaultMruDir(), Fernanda::AppDirs::defaultDocs());
+    }
+
+    // A folder gone since reads as the default, so the dialogs don't open
+    // beside the executable
+    void aMissingNewVaultFolderReadsAsTheDefault()
+    {
+        Coco::Path gone{};
+
+        {
+            QTemporaryDir folder{};
+            gone = Coco::Path(folder.path());
+        }
+
+        AppConfig config{};
+        config.setNewVaultMruDir(gone);
+        QCOMPARE(config.newVaultMruDir(), Fernanda::AppDirs::defaultDocs());
+    }
+
+    // --- Import's starting folder -------------------------------------------
+
+    // Documents until a folder is chosen, and not written while unset
+    void theImportFolderStartsAtDocuments()
+    {
+        AppConfig config{};
+        config.load();
+        QCOMPARE(config.importMruDir(), Coco::Path::Documents());
+
+        QVERIFY(config.save());
+        QFile file(filePath_().toQString());
+        QVERIFY(file.open(QIODevice::ReadOnly));
+        QVERIFY(!QJsonDocument::fromJson(file.readAll())
+                     .object()
+                     .contains(u"importMruDir"_s));
+    }
+
+    void anImportFolderIsSavedAndLoaded()
+    {
+        QTemporaryDir folder{};
+        Coco::Path chosen(folder.path());
+
+        AppConfig config{};
+        config.setImportMruDir(chosen);
+        QVERIFY(config.save());
+
+        AppConfig reloaded{};
+        reloaded.load();
+        QCOMPARE(reloaded.importMruDir(), chosen);
+    }
+
+    // A folder gone since (a drive removed) reads as Documents, so the
+    // dialog doesn't open beside the executable
+    void aMissingImportFolderReadsAsDocuments()
+    {
+        Coco::Path gone{};
+
+        {
+            QTemporaryDir folder{};
+            gone = Coco::Path(folder.path());
+        }
+
+        AppConfig config{};
+        config.setImportMruDir(gone);
+        QCOMPARE(config.importMruDir(), Coco::Path::Documents());
     }
 };
 

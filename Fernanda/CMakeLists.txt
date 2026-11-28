@@ -19,7 +19,7 @@ set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Fernanda)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# NB: Not used yet, but will be most likely - keep
+# C, for miniz
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
@@ -84,6 +84,56 @@ if(MSVC)
     target_compile_options(hunspell PRIVATE /w)
 else()
     target_compile_options(hunspell PRIVATE -w)
+endif()
+
+# --- miniz (submodule) ---
+
+# miniz is compiled here from its sources, as Hunspell is, rather than through
+# its own CMake, which writes Release into the cache's CMAKE_BUILD_TYPE when
+# it's empty. Its headers include miniz_export.h, which its CMake would
+# generate; for a static library the macro is empty, so a stand-in is written
+# to the build tree (file(CONFIGURE) rewrites it only when its content changes,
+# so miniz isn't rebuilt on every configure).
+#
+# MINIZ_NO_STDIO leaves out miniz's own file functions, so archives are read
+# and written only through callbacks. MINIZ_NO_ZLIB_COMPATIBLE_NAMES keeps
+# zlib's names (compress, crc32, Byte, Z_NULL...) out of the global namespace.
+# Both are PUBLIC so Fernanda sees the header as miniz was compiled
+set(_miniz_dir submodules/miniz)
+set(_miniz_generated_dir ${CMAKE_CURRENT_BINARY_DIR}/miniz)
+
+file(CONFIGURE
+    OUTPUT ${_miniz_generated_dir}/miniz_export.h
+    CONTENT "#pragma once\n#define MINIZ_EXPORT\n"
+)
+
+add_library(miniz STATIC
+    ${_miniz_dir}/miniz.c
+    ${_miniz_dir}/miniz_tdef.c
+    ${_miniz_dir}/miniz_tinfl.c
+    ${_miniz_dir}/miniz_zip.c
+)
+
+set_target_properties(miniz PROPERTIES
+    AUTOMOC OFF
+    AUTOUIC OFF
+    AUTORCC OFF
+)
+
+target_include_directories(miniz SYSTEM PUBLIC
+    ${_miniz_dir}
+    ${_miniz_generated_dir}
+)
+
+target_compile_definitions(miniz PUBLIC
+    MINIZ_NO_STDIO
+    MINIZ_NO_ZLIB_COMPATIBLE_NAMES
+)
+
+if(MSVC)
+    target_compile_options(miniz PRIVATE /w)
+else()
+    target_compile_options(miniz PRIVATE -w)
 endif()
 
 # =============================================================================
@@ -203,9 +253,11 @@ set(APP_HEADERS
     src/core/dist/Version.h
 
     src/core/files/FileTypes.h
+    src/core/files/ImportTypes.h
     src/core/files/Io.h
     src/core/files/JsonIo.h
     src/core/files/PathKey.h
+    src/core/files/Zip.h
 
     src/core/git/GitDiff.h
     src/core/git/GitRefName.h
@@ -316,6 +368,7 @@ set(APP_HEADERS
     src/ui/windows/VaultOrderButton.h
     src/ui/windows/VaultWindow.h
 
+    src/ui/FileImport.h
     src/ui/OpenMode.h
     src/ui/Style.h
     src/ui/UiConstants.h
@@ -418,6 +471,7 @@ target_compile_definitions(Fernanda PRIVATE
 target_link_libraries(Fernanda PRIVATE
     Coco::Coco
     hunspell
+    miniz
     Qt6::Core
     Qt6::Gui
     Qt6::Network

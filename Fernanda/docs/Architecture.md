@@ -39,14 +39,14 @@ Everything is under `Fernanda/src/`, in the `Fernanda` namespace. Apart from `Ma
 | `core/` | Constants shared by the folders below, the keys of `workspace.json`, and a window's recent files |
 | `core/app/` | What `App` owns: the app's settings file and folders, the actions it owns and the action ids, launch arguments, the interface language, the bundled fonts, the list of known vaults with its order, and the check that the build's own macros are defined |
 | `core/dist/` | The version and publication details, the update check, and whether Fernanda runs from the Microsoft Store package |
-| `core/files/` | File keys, file types, and file IO, plain and JSON |
+| `core/files/` | File keys, the types Fernanda opens and imports, file IO (plain, JSON, and zip), and reading Word documents |
 | `core/git/` | The repository a vault is in, and reading what `git` prints: status, diffs, remote addresses, branch names as they're typed, and the folder Git refuses to trust |
 | `core/spell/` | Spellcheck: the dictionaries, the word rules, and the vault's word lists |
 | `core/vault/` | `Vault`, the buffer store, the vault tree model, the vault's configuration, and its `.fernanda` folder |
 | `core/writing/` | The focus timer and its rules, the writing history, and the word and character counts |
 | `models/` | One buffer class per file type, and the prime document |
 | `views/` | One view class per file type, and the parts only views use: the text editor with its selection handles and typing helpers, the find bar and the search functions behind it, and the zoom control with its state |
-| `ui/` | The windows and what they open directly: workspace persistence, Go to File, the vault picker, the status bar items. Also the application's style |
+| `ui/` | The windows and what they open directly: workspace persistence, Go to File, the vault picker, importing, the status bar items. Also the application's style |
 | `ui/tabs/` | The split tree, its leaves, the tab bar and its buttons, the new-tab page |
 | `ui/sidebar/` | The sidebar and its page buttons, the file trees, the common drawer, the vault switcher, the settings and focus timer buttons |
 | `ui/settings/` | The settings dialog, its pages, and their rows |
@@ -65,7 +65,7 @@ Includes run one way, from the top of this list down:
 
 `Vault`, `BufferStore`, and everything they own create no window or widget and refer to none, so the data layer can't come to depend on one. They are not limited to QtCore: a text buffer is a `QTextDocument` with a plain-text layout (QtGui and QtWidgets), an image buffer holds a `QPixmap`, and a PDF buffer a `QPdfDocument`. `VaultTreeModel` and the configuration types are QtCore only.
 
-[Coco](https://github.com/fairybow/Coco), a submodule, supplies paths (`Coco::Path`), logging, debounce timers, the countdown the focus timer runs on, and the single-instance guard. [Hunspell](https://github.com/hunspell/hunspell), also a submodule and pinned to a release tag, checks spelling. It has no CMake build of its own, so Fernanda's CMake builds its sources as a static library, with its warnings off.
+[Coco](https://github.com/fairybow/Coco), a submodule, supplies paths (`Coco::Path`), logging, debounce timers, the countdown the focus timer runs on, and the single-instance guard. [Hunspell](https://github.com/hunspell/hunspell), also a submodule and pinned to a release tag, checks spelling. It has no CMake build of its own, so Fernanda's CMake builds its sources as a static library, with its warnings off. [miniz](https://github.com/richgel999/miniz), a submodule pinned to a release tag too, reads and writes zip files, for importing Word documents. It's built from its sources the same way, though it has a CMake build: that build writes Release into the build type when none is set. It's built without its own file functions, so archives are read and written only through Qt (`QFile`, and `QSaveFile` for a write that's whole or absent), and without zlib's names, which it would otherwise put in the global namespace of every file that includes it.
 
 ## Ownership
 
@@ -276,6 +276,8 @@ The file trees hand out absolute paths; the sidebar makes them keys.
 
 Which class a file gets is decided by its extension, from one table in `core/files/FileTypes.h`. The same table decides what the file trees and Go to File list, so they can't disagree with what the vault will open. `BufferStore::openModel` refuses anything not in the table before reading it; that refusal is the authority, and the hiding upstream is a courtesy.
 
+What can be imported comes from `core/files/ImportTypes.h`. Its table lists only the types converted on import (a Word document, read by `Docx.h`), and every type `FileTypes` lists is copied in unchanged, so the two can't disagree about what a copy may bring into a vault. Converted types stay out of `FileTypes`, which would otherwise list them in the trees as files Fernanda opens. `Vault::copyFile` refuses anything `FileTypes` doesn't list.
+
 PDF and image buffers share no base beyond `AbstractFileModel`. What they have in common is one byte array.
 
 ### The prime document
@@ -356,7 +358,7 @@ Every save, whatever triggered it, goes through one private function in `BufferS
 
 The debounce restarts on every edit and fires when typing pauses. The ceiling starts once per burst and is never restarted, so it still fires under input that never pauses. Whichever fires first saves every modified buffer. One pair for the whole app is enough: one writer types one burst at a time.
 
-A window close saves only the files the window shows, so a file that fails to save in another window can't hold this one open. A buffer no window shows that still has unsaved text (its last view's save failed, or its file was held by Git) is written on focus loss and at quit. Each of these exit paths also writes its vault's pending settings change and writing history (`Vault::saveSettingsNow`, `Vault::saveHistoryNow`).
+A window close saves only the files the window shows, so a file that fails to save in another window can't hold this one open. A buffer no window shows that still has unsaved text (its last view's save failed, or its file was held by Git) is written on focus loss and at quit. Each of these exit paths also writes its vault's pending settings change and writing history (`Vault::saveConfigNow`, `Vault::saveHistoryNow`).
 
 ### A save never creates
 
@@ -471,7 +473,7 @@ All of it but a vault's dictionary is JSON, read and written by stateless free f
 
 | What | File | Type | Owner |
 |---|---|---|---|
-| Known vaults, the Common Vault, session, last-used folder, update settings, the version whose beta warning was muted, interface language | `fernanda.json` in the app data folder | `AppConfig` | `App` |
+| Known vaults, the Common Vault, session, last-used folders (new vault, import), update settings, the version whose beta warning was muted, interface language | `fernanda.json` in the app data folder | `AppConfig` | `App` |
 | Per-vault settings | `.fernanda/settings.json`, `.fernanda/appearance.json` | `VaultConfig` | `Vault` |
 | Window and tab layout | `.fernanda/workspace.json` | `WorkspaceFile` | `VaultWindow` |
 | A vault's dictionary | `.fernanda/dictionary.txt`, one word per line | `WordList` | `Vault` |

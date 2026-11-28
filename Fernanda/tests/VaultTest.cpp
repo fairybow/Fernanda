@@ -16,6 +16,7 @@
 #include <QByteArray>
 #include <QDir>
 #include <QFile>
+#include <QFileDevice>
 #include <QFileInfo>
 #include <QIODevice>
 #include <QList>
@@ -170,6 +171,22 @@ private:
         cursor.insertText(text);
     }
 
+    // Writes a file outside any vault, for a copy to bring in
+    [[nodiscard]] static Coco::Path writeOutside_(
+        const QTemporaryDir& folder,
+        const QString& name,
+        const QByteArray& bytes)
+    {
+        auto path = Coco::Path(folder.filePath(name));
+        QFile file(path.toQString());
+
+        if (file.open(QIODevice::WriteOnly)) {
+            file.write(bytes);
+        }
+
+        return path;
+    }
+
     // The names of the history files in a vault folder
     [[nodiscard]] static QStringList
     historyFilesIn_(const QTemporaryDir& folder)
@@ -314,6 +331,211 @@ private slots:
         QVERIFY(f.vault.createFile(f.key(u"gone"_s)).isEmpty());
         QVERIFY(f.vault.createFolder(f.key(u"gone"_s)).isEmpty());
         QVERIFY(!f.exists(u"gone"_s));
+    }
+
+    // A file made with a name and text takes the name, with .txt, and holds
+    // the text as UTF-8
+    void createFileWithTextWritesItUnderTheStem()
+    {
+        Fixture_ f{};
+
+        QCOMPARE(
+            f.vault
+                .createFile(f.rootKey(), u"Chapter 1"_s, u"Caf\u00E9\nNext"_s),
+            f.key(u"Chapter 1.txt"_s));
+        QCOMPARE(f.read(u"Chapter 1.txt"_s), QByteArray("Caf\xC3\xA9\nNext"));
+    }
+
+    void createFileWithTextNamesAreUnique()
+    {
+        Fixture_ f{};
+
+        QCOMPARE(
+            f.vault.createFile(f.rootKey(), u"Chapter 1"_s, u"a"_s),
+            f.key(u"Chapter 1.txt"_s));
+        QCOMPARE(
+            f.vault.createFile(f.rootKey(), u"Chapter 1"_s, u"b"_s),
+            f.key(u"Chapter 1 1.txt"_s));
+        QCOMPARE(f.read(u"Chapter 1.txt"_s), QByteArray("a"));
+    }
+
+    // A stem beginning with a period would hide the file, so the periods go,
+    // and a stem of nothing but periods becomes "Untitled"
+    void createFileWithTextNamesAreNeverHidden()
+    {
+        Fixture_ f{};
+
+        QCOMPARE(
+            f.vault.createFile(f.rootKey(), u".notes"_s, u"a"_s),
+            f.key(u"notes.txt"_s));
+        QCOMPARE(
+            f.vault.createFile(f.rootKey(), u"..."_s, u"b"_s),
+            f.key(u"Untitled.txt"_s));
+    }
+
+    // --- Copying -------------------------------------------------------------
+
+    // The bytes come in as they are: CRLF line endings, and bytes that aren't
+    // UTF-8, which only opening the file would ask about
+    void copyFileCopiesTheBytesUnderTheFilesName()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        QByteArray bytes("Caf\xE9\r\nNext");
+        auto source = writeOutside_(elsewhere, u"Notes.md"_s, bytes);
+
+        QCOMPARE(f.vault.copyFile(f.rootKey(), source), f.key(u"Notes.md"_s));
+        QCOMPARE(f.read(u"Notes.md"_s), bytes);
+        QVERIFY(source.isFile());
+    }
+
+    void copiedNamesAreUnique()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        auto source = writeOutside_(elsewhere, u"Notes.md"_s, "b");
+        f.write(u"Notes.md"_s, "a");
+
+        QCOMPARE(f.vault.copyFile(f.rootKey(), source), f.key(u"Notes 1.md"_s));
+        QCOMPARE(f.read(u"Notes.md"_s), QByteArray("a"));
+        QCOMPARE(f.read(u"Notes 1.md"_s), QByteArray("b"));
+    }
+
+    void copiedNamesAreNeverHidden()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        auto source = writeOutside_(elsewhere, u".notes.md"_s, "a");
+
+        QCOMPARE(f.vault.copyFile(f.rootKey(), source), f.key(u"notes.md"_s));
+    }
+
+    // The extension isn't respelled. Checked by the folder's own listing, so
+    // a filesystem that ignores case still shows it
+    void copyFileKeepsTheExtensionsLetterCase()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        auto source = writeOutside_(elsewhere, u"Notes.MD"_s, "a");
+        f.makeFolder(u"one"_s);
+
+        QVERIFY(!f.vault.copyFile(f.key(u"one"_s), source).isEmpty());
+        QCOMPARE(f.namesIn(u"one"_s), QStringList{ u"Notes.MD"_s });
+    }
+
+    void copyIntoAFolder()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        auto source = writeOutside_(elsewhere, u"map.png"_s, "png");
+        f.makeFolder(u"one"_s);
+
+        QCOMPARE(
+            f.vault.copyFile(f.key(u"one"_s), source),
+            f.key(u"one/map.png"_s));
+    }
+
+    // A file already in the vault is copied like any other
+    void copyFromInsideTheVaultMakesACopy()
+    {
+        Fixture_ f{};
+        f.write(u"Notes.md"_s, "a");
+
+        QCOMPARE(
+            f.vault.copyFile(f.rootKey(), f.absolute(u"Notes.md"_s)),
+            f.key(u"Notes 1.md"_s));
+        QCOMPARE(f.read(u"Notes 1.md"_s), QByteArray("a"));
+    }
+
+    // An open file's typing that autosave hasn't reached yet is saved first,
+    // so the copy holds the text the window shows, and so does the original
+    void copyOfAnOpenFileHoldsItsUnsavedTyping()
+    {
+        Fixture_ f{};
+        f.write(u"Notes.md"_s, "hello");
+        auto* model = f.open(u"Notes.md"_s);
+        QVERIFY(model);
+        type_(model, u"!"_s);
+
+        QCOMPARE(
+            f.vault.copyFile(f.rootKey(), f.absolute(u"Notes.md"_s)),
+            f.key(u"Notes 1.md"_s));
+        QCOMPARE(f.read(u"Notes 1.md"_s), QByteArray("hello!"));
+        QCOMPARE(f.read(u"Notes.md"_s), QByteArray("hello!"));
+        QVERIFY(!model->isModified());
+    }
+
+    // Nothing lands in the vault that the trees would hide
+    void copyOfAnUnsupportedTypeIsRefused()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        auto source = writeOutside_(elsewhere, u"draft.docx"_s, "a");
+
+        QVERIFY(f.vault.copyFile(f.rootKey(), source).isEmpty());
+        QVERIFY(!f.exists(u"draft.docx"_s));
+    }
+
+    void copyIntoAMissingFolderFailsAndMakesNothing()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        auto source = writeOutside_(elsewhere, u"Notes.md"_s, "a");
+
+        QVERIFY(f.vault.copyFile(f.key(u"gone"_s), source).isEmpty());
+        QVERIFY(!f.exists(u"gone"_s));
+    }
+
+    void copyOutsideTheVaultIsRefused()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        QTemporaryDir target{};
+        auto source = writeOutside_(elsewhere, u"Notes.md"_s, "a");
+
+        QVERIFY(f.vault.copyFile(PathKey::of(Coco::Path(target.path())), source)
+                    .isEmpty());
+        QVERIFY(QDir(target.path())
+                    .entryList(QDir::AllEntries | QDir::NoDotAndDotDot)
+                    .isEmpty());
+    }
+
+    // A read-only source (from a disc, or marked read-only) gives a copy that
+    // can be saved over once edited
+    void copyOfAReadOnlyFileIsWritable()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        auto source = writeOutside_(elsewhere, u"Locked.txt"_s, "a");
+        auto source_string = source.toQString();
+
+        QVERIFY(
+            QFile::setPermissions(
+                source_string,
+                QFileDevice::ReadOwner | QFileDevice::ReadGroup |
+                    QFileDevice::ReadOther));
+
+        auto key = f.vault.copyFile(f.rootKey(), source);
+
+        QVERIFY(
+            QFile::setPermissions(
+                source_string,
+                QFileDevice::ReadOwner | QFileDevice::WriteOwner));
+
+        QCOMPARE(key, f.key(u"Locked.txt"_s));
+        QVERIFY(
+            QFile::permissions(key.path().toQString()) &
+            QFileDevice::WriteOwner);
+    }
+
+    void copyOfAMissingFileFails()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        auto source = Coco::Path(elsewhere.filePath(u"gone.md"_s));
+
+        QVERIFY(f.vault.copyFile(f.rootKey(), source).isEmpty());
+        QVERIFY(!f.exists(u"gone.md"_s));
     }
 
     void createFileAtMakesTheFoldersAboveIt()
@@ -842,7 +1064,7 @@ private slots:
             vault.setConfig(&VaultConfig::setTextFontSize, size);
             QCOMPARE(changed.count(), 2);
 
-            vault.saveSettingsNow();
+            vault.saveConfigNow();
         }
 
         // A second vault on the same folder reads what the first saved
@@ -1168,12 +1390,12 @@ private slots:
         QCOMPARE(heard.size(), 3);
 
         f.vault.setConfig(&VaultConfig::setTextFontSize, 20);
-        f.vault.saveSettingsNow();
+        f.vault.saveConfigNow();
         QCOMPARE(heard.size(), 4);
         QVERIFY(heard.last() == f.key(u".fernanda"_s));
 
         // Nothing pending, nothing written
-        f.vault.saveSettingsNow();
+        f.vault.saveConfigNow();
         QCOMPARE(heard.size(), 4);
 
         if (QSysInfo::machineUniqueId().isEmpty()) {

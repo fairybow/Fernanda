@@ -19,6 +19,8 @@
 
 #include <QByteArray>
 #include <QCryptographicHash>
+#include <QFile>
+#include <QFileDevice>
 #include <QJsonObject>
 #include <QList>
 #include <QMessageAuthenticationCode>
@@ -136,7 +138,7 @@ public:
     // Every exit path calls this beside flushing the buffers, so a change made
     // a moment before a close or a quit isn't lost. A failure isn't reported —
     // a settings file is never worth refusing a close over, and Io logged it
-    void saveSettingsNow()
+    void saveConfigNow()
     {
         if (configSaveTimer_->isActive()) {
             saveConfig_();
@@ -144,7 +146,7 @@ public:
     }
 
     // Write pending writing history now, rather than when its timer fires.
-    // Called beside saveSettingsNow on every exit path, for the same reason
+    // Called beside saveConfigNow on every exit path, for the same reason
     void saveHistoryNow()
     {
         if (historySaveTimer_->isActive()) {
@@ -157,18 +159,90 @@ public:
     // off-disk buffers, so the file exists on disk before any buffer opens it
     PathKey createFile(const PathKey& dir)
     {
+        return createFile(dir, UNTITLED_NAME_, QString{});
+    }
+
+    // Create a text file named stem, with .txt, inside a directory, holding
+    // text as UTF-8, and return its key (empty on failure). A taken name gets a
+    // number, and the stem is made visible first (visibleStem_)
+    PathKey
+    createFile(const PathKey& dir, const QString& stem, const QString& text)
+    {
         if (!contains(dir)) {
             WARN("Can't create a file in {}: outside the vault!", dir.path());
             return {};
         }
 
-        auto absolute = uniqueChildPath_(dir.path(), u"Untitled"_s, u".txt"_s);
+        auto absolute =
+            uniqueChildPath_(dir.path(), visibleStem_(stem), u".txt"_s);
 
-        // CreateDirs::No: a folder deleted between the right-click and the
-        // click stays deleted, and the create fails
-        if (!Io::write(QByteArray{}, absolute, Io::CreateDirs::No)) {
+        // CreateDirs::No: a folder deleted before the create (between a
+        // right-click and the click, or while an import ran) stays deleted,
+        // and the create fails
+        if (!Io::write(text.toUtf8(), absolute, Io::CreateDirs::No)) {
             WARN("Failed to create a new file at {}!", absolute);
             return {};
+        }
+
+        treeModel_->applyAddition(absolute);
+
+        auto key = PathKey::of(absolute);
+        emit fileWritten(key);
+        return key;
+    }
+
+    // Copy a file from anywhere, byte for byte, into a directory under its own
+    // name, and return the copy's key (empty on failure). The extension is
+    // kept as it is, letter case included. A taken name gets a number, and the
+    // stem is made visible first (visibleStem_). Only a type Fernanda opens is
+    // copied, so nothing lands in the vault that the trees would hide. A file
+    // already in the vault is copied like any other, with its unsaved text.
+    // The copy is writable, even when the source isn't
+    PathKey copyFile(const PathKey& dir, const Coco::Path& source)
+    {
+        if (!contains(dir)) {
+            WARN("Can't copy a file into {}: outside the vault!", dir.path());
+            return {};
+        }
+
+        if (!FileTypes::isSupported(source)) {
+            WARN("Can't copy {}: not a type Fernanda opens!", source);
+            return {};
+        }
+
+        // The copy is read from disk, so an open buffer of the source is
+        // written first, in whichever vault it's open. If that write fails,
+        // the copy is refused rather than made from older text than the
+        // window shows. A source no buffer holds has nothing to write
+        if (!bufferStore_->flushAtOrUnder(PathKey::of(source))) {
+            WARN("Copy refused — {} couldn't be saved first!", source);
+            return {};
+        }
+
+        auto absolute = uniqueChildPath_(
+            dir.path(),
+            visibleStem_(source.stemQString()),
+            source.extQString());
+
+        // QFile::copy makes no folders, so a folder deleted before the copy
+        // stays deleted, and the copy fails
+        if (!Coco::copy(source, absolute)) {
+            WARN("Failed to copy {} to {}!", source, absolute);
+            return {};
+        }
+
+        // QFile::copy copies permissions, and on Windows the read-only
+        // attribute, so a copy of a locked file (from a disc, or marked
+        // read-only) couldn't be saved over once edited. The copy is the
+        // vault's own file, so it's made writable. A failure leaves the copy,
+        // which did succeed, as it is
+        auto absolute_string = absolute.toQString();
+
+        if (!QFile::setPermissions(
+                absolute_string,
+                QFile::permissions(absolute_string) |
+                    QFileDevice::WriteOwner)) {
+            WARN("Failed to make the copy at {} writable!", absolute);
         }
 
         treeModel_->applyAddition(absolute);
@@ -185,7 +259,7 @@ public:
             return {};
         }
 
-        auto absolute = uniqueChildPath_(dir.path(), u"Untitled"_s, QString{});
+        auto absolute = uniqueChildPath_(dir.path(), UNTITLED_NAME_, QString{});
 
         if (!Coco::mkdir(absolute)) {
             WARN("Failed to create a new folder at {}!", absolute);
@@ -571,11 +645,16 @@ private:
     // Per-vault settings, read at construction and saved a beat after the last
     // change: a dragged size slider changes it many times a second, and one
     // write per settle is enough. A pending save is also forced by
-    // saveSettingsNow, which every exit path calls
+    // saveConfigNow, which every exit path calls
     VaultConfig config_{};
     Coco::Time::Debouncer* configSaveTimer_ =
         Coco::Time::newDebouncer(this, &Vault::saveConfig_);
     int configSaveMs_ = 500;
+
+    // The name a new file or folder takes when it's given none. Deliberately
+    // not translated: this is on-disk identity, and the user renames it from
+    // the tree
+    static inline const QString UNTITLED_NAME_ = u"Untitled"_s;
 
     static inline const QString DICTIONARY_FILE_NAME_ = u"dictionary.txt"_s;
 
@@ -731,10 +810,26 @@ private:
         }
     }
 
+    // A stem as a new file takes it: any periods it begins with are dropped,
+    // so the file isn't hidden, and a stem left empty becomes UNTITLED_NAME_
+    [[nodiscard]] static QString visibleStem_(const QString& stem)
+    {
+        auto base = stem;
+
+        while (base.startsWith(u'.')) {
+            base.remove(0, 1);
+        }
+
+        if (base.trimmed().isEmpty()) {
+            return UNTITLED_NAME_;
+        }
+
+        return base;
+    }
+
     // "Untitled.txt", then "Untitled 1.txt", ... — the first not already
     // present inside absoluteDir. An empty ext gives a folder name. Absolute
-    // in, absolute out; the caller makes the key. Deliberately not translated:
-    // this is on-disk identity, and the user renames it from the tree
+    // in, absolute out; the caller makes the key
     Coco::Path uniqueChildPath_(
         const Coco::Path& absoluteDir,
         const QString& base,
@@ -802,7 +897,7 @@ private:
         configSaveTimer_->start(configSaveMs_);
     }
 
-    // The debounced settings write, also forced by saveSettingsNow. Stops the
+    // The debounced settings write, also forced by saveConfigNow. Stops the
     // timer so a forced write doesn't repeat when the timer would have fired
     void saveConfig_()
     {
