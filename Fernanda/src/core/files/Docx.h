@@ -299,6 +299,22 @@ inline void readFieldMark_(QXmlStreamReader& reader, QList<bool>& openFields)
     reader.skipCurrentElement();
 }
 
+// The rest of a hidden run, read to the run's end. Its text isn't shown, but
+// its field marks still begin, separate, and end fields, as Word keeps them:
+// skipped, a field hidden only in part would stay open past its end, or close
+// the field around it
+inline void
+readHiddenRunRest_(QXmlStreamReader& reader, QList<bool>& openFields)
+{
+    while (reader.readNextStartElement()) {
+        if (isW_(reader, u"fldChar")) {
+            readFieldMark_(reader, openFields);
+        } else {
+            reader.skipCurrentElement();
+        }
+    }
+}
+
 // Does the element add to a line directly? What a field's instruction holds
 // is skipped by this test, so containers (runs, paragraphs) are still read
 // through for the field marks inside them
@@ -359,10 +375,10 @@ readRuby_(QXmlStreamReader& reader, Lines_& after, ReadState_& state)
 // follow the paragraph being read. A note reference is added to the state's
 // references, and its mark to the line (NOTE_MARK_OPEN_). False when the
 // element is properties that take away what holds them (a hidden run's, a
-// deleted table row's): the rest of the run or row has been skipped, and its
-// reading ends. Every level of nesting passes through here, so here is where
-// nesting past MAX_NESTING_ is refused, as an XML error that ends the whole
-// read
+// deleted table row's): the rest of the run or row has been read past, and
+// its reading ends. Every level of nesting passes through here, so here is
+// where nesting past MAX_NESTING_ is refused, as an XML error that ends the
+// whole read
 [[nodiscard]] inline bool readInlineElement_(
     QXmlStreamReader& reader,
     QString& line,
@@ -390,10 +406,10 @@ readRuby_(QXmlStreamReader& reader, Lines_& after, ReadState_& state)
         line += withoutNoteMarks_(reader.readElementText());
 
     } else if (isW_(reader, u"rPr")) {
-        // A run's properties come first in the run, so a hidden run is
-        // skipped from here to the run's end
+        // A run's properties come first in the run, so a hidden run is read
+        // from here to the run's end for its field marks alone
         if (readRunIsHidden_(reader)) {
-            reader.skipCurrentElement();
+            readHiddenRunRest_(reader, state.openFields);
             keep_reading = false;
         }
 

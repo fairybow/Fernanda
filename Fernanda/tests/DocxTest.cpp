@@ -437,6 +437,43 @@ private slots:
             u"Seen shown"_s);
     }
 
+    // A field hidden only in part still opens and closes at its marks. Here
+    // one field's result and end are hidden, so without its end the next
+    // paragraph would be read as its instruction; and a field nested in an
+    // IF's instruction has its begin hidden, so without that begin its
+    // separate and end would move the IF to its result early
+    void aPartlyHiddenFieldStillOpensAndCloses()
+    {
+        QCOMPARE(
+            textOf_(
+                R"(<w:p><w:r><w:t xml:space="preserve">Page </w:t></w:r>)"
+                R"(<w:r><w:fldChar w:fldCharType="begin"/></w:r>)"
+                R"(<w:r><w:instrText> PAGE </w:instrText></w:r>)"
+                R"(<w:r><w:rPr><w:vanish/></w:rPr>)"
+                R"(<w:fldChar w:fldCharType="separate"/></w:r>)"
+                R"(<w:r><w:rPr><w:vanish/></w:rPr><w:t>3</w:t></w:r>)"
+                R"(<w:r><w:rPr><w:vanish/></w:rPr>)"
+                R"(<w:fldChar w:fldCharType="end"/></w:r></w:p>)"
+                R"(<w:p><w:r><w:t>Next</w:t></w:r></w:p>)"),
+            u"Page \nNext"_s);
+
+        QCOMPARE(
+            textOf_(
+                R"(<w:p><w:r><w:fldChar w:fldCharType="begin"/></w:r>)"
+                R"(<w:r><w:instrText xml:space="preserve"> IF </w:instrText>)"
+                R"(</w:r><w:r><w:rPr><w:vanish/></w:rPr>)"
+                R"(<w:fldChar w:fldCharType="begin"/></w:r>)"
+                R"(<w:r><w:instrText> MERGEFIELD Name </w:instrText></w:r>)"
+                R"(<w:r><w:fldChar w:fldCharType="separate"/></w:r>)"
+                R"(<w:r><w:t>Candide</w:t></w:r>)"
+                R"(<w:r><w:fldChar w:fldCharType="end"/></w:r>)"
+                R"(<w:r><w:instrText> = "" "a" "b" </w:instrText></w:r>)"
+                R"(<w:r><w:fldChar w:fldCharType="separate"/></w:r>)"
+                R"(<w:r><w:t>b</w:t></w:r>)"
+                R"(<w:r><w:fldChar w:fldCharType="end"/></w:r></w:p>)"),
+            u"b"_s);
+    }
+
     void hyperlinksAndContentControlsKeepTheirText()
     {
         QCOMPARE(
