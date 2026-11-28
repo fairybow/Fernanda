@@ -230,6 +230,121 @@ private slots:
             u"The new text moved"_s);
     }
 
+    // A paragraph deleted whole, with its mark, leaves no line behind
+    void aDeletedParagraphLeavesNoLine()
+    {
+        QCOMPARE(
+            textOf_(
+                R"(<w:p><w:r><w:t>First</w:t></w:r></w:p>)"
+                R"(<w:p><w:pPr><w:rPr><w:del w:id="1" w:author="A"/>)"
+                R"(</w:rPr></w:pPr><w:del w:id="2" w:author="A"><w:r>)"
+                R"(<w:delText>Cut.</w:delText></w:r></w:del></w:p>)"
+                R"(<w:p><w:r><w:t>Kept</w:t></w:r></w:p>)"),
+            u"First\nKept"_s);
+    }
+
+    // A deleted mark joins its paragraph to the next with nothing between
+    // them, and a run of deleted marks joins every paragraph up to the first
+    // whose mark stays
+    void aDeletedMarkJoinsTheNextParagraph()
+    {
+        QCOMPARE(
+            textOf_(
+                R"(<w:p><w:pPr><w:rPr><w:del w:id="1" w:author="A"/>)"
+                R"(</w:rPr></w:pPr><w:r><w:t>The end</w:t></w:r></w:p>)"
+                R"(<w:p><w:pPr><w:rPr><w:del w:id="2" w:author="A"/>)"
+                R"(</w:rPr></w:pPr><w:r><w:t>ing</w:t></w:r></w:p>)"
+                R"(<w:p><w:r><w:t>.</w:t></w:r></w:p>)"
+                R"(<w:p><w:r><w:t>Next</w:t></w:r></w:p>)"),
+            u"The ending.\nNext"_s);
+    }
+
+    // Joined onto an empty paragraph that stays, a deleted one leaves that
+    // empty line, as any empty paragraph does
+    void aJoinOntoAnEmptyParagraphKeepsItsLine()
+    {
+        QCOMPARE(
+            textOf_(
+                R"(<w:p><w:r><w:t>A</w:t></w:r></w:p>)"
+                R"(<w:p><w:pPr><w:rPr><w:del w:id="1" w:author="A"/>)"
+                R"(</w:rPr></w:pPr><w:del w:id="2" w:author="A"><w:r>)"
+                R"(<w:delText>Cut.</w:delText></w:r></w:del></w:p>)"
+                R"(<w:p/>)"
+                R"(<w:p><w:r><w:t>B</w:t></w:r></w:p>)"),
+            u"A\n\nB"_s);
+    }
+
+    // A join doesn't reach into a table: the paragraph before it keeps its
+    // own line, and one left empty is dropped
+    void aJoinStopsAtATable()
+    {
+        QCOMPARE(
+            textOf_(
+                R"(<w:p><w:pPr><w:rPr><w:del w:id="1" w:author="A"/>)"
+                R"(</w:rPr></w:pPr><w:r><w:t>Before</w:t></w:r></w:p>)"
+                R"(<w:tbl><w:tr><w:tc><w:p><w:r><w:t>cell</w:t></w:r>)"
+                R"(</w:p></w:tc></w:tr></w:tbl>)"
+                R"(<w:p><w:pPr><w:rPr><w:del w:id="2" w:author="A"/>)"
+                R"(</w:rPr></w:pPr></w:p>)"
+                R"(<w:tbl><w:tr><w:tc><w:p><w:r><w:t>next</w:t></w:r>)"
+                R"(</w:p></w:tc></w:tr></w:tbl>)"),
+            u"Before\ncell\nnext"_s);
+    }
+
+    // A moved paragraph's mark at its old place is moved away with it
+    void aMovedParagraphLeavesNoLine()
+    {
+        QCOMPARE(
+            textOf_(
+                R"(<w:p><w:r><w:t>One</w:t></w:r></w:p>)"
+                R"(<w:p><w:pPr><w:rPr><w:moveFrom w:id="1" w:author="A"/>)"
+                R"(</w:rPr></w:pPr><w:moveFrom w:id="2" w:author="A">)"
+                R"(<w:r><w:t>Moved</w:t></w:r></w:moveFrom></w:p>)"
+                R"(<w:p><w:r><w:t>Two</w:t></w:r></w:p>)"
+                R"(<w:p><w:moveTo w:id="3" w:author="A"><w:r><w:t>Moved</w:t>)"
+                R"(</w:r></w:moveTo></w:p>)"),
+            u"One\nTwo\nMoved"_s);
+    }
+
+    // A text box in a joined paragraph follows the joined line
+    void aJoinedParagraphsTextBoxFollowsTheJoinedLine()
+    {
+        QCOMPARE(
+            textOf_(
+                R"(<w:p><w:pPr><w:rPr><w:del w:id="1" w:author="A"/>)"
+                R"(</w:rPr></w:pPr><w:r><w:t xml:space="preserve">Start </w:t>)"
+                R"(</w:r><w:r><w:pict><v:shape><v:textbox><w:txbxContent>)"
+                R"(<w:p><w:r><w:t>Box</w:t></w:r></w:p></w:txbxContent>)"
+                R"(</v:textbox></v:shape></w:pict></w:r></w:p>)"
+                R"(<w:p><w:r><w:t>end</w:t></w:r></w:p>)"),
+            u"Start end\nBox"_s);
+    }
+
+    // Ruby is written in Aozora Bunko's notation, base before reading: here
+    // two kanji with a reading of three hiragana
+    void rubyIsWrittenInAozoraNotation()
+    {
+        QCOMPARE(
+            textOf_(
+                "<w:p><w:r><w:t>A </w:t></w:r><w:r><w:ruby>"
+                "<w:rubyPr><w:hps w:val=\"10\"/></w:rubyPr>"
+                "<w:rt><w:r><w:t>\xE3\x81\x8B\xE3\x82\x93\xE3\x81\x98</w:t>"
+                "</w:r></w:rt>"
+                "<w:rubyBase><w:r><w:t>\xE6\xBC\xA2\xE5\xAD\x97</w:t></w:r>"
+                "</w:rubyBase></w:ruby></w:r><w:r><w:t> B</w:t></w:r></w:p>"),
+            u"A \uFF5C\u6F22\u5B57\u300A\u304B\u3093\u3058\u300B B"_s);
+    }
+
+    void rubyWithNoReadingIsItsBase()
+    {
+        QCOMPARE(
+            textOf_(
+                "<w:p><w:r><w:ruby><w:rt/>"
+                "<w:rubyBase><w:r><w:t>base</w:t></w:r></w:rubyBase>"
+                "</w:ruby></w:r></w:p>"),
+            u"base"_s);
+    }
+
     // A field's instruction is skipped and its result kept, for both kinds of
     // field
     void fieldsReadAsTheirResults()
