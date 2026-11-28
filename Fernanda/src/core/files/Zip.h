@@ -25,6 +25,7 @@
 #include <QSaveFile>
 #include <QSet>
 #include <QString>
+#include <Qt>
 #include <QtTypes>
 
 #include <miniz.h>
@@ -196,15 +197,18 @@ addEntries_(mz_zip_archive& zip, const QList<Entry>& entries)
     return true;
 }
 
-[[nodiscard]] inline std::optional<QByteArray>
-extract_(mz_zip_archive& zip, const QString& name, qint64 maxSize)
+[[nodiscard]] inline std::optional<QByteArray> extract_(
+    mz_zip_archive& zip,
+    const QString& name,
+    Qt::CaseSensitivity caseSensitivity,
+    qint64 maxSize)
 {
     auto utf8_name = name.toUtf8();
-    auto index = mz_zip_reader_locate_file(
-        &zip,
-        utf8_name.constData(),
-        nullptr,
-        MZ_ZIP_FLAG_CASE_SENSITIVE);
+    auto flags = caseSensitivity == Qt::CaseSensitive
+                     ? mz_uint(MZ_ZIP_FLAG_CASE_SENSITIVE)
+                     : mz_uint(0);
+    auto index =
+        mz_zip_reader_locate_file(&zip, utf8_name.constData(), nullptr, flags);
 
     if (index < 0) {
         DEBUG("No entry named {} in the zip", name);
@@ -310,13 +314,18 @@ inline bool write(const Coco::Path& archive, const QList<Entry>& entries)
     return true;
 }
 
-// The named entry's bytes, matched with letter case. nullopt when the archive
-// can't be read, has no such entry, or declares the entry larger than maxSize
-// bytes. The declared size is checked before anything is allocated, so an
-// archive from outside Fernanda can't make it decompress more than the caller
-// allows
-inline std::optional<QByteArray>
-readEntry(const Coco::Path& archive, const QString& name, qint64 maxSize)
+// The named entry's bytes. With Qt::CaseInsensitive, letter case is ignored
+// in ASCII letters only, as the Open Packaging Conventions compare a Word
+// file's part names; if two entries differ only in case, either may be found.
+// nullopt when the archive can't be read, has no such entry, or declares the
+// entry larger than maxSize bytes. The declared size is checked before
+// anything is allocated, so an archive from outside Fernanda can't make it
+// decompress more than the caller allows
+inline std::optional<QByteArray> readEntry(
+    const Coco::Path& archive,
+    const QString& name,
+    Qt::CaseSensitivity caseSensitivity,
+    qint64 maxSize)
 {
     ASSERT(maxSize >= 0, "maxSize can't be negative!");
 
@@ -347,7 +356,7 @@ readEntry(const Coco::Path& archive, const QString& name, qint64 maxSize)
         return std::nullopt;
     }
 
-    auto data = Internal::extract_(zip, name, maxSize);
+    auto data = Internal::extract_(zip, name, caseSensitivity, maxSize);
     mz_zip_reader_end(&zip);
 
     return data;

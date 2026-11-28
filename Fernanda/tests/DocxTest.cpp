@@ -259,6 +259,25 @@ private slots:
             u"The ending.\nNext"_s);
     }
 
+    // A hidden mark joins its paragraph to the next, as Word shows it: here
+    // Word's style separator (specVanish) running a heading into its body,
+    // then a mark hidden directly. A mark whose hiding is switched off stays
+    void aHiddenMarkJoinsTheNextParagraph()
+    {
+        QCOMPARE(
+            textOf_(
+                R"(<w:p><w:pPr><w:rPr><w:specVanish/></w:rPr></w:pPr>)"
+                R"(<w:r><w:t>Heading.</w:t></w:r></w:p>)"
+                R"(<w:p><w:r><w:t xml:space="preserve"> Body</w:t></w:r></w:p>)"
+                R"(<w:p><w:pPr><w:rPr><w:vanish/></w:rPr></w:pPr>)"
+                R"(<w:r><w:t>Run</w:t></w:r></w:p>)"
+                R"(<w:p><w:r><w:t>-in</w:t></w:r></w:p>)"
+                R"(<w:p><w:pPr><w:rPr><w:vanish w:val="0"/></w:rPr></w:pPr>)"
+                R"(<w:r><w:t>A</w:t></w:r></w:p>)"
+                R"(<w:p><w:r><w:t>B</w:t></w:r></w:p>)"),
+            u"Heading. Body\nRun-in\nA\nB"_s);
+    }
+
     // Joined onto an empty paragraph that stays, a deleted one leaves that
     // empty line, as any empty paragraph does
     void aJoinOntoAnEmptyParagraphKeepsItsLine()
@@ -420,6 +439,21 @@ private slots:
             u"a\nb\nb2\nc\nd"_s);
     }
 
+    // A row deleted as a tracked change is gone, as accepting it removes it.
+    // Other row properties leave a row as it is
+    void aDeletedTableRowIsSkipped()
+    {
+        QCOMPARE(
+            textOf_(
+                R"(<w:tbl><w:tr><w:trPr><w:trHeight w:val="300"/></w:trPr>)"
+                R"(<w:tc><w:p><w:r><w:t>a</w:t></w:r></w:p></w:tc></w:tr>)"
+                R"(<w:tr><w:trPr><w:del w:id="1" w:author="A"/></w:trPr>)"
+                R"(<w:tc><w:p><w:r><w:t>gone</w:t></w:r></w:p></w:tc></w:tr>)"
+                R"(<w:tr><w:tc><w:p><w:r><w:t>c</w:t></w:r></w:p></w:tc>)"
+                R"(</w:tr></w:tbl>)"),
+            u"a\nc"_s);
+    }
+
     // The paragraph mark's properties and the page setup hold no text, even
     // where their elements share names with ones that do
     void propertiesHoldNoText()
@@ -462,6 +496,30 @@ private slots:
     void malformedXmlIsNothing()
     {
         QVERIFY(!Fernanda::Docx::textOf(document_("<w:p><w:r><w:t>Cut"), {}, {})
+                     .has_value());
+    }
+
+    // Nesting as deep as a real document's reads
+    void deepNestingReads()
+    {
+        QCOMPARE(
+            textOf_(
+                "<w:p>" + QByteArray("<x>").repeated(100) +
+                "<w:r><w:t>Deep</w:t></w:r>" +
+                QByteArray("</x>").repeated(100) + "</w:p>"),
+            u"Deep"_s);
+    }
+
+    // Nesting far past any real document's is refused as damaged, where
+    // reading it level by level would overflow the stack
+    void nestingPastTheLimitIsNothing()
+    {
+        QVERIFY(!Fernanda::Docx::textOf(
+                     document_(
+                         "<w:p>" + QByteArray("<x>").repeated(100000) +
+                         QByteArray("</x>").repeated(100000) + "</w:p>"),
+                     {},
+                     {})
                      .has_value());
     }
 
@@ -567,6 +625,24 @@ private slots:
             {
                 { u"_rels/.rels"_s,       relationships_("word/document.xml") },
                 { u"word/document.xml"_s,
+                 document_("<w:p><w:r><w:t>Hello</w:t></w:r></w:p>")          }
+        });
+
+        auto conversion = Fernanda::Docx::toPlainText(archive);
+
+        QCOMPARE(conversion.failure, Fernanda::Docx::Failure::None);
+        QCOMPARE(conversion.text, u"Hello"_s);
+    }
+
+    // Part names are found whatever their letter case, as the packaging rules
+    // compare them
+    void partNamesIgnoreLetterCase()
+    {
+        Fixture_ f{};
+        auto archive = f.zip(
+            {
+                { u"_rels/.rels"_s,       relationships_("word/document.xml") },
+                { u"Word/Document.xml"_s,
                  document_("<w:p><w:r><w:t>Hello</w:t></w:r></w:p>")          }
         });
 

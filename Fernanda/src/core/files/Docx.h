@@ -26,6 +26,7 @@
 #include <QStringView>
 #include <QUrl>
 #include <QXmlStreamReader>
+#include <Qt>
 #include <QtTypes>
 
 #include <Coco/Debug.h>
@@ -35,17 +36,20 @@
 
 // Word documents (.docx) read as plain text: one line per paragraph, in
 // reading order, with formatting dropped. Only the text a reader of the
-// document sees is kept: deleted tracked changes, field codes, hidden text, and
-// Word's fallback copies of content are skipped, and a paragraph whose mark is
-// a deleted tracked change joins the next, as accepting the deletion does. A
-// text box's paragraphs follow the paragraph it's anchored to, and a table's
-// paragraphs come row by row. Ruby is written in Aozora Bunko's notation,
-// base and reading together. Footnotes and endnotes are marked [1], [2], and
-// so on, numbered together in reading order, and listed after the text, each
-// on one line. Headers, footers, and comments are left out.
+// document sees is kept: deleted tracked changes (deleted table rows among
+// them), field codes, hidden text, and Word's fallback copies of content are
+// skipped, and a paragraph whose mark is a deleted tracked change, or hidden,
+// joins the next, as Word shows it. A text box's paragraphs follow the
+// paragraph it's anchored to, and a table's paragraphs come row by row. Ruby is
+// written in Aozora Bunko's notation, base and reading together. Footnotes and
+// endnotes are marked [1], [2], and so on, numbered together in reading order,
+// and listed after the text, each on one line. Headers, footers, and comments
+// are left out.
 //
 // Elements are matched by namespace as well as name, so documents in Word's
-// Strict Open XML format read the same as ordinary ones
+// Strict Open XML format read the same as ordinary ones. A document nested
+// deeper than any real one is refused as damaged, since each level of nesting
+// is a level of recursion here
 namespace Fernanda::Docx {
 
 using namespace Qt::StringLiterals;
@@ -69,6 +73,11 @@ namespace Internal {
 // tens of megabytes
 constexpr qint64 MAX_PART_SIZE_ = 256LL * 1024 * 1024;
 
+// The deepest nesting of elements read. Real documents nest a few dozen
+// levels; each level is two calls on the stack, so a crafted document with
+// tens of thousands could overflow it
+constexpr int MAX_NESTING_ = 256;
+
 constexpr QStringView W_ =
     u"http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 constexpr QStringView W_STRICT_ =
@@ -85,6 +94,14 @@ struct NoteReference_
     QString id{};
 };
 
+// What reading one part carries from element to element: the note
+// references made so far, and how deeply the reader is nested
+struct ReadState_
+{
+    QList<NoteReference_> references{};
+    int nesting = 0;
+};
+
 // Aozora Bunko's ruby marks: ｜ where the base begins, and 《 》 around the
 // reading
 constexpr QChar RUBY_BASE_MARK_ = u'\uFF5C';
@@ -92,22 +109,22 @@ constexpr QChar RUBY_OPEN_ = u'\u300A';
 constexpr QChar RUBY_CLOSE_ = u'\u300B';
 
 // One paragraph as read: its line, the lines of the text boxes anchored in it,
-// and whether its mark is a deleted tracked change
+// and whether its mark joins it to the next paragraph (readMarkJoins_)
 struct Paragraph_
 {
     QString line{};
     QStringList after{};
-    bool markDeleted = false;
+    bool markJoins = false;
 };
 
 // The lines a container's paragraphs make, in order. A paragraph whose mark
-// is deleted is held, and the paragraphs after it join its line until one
-// whose mark isn't, as accepting the deletion joins them in Word. The joined
-// line is kept even when empty, as any empty paragraph is. endJoin ends a
-// held paragraph where a join can't reach past (a table, a cell, a text box,
-// the container's end), and drops its line if it's still empty, as it is when
-// the whole paragraph was deleted. A paragraph's text boxes follow its line,
-// and a joined paragraph's follow the joined line
+// joins is held, and the paragraphs after it join its line until one whose mark
+// doesn't, as Word shows them once a deleted mark is accepted, or with a hidden
+// mark. The joined line is kept even when empty, as any empty paragraph is.
+// endJoin ends a held paragraph where a join can't reach past (a table, a cell,
+// a text box, the container's end), and drops its line if it's still empty, as
+// it is when the whole paragraph was deleted. A paragraph's text boxes follow
+// its line, and a joined paragraph's follow the joined line
 struct Lines_
 {
     QStringList lines{};
@@ -117,7 +134,7 @@ struct Lines_
         heldLine_ += paragraph.line;
         heldAfter_ << paragraph.after;
 
-        if (!paragraph.markDeleted) {
+        if (!paragraph.markJoins) {
             lines << heldLine_;
             release_();
         }
@@ -193,11 +210,14 @@ isMc_(const QXmlStreamReader& reader, QStringView name)
     return hidden;
 }
 
-// Reads a paragraph's properties to their end and says whether its mark is a
-// deleted tracked change: deleted, or moved away to another place
-[[nodiscard]] inline bool readMarkIsDeleted_(QXmlStreamReader& reader)
+// Reads a paragraph's properties to their end and says whether its mark joins
+// the paragraph to the next: a deleted tracked change (deleted, or moved away
+// to another place), or hidden. A hidden mark is how Word's style separator
+// runs a heading into the paragraph after it (specVanish), and any other
+// hidden mark shows the same way
+[[nodiscard]] inline bool readMarkJoins_(QXmlStreamReader& reader)
 {
-    auto deleted = false;
+    auto joins = false;
 
     while (reader.readNextStartElement()) {
         if (!isW_(reader, u"rPr")) {
@@ -206,12 +226,31 @@ isMc_(const QXmlStreamReader& reader, QStringView name)
         }
 
         while (reader.readNextStartElement()) {
-            if (isW_(reader, u"del") || isW_(reader, u"moveFrom")) {
-                deleted = true;
+            if (isW_(reader, u"del") || isW_(reader, u"moveFrom") ||
+                ((isW_(reader, u"vanish") || isW_(reader, u"specVanish")) &&
+                 isOn_(reader))) {
+                joins = true;
             }
 
             reader.skipCurrentElement();
         }
+    }
+
+    return joins;
+}
+
+// Reads a table row's properties to their end and says whether the row is a
+// deleted tracked change, which accepting removes
+[[nodiscard]] inline bool readRowIsDeleted_(QXmlStreamReader& reader)
+{
+    auto deleted = false;
+
+    while (reader.readNextStartElement()) {
+        if (isW_(reader, u"del")) {
+            deleted = true;
+        }
+
+        reader.skipCurrentElement();
     }
 
     return deleted;
@@ -221,26 +260,24 @@ inline void readInline_(
     QXmlStreamReader& reader,
     QString& line,
     Lines_& after,
-    QList<NoteReference_>& references);
+    ReadState_& state);
 
 [[nodiscard]] inline Paragraph_
-readParagraph_(QXmlStreamReader& reader, QList<NoteReference_>& references);
+readParagraph_(QXmlStreamReader& reader, ReadState_& state);
 
 // A ruby's base and reading, as ｜base《reading》. A ruby with no reading is
 // just its base
-[[nodiscard]] inline QString readRuby_(
-    QXmlStreamReader& reader,
-    Lines_& after,
-    QList<NoteReference_>& references)
+[[nodiscard]] inline QString
+readRuby_(QXmlStreamReader& reader, Lines_& after, ReadState_& state)
 {
     QString base{};
     QString reading{};
 
     while (reader.readNextStartElement()) {
         if (isW_(reader, u"rt")) {
-            readInline_(reader, reading, after, references);
+            readInline_(reader, reading, after, state);
         } else if (isW_(reader, u"rubyBase")) {
-            readInline_(reader, base, after, references);
+            readInline_(reader, base, after, state);
         } else {
             reader.skipCurrentElement();
         }
@@ -255,17 +292,25 @@ readParagraph_(QXmlStreamReader& reader, QList<NoteReference_>& references);
 
 // One element the reader has just entered, read to its end and added to the
 // paragraph's line. A paragraph met inside it (a text box's) goes to after, to
-// follow the paragraph being read. A note reference is added to references,
-// and its marker to the line. False when the element is a run's properties
-// that hide the run: the rest of the run has been skipped, and its reading
-// ends
+// follow the paragraph being read. A note reference is added to the state's
+// references, and its marker to the line. False when the element is
+// properties that take away what holds them (a hidden run's, a deleted
+// table row's): the rest of the run or row has been skipped, and its reading
+// ends. Every level of nesting passes through here, so here is where nesting
+// past MAX_NESTING_ is refused, as an XML error that ends the whole read
 [[nodiscard]] inline bool readInlineElement_(
     QXmlStreamReader& reader,
     QString& line,
     Lines_& after,
-    QList<NoteReference_>& references)
+    ReadState_& state)
 {
-    if (isSkipped_(reader)) {
+    auto keep_reading = true;
+    ++state.nesting;
+
+    if (state.nesting > MAX_NESTING_) {
+        reader.raiseError(u"Elements are nested too deeply"_s);
+
+    } else if (isSkipped_(reader)) {
         reader.skipCurrentElement();
 
     } else if (isW_(reader, u"t")) {
@@ -276,7 +321,15 @@ readParagraph_(QXmlStreamReader& reader, QList<NoteReference_>& references);
         // skipped from here to the run's end
         if (readRunIsHidden_(reader)) {
             reader.skipCurrentElement();
-            return false;
+            keep_reading = false;
+        }
+
+    } else if (isW_(reader, u"trPr")) {
+        // A row's properties come first in the row, so a deleted row is
+        // skipped from here to the row's end
+        if (readRowIsDeleted_(reader)) {
+            reader.skipCurrentElement();
+            keep_reading = false;
         }
 
     } else if (isW_(reader, u"tab") || isW_(reader, u"ptab")) {
@@ -294,25 +347,25 @@ readParagraph_(QXmlStreamReader& reader, QList<NoteReference_>& references);
     } else if (
         isW_(reader, u"footnoteReference") ||
         isW_(reader, u"endnoteReference")) {
-        references << NoteReference_{
+        state.references << NoteReference_{
             reader.name() == u"endnoteReference",
             reader.attributes().value(reader.namespaceUri(), u"id").toString()
         };
-        line += u'[' + QString::number(references.size()) + u']';
+        line += u'[' + QString::number(state.references.size()) + u']';
         reader.skipCurrentElement();
 
     } else if (isW_(reader, u"ruby")) {
-        line += readRuby_(reader, after, references);
+        line += readRuby_(reader, after, state);
 
     } else if (isW_(reader, u"p")) {
-        after.add(readParagraph_(reader, references));
+        after.add(readParagraph_(reader, state));
 
     } else if (
         isW_(reader, u"tbl") || isW_(reader, u"tc") ||
         isW_(reader, u"txbxContent")) {
         // A join doesn't reach into or out of a table, a cell, or a text box
         after.endJoin();
-        readInline_(reader, line, after, references);
+        readInline_(reader, line, after, state);
         after.endJoin();
 
     } else if (isMc_(reader, u"AlternateContent")) {
@@ -322,7 +375,7 @@ readParagraph_(QXmlStreamReader& reader, QList<NoteReference_>& references);
 
         while (reader.readNextStartElement()) {
             if (!read_one && isMc_(reader, u"Choice")) {
-                readInline_(reader, line, after, references);
+                readInline_(reader, line, after, state);
                 read_one = true;
             } else {
                 reader.skipCurrentElement();
@@ -335,10 +388,11 @@ readParagraph_(QXmlStreamReader& reader, QList<NoteReference_>& references);
         // what's inside them is read as if they weren't there. Anything else
         // with no text (an optional hyphen, a symbol-font character)
         // contributes nothing
-        readInline_(reader, line, after, references);
+        readInline_(reader, line, after, state);
     }
 
-    return true;
+    --state.nesting;
+    return keep_reading;
 }
 
 // The content of whatever element the reader is in, up to its end
@@ -346,30 +400,30 @@ inline void readInline_(
     QXmlStreamReader& reader,
     QString& line,
     Lines_& after,
-    QList<NoteReference_>& references)
+    ReadState_& state)
 {
     while (reader.readNextStartElement()) {
-        if (!readInlineElement_(reader, line, after, references)) {
+        if (!readInlineElement_(reader, line, after, state)) {
             return;
         }
     }
 }
 
-// A paragraph's properties are read only for whether its mark is deleted.
-// Its text boxes' paragraphs can't join past the paragraph
+// A paragraph's properties are read only for whether its mark joins it to the
+// next. Its text boxes' paragraphs can't join past the paragraph
 [[nodiscard]] inline Paragraph_
-readParagraph_(QXmlStreamReader& reader, QList<NoteReference_>& references)
+readParagraph_(QXmlStreamReader& reader, ReadState_& state)
 {
     Paragraph_ paragraph{};
     Lines_ after{};
 
     while (reader.readNextStartElement()) {
         if (isW_(reader, u"pPr")) {
-            paragraph.markDeleted = readMarkIsDeleted_(reader);
+            paragraph.markJoins = readMarkJoins_(reader);
             continue;
         }
 
-        if (!readInlineElement_(reader, paragraph.line, after, references)) {
+        if (!readInlineElement_(reader, paragraph.line, after, state)) {
             break;
         }
     }
@@ -385,12 +439,12 @@ readParagraph_(QXmlStreamReader& reader, QList<NoteReference_>& references)
 // is. Text is never outside a paragraph in a valid part, so what would go to
 // a line here is dropped
 [[nodiscard]] inline QStringList
-readBlocks_(QXmlStreamReader& reader, QList<NoteReference_>& references)
+readBlocks_(QXmlStreamReader& reader, ReadState_& state)
 {
     Lines_ lines{};
     QString outside_paragraphs{};
 
-    readInline_(reader, outside_paragraphs, lines, references);
+    readInline_(reader, outside_paragraphs, lines, state);
     lines.endJoin();
 
     return lines.lines;
@@ -505,8 +559,8 @@ notesOf_(const QByteArray& notesXml, QStringView root, QStringView note)
         return std::nullopt;
     }
 
-    // A note holds no references of its own, so none are kept
-    QList<NoteReference_> no_references{};
+    // A note holds no references of its own, so the state's go unused
+    ReadState_ state{};
 
     while (reader.readNextStartElement()) {
         if (!isW_(reader, note)) {
@@ -517,7 +571,7 @@ notesOf_(const QByteArray& notesXml, QStringView root, QStringView note)
         auto id =
             reader.attributes().value(reader.namespaceUri(), u"id").toString();
 
-        auto lines = readBlocks_(reader, no_references);
+        auto lines = readBlocks_(reader, state);
 
         QStringList paragraphs{};
 
@@ -562,7 +616,8 @@ notesOf_(const QByteArray& notesXml, QStringView root, QStringView note)
         return QByteArray{};
     }
 
-    auto bytes = Zip::readEntry(path, *part, MAX_PART_SIZE_);
+    auto bytes =
+        Zip::readEntry(path, *part, Qt::CaseInsensitive, MAX_PART_SIZE_);
 
     if (!bytes) {
         WARN("Failed to read {} from {}!", *part, path);
@@ -588,8 +643,8 @@ notesOf_(const QByteArray& notesXml, QStringView root, QStringView note)
         return std::nullopt;
     }
 
-    QList<Internal::NoteReference_> references{};
-    auto lines = Internal::readBlocks_(reader, references);
+    Internal::ReadState_ state{};
+    auto lines = Internal::readBlocks_(reader, state);
 
     if (reader.hasError()) {
         WARN(
@@ -609,7 +664,7 @@ notesOf_(const QByteArray& notesXml, QStringView root, QStringView note)
 
     auto text = lines.join(u'\n');
 
-    if (references.isEmpty()) {
+    if (state.references.isEmpty()) {
         return text;
     }
 
@@ -617,8 +672,8 @@ notesOf_(const QByteArray& notesXml, QStringView root, QStringView note)
     // nothing after it
     QStringList notes{};
 
-    for (auto i = 0; i < references.size(); ++i) {
-        const auto& reference = references.at(i);
+    for (auto i = 0; i < state.references.size(); ++i) {
+        const auto& reference = state.references.at(i);
         auto note =
             (reference.isEndnote ? *endnotes : *footnotes).value(reference.id);
         auto marker = u'[' + QString::number(i + 1) + u']';
@@ -629,11 +684,16 @@ notesOf_(const QByteArray& notesXml, QStringView root, QStringView note)
 }
 
 // The Word file's text, or why it couldn't be read. A file that fails gives no
-// text at all, never part of it
+// text at all, never part of it. Parts are found whatever the letter case of
+// their names, as the Open Packaging Conventions compare them, since not every
+// program that writes Word files matches the case its relationships give
 [[nodiscard]] inline Conversion toPlainText(const Coco::Path& path)
 {
-    auto relationships =
-        Zip::readEntry(path, u"_rels/.rels"_s, Internal::MAX_PART_SIZE_);
+    auto relationships = Zip::readEntry(
+        path,
+        u"_rels/.rels"_s,
+        Qt::CaseInsensitive,
+        Internal::MAX_PART_SIZE_);
 
     if (!relationships) {
         WARN("{} has no package relationships to read!", path);
@@ -648,7 +708,11 @@ notesOf_(const QByteArray& notesXml, QStringView root, QStringView note)
         return { QString{}, Failure::NotAWordDocument };
     }
 
-    auto xml = Zip::readEntry(path, *part, Internal::MAX_PART_SIZE_);
+    auto xml = Zip::readEntry(
+        path,
+        *part,
+        Qt::CaseInsensitive,
+        Internal::MAX_PART_SIZE_);
 
     if (!xml) {
         WARN("Failed to read {} from {}!", *part, path);
@@ -660,6 +724,7 @@ notesOf_(const QByteArray& notesXml, QStringView root, QStringView note)
     auto part_relationships = Zip::readEntry(
         path,
         Internal::relationshipsOf_(*part),
+        Qt::CaseInsensitive,
         Internal::MAX_PART_SIZE_);
     auto folder = Internal::folderOf_(*part);
 

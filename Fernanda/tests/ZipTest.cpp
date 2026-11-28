@@ -21,6 +21,7 @@
 #include <QStringList>
 #include <QTemporaryDir>
 #include <QTest>
+#include <Qt>
 #include <QtTypes>
 
 #include <Coco/Path.h>
@@ -31,9 +32,10 @@
 using namespace Qt::StringLiterals;
 
 // Zip archives (core/files/Zip.h): what's written reads back, names match
-// exactly, no entry name can point outside an archive's folder, a failed write
-// leaves the old archive alone, and an entry over the reader's limit isn't
-// decompressed. Each test works in its own temporary folder.
+// exactly or without letter case as asked, no entry name can point outside an
+// archive's folder, a failed write leaves the old archive alone, and an entry
+// over the reader's limit isn't decompressed. Each test works in its own
+// temporary folder.
 //
 // Qt Test runs every private slot as a test
 class ZipTest : public QObject
@@ -103,13 +105,18 @@ private slots:
                       u"notes/"_s + accented + u".txt"_s) }));
 
         QCOMPARE(
-            Fernanda::Zip::readEntry(archive, u"one.txt"_s, ANY_SIZE_)
+            Fernanda::Zip::readEntry(
+                archive,
+                u"one.txt"_s,
+                Qt::CaseSensitive,
+                ANY_SIZE_)
                 .value_or(QByteArray{}),
             QByteArray("one"));
         QCOMPARE(
             Fernanda::Zip::readEntry(
                 archive,
                 u"notes/"_s + accented + u".txt"_s,
+                Qt::CaseSensitive,
                 ANY_SIZE_)
                 .value_or(QByteArray{}),
             QByteArray("\xC3\xA9t\xC3\xA9"));
@@ -128,8 +135,11 @@ private slots:
                 archive,
                 { f.entry(u"empty.txt"_s, u"empty.txt"_s) }));
 
-        auto data =
-            Fernanda::Zip::readEntry(archive, u"empty.txt"_s, ANY_SIZE_);
+        auto data = Fernanda::Zip::readEntry(
+            archive,
+            u"empty.txt"_s,
+            Qt::CaseSensitive,
+            ANY_SIZE_);
 
         QVERIFY(data.has_value());
         QVERIFY(data->isEmpty());
@@ -145,7 +155,11 @@ private slots:
         QVERIFY(
             Fernanda::Zip::write(archive, { f.entry(u"a.txt"_s, u"a.txt"_s) }));
 
-        QVERIFY(!Fernanda::Zip::readEntry(archive, u"b.txt"_s, ANY_SIZE_)
+        QVERIFY(!Fernanda::Zip::readEntry(
+                     archive,
+                     u"b.txt"_s,
+                     Qt::CaseSensitive,
+                     ANY_SIZE_)
                      .has_value());
     }
 
@@ -159,8 +173,35 @@ private slots:
         QVERIFY(
             Fernanda::Zip::write(archive, { f.entry(u"a.txt"_s, u"a.txt"_s) }));
 
-        QVERIFY(!Fernanda::Zip::readEntry(archive, u"A.txt"_s, ANY_SIZE_)
+        QVERIFY(!Fernanda::Zip::readEntry(
+                     archive,
+                     u"A.txt"_s,
+                     Qt::CaseSensitive,
+                     ANY_SIZE_)
                      .has_value());
+    }
+
+    // Without letter case, a name finds its entry however either is spelled
+    void namesCanBeMatchedWithoutLetterCase()
+    {
+        Fixture_ f{};
+        f.write(u"a.txt"_s, "a");
+
+        auto archive = f.absolute(u"a.zip"_s);
+
+        QVERIFY(
+            Fernanda::Zip::write(
+                archive,
+                { f.entry(u"a.txt"_s, u"Word/Document.xml"_s) }));
+
+        QCOMPARE(
+            Fernanda::Zip::readEntry(
+                archive,
+                u"word/document.XML"_s,
+                Qt::CaseInsensitive,
+                ANY_SIZE_)
+                .value_or(QByteArray{}),
+            QByteArray("a"));
     }
 
     void entryNamesStayInsideTheFolder_data()
@@ -205,6 +246,7 @@ private slots:
         QVERIFY(!Fernanda::Zip::readEntry(
                      f.absolute(u"fake.zip"_s),
                      u"a.txt"_s,
+                     Qt::CaseSensitive,
                      ANY_SIZE_)
                      .has_value());
     }
@@ -232,7 +274,11 @@ private slots:
 
         QCOMPARE(f.read(u"a.zip"_s), before);
         QCOMPARE(
-            Fernanda::Zip::readEntry(archive, u"a.txt"_s, ANY_SIZE_)
+            Fernanda::Zip::readEntry(
+                archive,
+                u"a.txt"_s,
+                Qt::CaseSensitive,
+                ANY_SIZE_)
                 .value_or(QByteArray{}),
             QByteArray("first"));
         QCOMPARE(f.names(), QStringList({ u"a.txt"_s, u"a.zip"_s }));
@@ -253,11 +299,19 @@ private slots:
                 { f.entry(u"ten.txt"_s, u"ten.txt"_s) }));
 
         QCOMPARE(
-            Fernanda::Zip::readEntry(archive, u"ten.txt"_s, 10)
+            Fernanda::Zip::readEntry(
+                archive,
+                u"ten.txt"_s,
+                Qt::CaseSensitive,
+                10)
                 .value_or(QByteArray{}),
             QByteArray("0123456789"));
-        QVERIFY(
-            !Fernanda::Zip::readEntry(archive, u"ten.txt"_s, 9).has_value());
+        QVERIFY(!Fernanda::Zip::readEntry(
+                     archive,
+                     u"ten.txt"_s,
+                     Qt::CaseSensitive,
+                     9)
+                     .has_value());
     }
 };
 
