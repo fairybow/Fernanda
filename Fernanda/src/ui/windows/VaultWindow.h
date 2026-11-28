@@ -102,15 +102,18 @@ public:
     // null when there is no Common Vault, and is the window's own Vault in the
     // Common Vault's own window. It can change later (setCommonVault).
     // vaultsProvider is App's vaultEntries(), passed straight to the Sidebar's
-    // switcher. appActions are App's own actions: the base adopts them, and
-    // this window hands the set on to every pop-out it makes. spellCheckers is
-    // App's too, and is where each text view's dictionary comes from. So are
-    // updater and translations, which the settings dialog's General page shows
+    // switcher. importFolder is where App keeps Import's starting folder,
+    // shared with the Sidebar's trees. appActions are App's own actions: the
+    // base adopts them, and this window hands the set on to every pop-out it
+    // makes. spellCheckers is App's too, and is where each text view's
+    // dictionary comes from. So are updater and translations, which the
+    // settings dialog's General page shows
     VaultWindow(
         Vault* borrowedVault,
         Vault* commonVault,
         BufferStore* bufferStore,
         std::function<QList<VaultEntry>()> vaultsProvider,
+        const ImportFolder& importFolder,
         const AppActions& appActions,
         SpellCheckers* spellCheckers,
         Updater* updater,
@@ -120,6 +123,7 @@ public:
         , commonVault_(commonVault)
         , bufferStore_(bufferStore)
         , vaultsProvider_(std::move(vaultsProvider))
+        , importFolder_(importFolder)
         , appActions_(appActions)
         , spellCheckers_(spellCheckers)
         , updater_(updater)
@@ -279,6 +283,10 @@ private:
     // "other vaults" menu. Held so setup_ can pass it on
     std::function<QList<VaultEntry>()> vaultsProvider_;
 
+    // App's, for File > Import, and held so setup_ can pass it on to the
+    // Sidebar for the trees' Import
+    ImportFolder importFolder_{};
+
     // App's actions, held only to hand on to pop-outs — the base already
     // adopted them for this window. Not owned here; App outlives every window
     AppActions appActions_{};
@@ -358,6 +366,7 @@ private:
             focusTimer_,
             gitRepository_,
             vaultsProvider_,
+            importFolder_,
             this);
 
         connect(
@@ -1036,7 +1045,7 @@ private:
     // shows the last
     void onImportRequested_()
     {
-        auto keys = importFiles(this, vault_, vault_->rootKey());
+        auto keys = importFiles(this, vault_, vault_->rootKey(), importFolder_);
 
         if (keys.isEmpty()) {
             return;

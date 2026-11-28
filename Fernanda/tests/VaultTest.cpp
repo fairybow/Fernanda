@@ -16,6 +16,7 @@
 #include <QByteArray>
 #include <QDir>
 #include <QFile>
+#include <QFileDevice>
 #include <QFileInfo>
 #include <QIODevice>
 #include <QList>
@@ -497,6 +498,34 @@ private slots:
         QVERIFY(QDir(target.path())
                     .entryList(QDir::AllEntries | QDir::NoDotAndDotDot)
                     .isEmpty());
+    }
+
+    // A read-only source (from a disc, or marked read-only) gives a copy that
+    // can be saved over once edited
+    void copyOfAReadOnlyFileIsWritable()
+    {
+        Fixture_ f{};
+        QTemporaryDir elsewhere{};
+        auto source = writeOutside_(elsewhere, u"Locked.txt"_s, "a");
+        auto source_string = source.toQString();
+
+        QVERIFY(
+            QFile::setPermissions(
+                source_string,
+                QFileDevice::ReadOwner | QFileDevice::ReadGroup |
+                    QFileDevice::ReadOther));
+
+        auto key = f.vault.copyFile(f.rootKey(), source);
+
+        QVERIFY(
+            QFile::setPermissions(
+                source_string,
+                QFileDevice::ReadOwner | QFileDevice::WriteOwner));
+
+        QCOMPARE(key, f.key(u"Locked.txt"_s));
+        QVERIFY(
+            QFile::permissions(key.path().toQString()) &
+            QFileDevice::WriteOwner);
     }
 
     void copyOfAMissingFileFails()

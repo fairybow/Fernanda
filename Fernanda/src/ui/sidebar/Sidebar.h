@@ -96,12 +96,14 @@ public:
         FocusTimer* focusTimer,
         GitRepository* gitRepository,
         std::function<QList<VaultEntry>()> vaultsProvider,
+        const ImportFolder& importFolder,
         QWidget* parentVaultWindow)
         : QWidget(parentVaultWindow)
         , vault_(vault)
         , commonVault_(commonVault)
         , gitRepository_(gitRepository)
         , vaultsProvider_(std::move(vaultsProvider))
+        , importFolder_(importFolder)
     {
         setup_(actions, focusTimer);
     }
@@ -162,6 +164,9 @@ private:
     Vault* commonVault_ = nullptr;
     GitRepository* gitRepository_ = nullptr;
     std::function<QList<VaultEntry>()> vaultsProvider_;
+
+    // App's, from the window: where every tree's Import starts
+    ImportFolder importFolder_{};
 
     SidebarPages* pages_ = new SidebarPages(this);
     QSplitter* splitter_ = new QSplitter(Qt::Vertical, this);
@@ -485,7 +490,11 @@ private:
             &VaultFileTree::importRequested,
             this,
             [this, vault, tree](const Coco::Path& absoluteDir) {
-                auto keys = importFiles(this, vault, PathKey::of(absoluteDir));
+                auto keys = importFiles(
+                    this,
+                    vault,
+                    PathKey::of(absoluteDir),
+                    importFolder_);
 
                 if (keys.isEmpty()) {
                     return;

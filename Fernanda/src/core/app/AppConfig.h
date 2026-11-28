@@ -93,14 +93,26 @@ public:
     }
 
     // The starting directory for the create/open flow — the last place a vault
-    // was created from or opened at. Unset ⇒ AppDirs::defaultDocs()
+    // was created from or opened at. Unset, or no longer a folder, ⇒
+    // AppDirs::defaultDocs(), as importMruDir falls back
     [[nodiscard]] Coco::Path newVaultMruDir() const
     {
-        return newVaultMruDir_.isEmpty() ? AppDirs::defaultDocs()
-                                         : newVaultMruDir_;
+        return newVaultMruDir_.isDir() ? newVaultMruDir_
+                                       : AppDirs::defaultDocs();
     }
 
     void setNewVaultMruDir(const Coco::Path& dir) { newVaultMruDir_ = dir; }
+
+    // The starting directory for Import's file dialog — the folder files were
+    // last chosen from. Unset, or no longer a folder (a drive since removed),
+    // ⇒ the user's Documents folder: a dialog given a folder that isn't there
+    // opens in the working directory, which is beside the executable
+    [[nodiscard]] Coco::Path importMruDir() const
+    {
+        return importMruDir_.isDir() ? importMruDir_ : Coco::Path::Documents();
+    }
+
+    void setImportMruDir(const Coco::Path& dir) { importMruDir_ = dir; }
 
     // Whether Fernanda checks for updates on its own (Updater). Absent from
     // fernanda.json, it follows the install (installChecksForUpdates_): on, as
@@ -284,6 +296,7 @@ public:
         }
 
         assignPath_(root, u"newVaultMruDir"_s, newVaultMruDir_);
+        assignPath_(root, u"importMruDir"_s, importMruDir_);
 
         installChecksForUpdates_ = readInstallChecksForUpdates_();
         checksForUpdates_ =
@@ -316,6 +329,10 @@ public:
 
         if (!newVaultMruDir_.isEmpty()) {
             root[u"newVaultMruDir"_s] = newVaultMruDir_.prettyQString();
+        }
+
+        if (!importMruDir_.isEmpty()) {
+            root[u"importMruDir"_s] = importMruDir_.prettyQString();
         }
 
         if (checksForUpdates_ != installChecksForUpdates_) {
@@ -358,6 +375,9 @@ private:
 
     // Empty == unset; the getter substitutes the AppDirs default
     Coco::Path newVaultMruDir_{};
+
+    // Empty == unset; the getter substitutes the Documents folder
+    Coco::Path importMruDir_{};
 
     // Written only when it differs from the install's default. An unwritten
     // value follows that default, including one a later install changes

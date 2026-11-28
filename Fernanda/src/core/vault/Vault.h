@@ -19,6 +19,8 @@
 
 #include <QByteArray>
 #include <QCryptographicHash>
+#include <QFile>
+#include <QFileDevice>
 #include <QJsonObject>
 #include <QList>
 #include <QMessageAuthenticationCode>
@@ -194,7 +196,8 @@ public:
     // kept as it is, letter case included. A taken name gets a number, and the
     // stem is made visible first (visibleStem_). Only a type Fernanda opens is
     // copied, so nothing lands in the vault that the trees would hide. A file
-    // already in the vault is copied like any other, with its unsaved text
+    // already in the vault is copied like any other, with its unsaved text.
+    // The copy is writable, even when the source isn't
     PathKey copyFile(const PathKey& dir, const Coco::Path& source)
     {
         if (!contains(dir)) {
@@ -226,6 +229,20 @@ public:
         if (!Coco::copy(source, absolute)) {
             WARN("Failed to copy {} to {}!", source, absolute);
             return {};
+        }
+
+        // QFile::copy copies permissions, and on Windows the read-only
+        // attribute, so a copy of a locked file (from a disc, or marked
+        // read-only) couldn't be saved over once edited. The copy is the
+        // vault's own file, so it's made writable. A failure leaves the copy,
+        // which did succeed, as it is
+        auto absolute_string = absolute.toQString();
+
+        if (!QFile::setPermissions(
+                absolute_string,
+                QFile::permissions(absolute_string) |
+                    QFileDevice::WriteOwner)) {
+            WARN("Failed to make the copy at {} writable!", absolute);
         }
 
         treeModel_->applyAddition(absolute);

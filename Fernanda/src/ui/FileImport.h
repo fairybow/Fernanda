@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include <functional>
+
 #include <QCoreApplication>
 #include <QList>
 #include <QMessageBox>
@@ -33,6 +35,16 @@
 namespace Fernanda::Ui {
 
 using namespace Qt::StringLiterals;
+
+// Where Import's file dialog starts, and where it reports the files were
+// chosen from. App's (AppConfig::importMruDir), handed down to every window
+// that imports, so each import starts where the last one in any window left
+// off
+struct ImportFolder
+{
+    std::function<Coco::Path()> get{};
+    std::function<void(const Coco::Path&)> set{};
+};
 
 namespace Internal {
 
@@ -187,22 +199,31 @@ importOne_(Vault* vault, const PathKey& dir, const Coco::Path& path)
 
 } // namespace Internal
 
-// Asks for files to import, over parent, and imports each into dir as the
-// type its extension names (ImportTypes): a converted type's text becomes a
-// .txt file named for it, and a type Fernanda opens is copied in unchanged.
-// One of neither type, chosen by typing its name, isn't touched. A file that
-// fails leaves nothing in the vault, and every file that fails is listed in
-// one warning, each with its reason. Returns the keys of the files made, in
-// the order chosen: empty when the dialog is cancelled or nothing imports.
-// What to open or show afterward is the caller's
-inline QList<PathKey>
-importFiles(QWidget* parent, Vault* vault, const PathKey& dir)
+// Asks for files to import, over parent, starting in importFolder's folder,
+// and imports each into dir as the type its extension names (ImportTypes): a
+// converted type's text becomes a .txt file named for it, and a type Fernanda
+// opens is copied in unchanged. One of neither type, chosen by typing its
+// name, isn't touched. A file that fails leaves nothing in the vault, and
+// every file that fails is listed in one warning, each with its reason. The
+// folder the files were chosen from goes to importFolder, whether or not they
+// import. Returns the keys of the files made, in the order chosen: empty when
+// the dialog is cancelled or nothing imports. What to open or show afterward
+// is the caller's
+inline QList<PathKey> importFiles(
+    QWidget* parent,
+    Vault* vault,
+    const PathKey& dir,
+    const ImportFolder& importFolder)
 {
     auto paths = Coco::getFiles(
         parent,
         QCoreApplication::translate("FileImport", "Import"),
-        Coco::Path{},
+        importFolder.get(),
         Internal::importFilter_());
+
+    if (!paths.isEmpty()) {
+        importFolder.set(paths.first().parent());
+    }
 
     QList<PathKey> imported{};
     QStringList failures{};
