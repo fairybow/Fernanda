@@ -194,7 +194,7 @@ public:
     // kept as it is, letter case included. A taken name gets a number, and the
     // stem is made visible first (visibleStem_). Only a type Fernanda opens is
     // copied, so nothing lands in the vault that the trees would hide. A file
-    // already in the vault is copied like any other
+    // already in the vault is copied like any other, with its unsaved text
     PathKey copyFile(const PathKey& dir, const Coco::Path& source)
     {
         if (!contains(dir)) {
@@ -204,6 +204,15 @@ public:
 
         if (!FileTypes::isSupported(source)) {
             WARN("Can't copy {}: not a type Fernanda opens!", source);
+            return {};
+        }
+
+        // The copy is read from disk, so an open buffer of the source is
+        // written first, in whichever vault it's open. If that write fails,
+        // the copy is refused rather than made from older text than the
+        // window shows. A source no buffer holds has nothing to write
+        if (!bufferStore_->flushAtOrUnder(PathKey::of(source))) {
+            WARN("Copy refused — {} couldn't be saved first!", source);
             return {};
         }
 

@@ -446,6 +446,24 @@ private slots:
         QCOMPARE(f.read(u"Notes 1.md"_s), QByteArray("a"));
     }
 
+    // An open file's typing that autosave hasn't reached yet is saved first,
+    // so the copy holds the text the window shows, and so does the original
+    void copyOfAnOpenFileHoldsItsUnsavedTyping()
+    {
+        Fixture_ f{};
+        f.write(u"Notes.md"_s, "hello");
+        auto* model = f.open(u"Notes.md"_s);
+        QVERIFY(model);
+        type_(model, u"!"_s);
+
+        QCOMPARE(
+            f.vault.copyFile(f.rootKey(), f.absolute(u"Notes.md"_s)),
+            f.key(u"Notes 1.md"_s));
+        QCOMPARE(f.read(u"Notes 1.md"_s), QByteArray("hello!"));
+        QCOMPARE(f.read(u"Notes.md"_s), QByteArray("hello!"));
+        QVERIFY(!model->isModified());
+    }
+
     // Nothing lands in the vault that the trees would hide
     void copyOfAnUnsupportedTypeIsRefused()
     {
