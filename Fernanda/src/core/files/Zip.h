@@ -23,6 +23,7 @@
 #include <QIODevice>
 #include <QList>
 #include <QSaveFile>
+#include <QSet>
 #include <QString>
 #include <QtTypes>
 
@@ -45,6 +46,36 @@ struct Entry
     Coco::Path source{};
     QString name{};
 };
+
+// Is the name one an entry may take? Relative, "/" between folders, and no
+// empty, "." or ".." part, so it can't point outside the folder an archive is
+// unpacked into. Nor can it begin with a drive letter ("C:x", "C:/x"), which
+// Windows reads as a path on that drive. A colon anywhere else is allowed,
+// since macOS and Linux file names may hold one
+[[nodiscard]] inline bool isEntryName(const QString& name)
+{
+    if (name.isEmpty() || name.contains(u'\\')) {
+        return false;
+    }
+
+    if (name.size() >= 2 && name.at(1) == u':') {
+        auto first = name.at(0).unicode();
+        auto is_drive_letter = (first >= u'a' && first <= u'z') ||
+                               (first >= u'A' && first <= u'Z');
+
+        if (is_drive_letter) {
+            return false;
+        }
+    }
+
+    for (const auto& part : name.split(u'/')) {
+        if (part.isEmpty() || part == u"." || part == u"..") {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 namespace Internal {
 
@@ -89,27 +120,10 @@ inline std::size_t writeToDevice_(
         mz_zip_get_error_string(mz_zip_get_last_error(&zip)));
 }
 
-// Relative, "/" between folders, and no empty, "." or ".." part, so no name
-// can point outside the folder an archive is unpacked into
-[[nodiscard]] inline bool isEntryName_(const QString& name)
-{
-    if (name.isEmpty() || name.contains(u'\\')) {
-        return false;
-    }
-
-    for (const auto& part : name.split(u'/')) {
-        if (part.isEmpty() || part == u"." || part == u"..") {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 // An entry keeps its file's modification time, to the second
 [[nodiscard]] inline bool addEntry_(mz_zip_archive& zip, const Entry& entry)
 {
-    if (!isEntryName_(entry.name)) {
+    if (!isEntryName(entry.name)) {
         ASSERT(false, "Invalid zip entry name: {}!", entry.name);
         WARN("Invalid zip entry name: {}!", entry.name);
         return false;
@@ -152,10 +166,23 @@ inline std::size_t writeToDevice_(
     return true;
 }
 
+// A name used twice is refused, since miniz would write both entries and a
+// reader finds only one. Names are matched exactly: two that differ only in
+// letter case are two files on macOS and Linux
 [[nodiscard]] inline bool
 addEntries_(mz_zip_archive& zip, const QList<Entry>& entries)
 {
+    QSet<QString> names{};
+
     for (const auto& entry : entries) {
+        if (names.contains(entry.name)) {
+            ASSERT(false, "Zip entry name used twice: {}!", entry.name);
+            WARN("Zip entry name used twice: {}!", entry.name);
+            return false;
+        }
+
+        names.insert(entry.name);
+
         if (!addEntry_(zip, entry)) {
             return false;
         }
@@ -231,8 +258,9 @@ extract_(mz_zip_archive& zip, const QString& name, qint64 maxSize)
 } // namespace Internal
 
 // Writes the entries, in order, to a new archive at the path, replacing any
-// archive there. All or nothing: if any entry fails, nothing is written and an
-// existing archive is left as it was. The archive's folder must exist
+// archive there. Each name must pass isEntryName and be used once. All or
+// nothing: if any entry fails, nothing is written and an existing archive is
+// left as it was. The archive's folder must exist
 inline bool write(const Coco::Path& archive, const QList<Entry>& entries)
 {
     if (archive.isEmpty()) {

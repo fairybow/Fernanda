@@ -31,9 +31,9 @@
 using namespace Qt::StringLiterals;
 
 // Zip archives (core/files/Zip.h): what's written reads back, names match
-// exactly, a failed write leaves the old archive alone, and an entry over the
-// reader's limit isn't decompressed. Each test works in its own temporary
-// folder.
+// exactly, no entry name can point outside an archive's folder, a failed write
+// leaves the old archive alone, and an entry over the reader's limit isn't
+// decompressed. Each test works in its own temporary folder.
 //
 // Qt Test runs every private slot as a test
 class ZipTest : public QObject
@@ -161,6 +161,40 @@ private slots:
 
         QVERIFY(!Fernanda::Zip::readEntry(archive, u"A.txt"_s, ANY_SIZE_)
                      .has_value());
+    }
+
+    void entryNamesStayInsideTheFolder_data()
+    {
+        QTest::addColumn<QString>("name");
+        QTest::addColumn<bool>("allowed");
+
+        QTest::newRow("file") << u"a.txt"_s << true;
+        QTest::newRow("file in a folder") << u"notes/a.txt"_s << true;
+        QTest::newRow("colon inside a name") << u"Act 1: End.txt"_s << true;
+        QTest::newRow("drive-like part after the first")
+            << u"notes/C:x.txt"_s << true;
+        QTest::newRow("digit before a colon") << u"1:x.txt"_s << true;
+
+        QTest::newRow("empty") << QString{} << false;
+        QTest::newRow("leading slash") << u"/a.txt"_s << false;
+        QTest::newRow("backslash") << u"notes\\a.txt"_s << false;
+        QTest::newRow("empty part") << u"notes//a.txt"_s << false;
+        QTest::newRow("trailing slash") << u"notes/"_s << false;
+        QTest::newRow("dot part") << u"./a.txt"_s << false;
+        QTest::newRow("leading dot-dot") << u"../a.txt"_s << false;
+        QTest::newRow("inner dot-dot") << u"notes/../a.txt"_s << false;
+        QTest::newRow("drive-relative") << u"C:x.txt"_s << false;
+        QTest::newRow("drive-absolute") << u"C:/x.txt"_s << false;
+        QTest::newRow("lowercase drive") << u"c:x.txt"_s << false;
+        QTest::newRow("bare drive") << u"C:"_s << false;
+    }
+
+    void entryNamesStayInsideTheFolder()
+    {
+        QFETCH(QString, name);
+        QFETCH(bool, allowed);
+
+        QCOMPARE(Fernanda::Zip::isEntryName(name), allowed);
     }
 
     void aFileThatIsntAZipReadsAsNothing()
