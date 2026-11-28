@@ -5,6 +5,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 ## Current (sort later)
 
+- [ ] Would it be possible/good to store pinned tabs and all session data at relative paths, so a changed vault folder (or higher parent) still works with current dot fernanda folder JSONs?
 - [x] Update MS Store description and ensure doc aligns
 - [x] Ensure website is linked in MS Store over GitHub (maybe)
 - [x] Add writing history to README, MS Store, and webpage
