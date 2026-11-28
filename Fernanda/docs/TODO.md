@@ -155,6 +155,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [x] A Word paragraph whose mark was a deleted tracked change came in as its own line: a paragraph deleted whole left an empty line, and two joined by deleting the break between them stayed apart. It now joins the next paragraph, as accepting the change does
 - [x] Ruby in a Word document came in with its reading run into its base. It's now written in Aozora Bunko's notation
 - [x] Importing a file that was open with typing not yet autosaved copied the older text on disk. `Vault::copyFile` now saves the file first, and refuses the copy if that save fails
+- [x] A Word field hidden only in part lost track of where it ended: a hidden run was skipped whole, field marks included, so a field whose separate and end marks were hidden stayed open in its instruction and the rest of the document came in empty, and a hidden begin inside another field's instruction showed part of that instruction. A hidden run's field marks are now still read, and only its text is left out
 - [x] Settings sliders whose ranges differed in digits (1 to 60 and 1 to 120) were different lengths, since each readout was as wide as its own largest number. Every readout now makes room for three digits (`DISPLAY_SLIDER_READOUT_DIGITS`)
 
 ## Before release
