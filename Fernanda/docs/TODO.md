@@ -143,7 +143,11 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] A web address or a file path is spellchecked piece by piece, so "github" and "com" are marked
 - [ ] Unverified: text in decomposed Unicode form (a letter followed by a separate combining accent) is probably marked as misspelled against a dictionary that stores the single-character form. If so, normalize a word before it is checked
 - [ ] A Word document's parts are found by their exact letter case (`Zip::readEntry` matches case), though the Open Packaging Conventions compare part names without it. A document whose relationships name `word/document.xml` but whose zip holds `word/Document.xml` fails as not a Word document. Word itself always matches the case; some other programs may not. Fix if a real file turns up
-- [ ] The Word reader (`Docx.h`) recurses once per level of XML nesting, and `QXmlStreamReader` sets no depth limit, so a document crafted with tens of thousands of nested elements could overflow the stack. Real documents nest a few dozen levels. A depth limit in `readInline_` and `readBlocks_` would refuse one as damaged
+- [ ] The Word reader (`Docx.h`) recurses for each level of XML nesting (`readInline_` and `readInlineElement_`, two calls a level), and `QXmlStreamReader` sets no depth limit, so a document crafted with tens of thousands of nested elements could overflow the stack. Real documents nest a few dozen levels. A depth limit in `readInlineElement_` would refuse one as damaged
+- [ ] A table row deleted as a tracked change (`w:trPr` holding `w:del`) still comes in from a Word document, though accepting the change in Word removes the row. The row's properties come first in the row, so it can be judged and skipped as a paragraph's deleted mark is
+- [x] A Word paragraph whose mark was a deleted tracked change came in as its own line: a paragraph deleted whole left an empty line, and two joined by deleting the break between them stayed apart. It now joins the next paragraph, as accepting the change does
+- [x] Ruby in a Word document came in with its reading run into its base. It's now written in Aozora Bunko's notation
+- [x] Importing a file that was open with typing not yet autosaved copied the older text on disk. `Vault::copyFile` now saves the file first, and refuses the copy if that save fails
 - [x] Settings sliders whose ranges differed in digits (1 to 60 and 1 to 120) were different lengths, since each readout was as wide as its own largest number. Every readout now makes room for three digits (`DISPLAY_SLIDER_READOUT_DIGITS`)
 
 ## Before release
@@ -232,6 +236,7 @@ Run it once on each platform: on Windows signing in through Git Credential Manag
 ## Code
 
 - [x] `DocxTest.cpp` was never registered in `tests/CMakeLists.txt`, so neither CI nor CTest built or ran it. It's registered now
+- [x] `Zip::write` let a name start with a drive letter (`C:x`), which an unpack on Windows would read as a path on that drive, and let two entries share a name. `Zip::isEntryName` refuses the first, and the write refuses the second
 - [x] `GitRepository`'s class comment had lines broken short. Rewrapped
 - [x] Cleanup from the Git review: the six operation-step kinds in `GitRepository` are one, the toggle action is `repository.togglePage`, unused `using` lines are gone, the Git constants sit under their comments, and paths aren't written to a `git` that failed to start
 - [x] Remove the unused `GitBranchPlus` and `GitPullRequestArrow` icons from `Lucide.qrc` and `resources/lucide/`
